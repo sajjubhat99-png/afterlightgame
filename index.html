@@ -1,166 +1,220 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>AFTERLIGHT</title>
 
 <style>
-*{box-sizing:border-box}
+*{
+    box-sizing:border-box;
+}
+
 body{
-margin:0;
-font-family:Arial,sans-serif;
-background:#05070d;
-color:#fff;
-min-height:100vh;
+    margin:0;
+    font-family:Arial, sans-serif;
+    background:#05070d;
+    color:white;
+    min-height:100vh;
 }
+
 button{
-border:0;
-border-radius:10px;
-padding:12px 16px;
-font-weight:bold;
-cursor:pointer;
-background:#5b5cff;
-color:white;
+    border:0;
+    border-radius:10px;
+    padding:12px 16px;
+    font-weight:bold;
+    cursor:pointer;
+    background:#5b5cff;
+    color:white;
+    margin:4px;
 }
-button:hover{opacity:.85}
+
+button:hover{
+    opacity:.85;
+}
+
 header{
-padding:18px;
-background:linear-gradient(90deg,#0b1020,#11152b);
-border-bottom:1px solid #292e55;
-display:flex;
-justify-content:space-between;
-align-items:center;
+    padding:18px;
+    background:linear-gradient(90deg,#0b1020,#11152b);
+    border-bottom:1px solid #292e55;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:15px;
 }
+
 .logo{
-font-size:25px;
-font-weight:900;
-letter-spacing:4px;
-color:#8b8cff;
+    font-size:25px;
+    font-weight:900;
+    letter-spacing:4px;
+    color:#8b8cff;
 }
+
 .tag{
-font-size:11px;
-color:#9298b5;
+    font-size:11px;
+    color:#9298b5;
 }
+
 .hud{
-display:flex;
-gap:8px;
-flex-wrap:wrap;
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
 }
+
 .stat{
-background:#10152a;
-border:1px solid #282e51;
-padding:8px 11px;
-border-radius:9px;
-font-size:12px;
+    background:#10152a;
+    border:1px solid #282e51;
+    padding:8px 11px;
+    border-radius:9px;
+    font-size:12px;
 }
+
 main{
-padding:18px;
-max-width:1100px;
-margin:auto;
+    padding:18px;
+    max-width:1100px;
+    margin:auto;
 }
+
 .hero{
-padding:30px 20px;
-border-radius:18px;
-background:
-radial-gradient(circle at 70% 30%,#3438a055,transparent 35%),
-linear-gradient(135deg,#10162d,#080b15);
-border:1px solid #30375f;
-margin-bottom:18px;
+    padding:35px 22px;
+    border-radius:18px;
+    background:
+        radial-gradient(circle at 70% 30%,#3438a055,transparent 35%),
+        linear-gradient(135deg,#10162d,#080b15);
+    border:1px solid #30375f;
+    margin-bottom:18px;
 }
+
 .hero h1{
-font-size:42px;
-margin:0 0 8px;
-letter-spacing:5px;
+    font-size:42px;
+    margin:0 0 8px;
+    letter-spacing:5px;
 }
-.hero p{color:#aeb5d2}
+
+.hero p{
+    color:#aeb5d2;
+}
+
 .grid{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-gap:14px;
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:14px;
 }
+
 .card{
-background:#0c1020;
-border:1px solid #292f52;
-border-radius:15px;
-padding:18px;
+    background:#0c1020;
+    border:1px solid #292f52;
+    border-radius:15px;
+    padding:18px;
 }
-.card h3{margin-top:0}
+
+.card h3{
+    margin-top:0;
+}
+
 .card p{
-color:#a5abc5;
-font-size:14px;
-line-height:1.5;
+    color:#a5abc5;
+    font-size:14px;
+    line-height:1.5;
 }
+
 .players{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(130px,1fr));
-gap:9px;
-margin-top:10px;
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(130px,1fr));
+    gap:9px;
+    margin-top:10px;
 }
+
 .player{
-padding:12px;
-background:#11162a;
-border:1px solid #292f52;
-border-radius:10px;
-font-size:13px;
+    padding:12px;
+    background:#11162a;
+    border:1px solid #292f52;
+    border-radius:10px;
+    font-size:13px;
 }
+
 .player.me{
-border-color:#7778ff;
-background:#171943;
+    border-color:#7778ff;
+    background:#171943;
 }
+
 .actions{
-display:flex;
-gap:8px;
-flex-wrap:wrap;
-margin-top:12px;
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+    margin-top:12px;
 }
+
 .log{
-background:#05070d;
-border-radius:10px;
-padding:12px;
-height:150px;
-overflow:auto;
-font-size:12px;
-color:#9fa7c6;
+    background:#05070d;
+    border-radius:10px;
+    padding:12px;
+    height:170px;
+    overflow:auto;
+    font-size:12px;
+    color:#9fa7c6;
 }
+
 .modal{
-position:fixed;
-inset:0;
-background:#000b;
-display:none;
-align-items:center;
-justify-content:center;
-padding:20px;
-z-index:10;
+    position:fixed;
+    inset:0;
+    background:#000b;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    z-index:10;
 }
+
 .modalbox{
-max-width:500px;
-width:100%;
-background:#10152a;
-border:1px solid #555cff;
-border-radius:18px;
-padding:22px;
-box-shadow:0 0 50px #000;
+    max-width:500px;
+    width:100%;
+    background:#10152a;
+    border:1px solid #555cff;
+    border-radius:18px;
+    padding:22px;
+    box-shadow:0 0 50px #000;
 }
-.modalbox h2{margin-top:0}
+
+.modalbox h2{
+    margin-top:0;
+}
+
 .choice{
-display:block;
-width:100%;
-margin:9px 0;
-text-align:left;
-background:#171d38;
-border:1px solid #30375f;
+    display:block;
+    width:100%;
+    margin:9px 0;
+    text-align:left;
+    background:#171d38;
+    border:1px solid #30375f;
 }
+
+.close{
+    background:#33384f;
+}
+
 footer{
-text-align:center;
-padding:30px;
-color:#626985;
-font-size:12px;
+    text-align:center;
+    padding:30px;
+    color:#626985;
+    font-size:12px;
 }
+
 @media(max-width:600px){
-.hero h1{font-size:30px}
-header{align-items:flex-start;gap:10px;flex-direction:column}
+
+    .hero h1{
+        font-size:30px;
+    }
+
+    header{
+        align-items:flex-start;
+        flex-direction:column;
+    }
+
+    .hud{
+        width:100%;
+    }
 }
 </style>
 </head>
@@ -168,132 +222,951 @@ header{align-items:flex-start;gap:10px;flex-direction:column}
 <body>
 
 <header>
+
 <div>
-<div class="logo">AFTERLIGHT</div>
-<div class="tag">THE CHALLENGE IS ONLY HALF THE GAME.</div>
+    <div class="logo">AFTERLIGHT</div>
+    <div class="tag">
+        THE CHALLENGE IS ONLY HALF THE GAME.
+    </div>
 </div>
 
 <div class="hud">
-<div class="stat">💳 Credits: <b id="credits">500</b></div>
-<div class="stat">⭐ Influence: <b id="influence">10</b></div>
-<div class="stat">🤝 Trust: <b id="trust">50</b></div>
-<div class="stat">⚡ Energy: <b id="energy">100</b></div>
+
+<div class="stat">
+💳 Credits:
+<b id="credits">500</b>
 </div>
+
+<div class="stat">
+⭐ Influence:
+<b id="influence">10</b>
+</div>
+
+<div class="stat">
+🤝 Trust:
+<b id="trust">50</b>
+</div>
+
+<div class="stat">
+⚡ Energy:
+<b id="energy">100</b>
+</div>
+
+</div>
+
 </header>
+
 
 <main>
 
 <section class="hero">
+
 <h1>WELCOME TO AFTERLIGHT</h1>
+
 <p>
-16 competitors. One winner. Every decision changes what happens next.
+16 competitors. One winner.
+Every decision changes what happens next.
 </p>
 
 <div class="actions">
-<button onclick="openModal('challenge')">ENTER CHALLENGE</button>
-<button onclick="openModal('social')">SOCIAL PHASE</button>
-<button onclick="openModal('store')">POWER STORE</button>
+
+<button onclick="openModal('challenge')">
+⚡ ENTER CHALLENGE
+</button>
+
+<button onclick="openModal('social')">
+🤝 SOCIAL PHASE
+</button>
+
+<button onclick="openModal('store')">
+⚡ POWER STORE
+</button>
+
 </div>
+
 </section>
+
 
 <div class="grid">
 
-<div class="card">
-<h3>🏢 Facility</h3>
-<p>
-Explore the futuristic facility, meet competitors, form alliances,
-trade resources and discover hidden information.
-</p>
-<button onclick="facilityEvent()">Explore</button>
-</div>
 
 <div class="card">
+
+<h3>🏢 Facility</h3>
+
+<p>
+Explore the futuristic facility, meet competitors,
+form alliances, trade resources and discover hidden information.
+</p>
+
+<button onclick="facilityEvent()">
+Explore Facility
+</button>
+
+</div>
+
+
+<div class="card">
+
 <h3>🕵️ Secret Mission</h3>
+
 <p id="mission">
 Your secret objective is waiting.
 </p>
-<button onclick="mission()">Reveal Mission</button>
+
+<button onclick="mission()">
+Reveal Mission
+</button>
+
 </div>
 
+
 <div class="card">
+
 <h3>🌌 Parallel World</h3>
+
 <p>
 Enter a strange version of AFTERLIGHT and discover possible future events.
 </p>
-<button onclick="parallel()">Enter</button>
+
+<button onclick="parallel()">
+Enter
+</button>
+
 </div>
+
 
 <div class="card">
+
 <h3>⚡ Unknown Architect</h3>
+
 <p>
 Someone is secretly manipulating the game.
+Investigate the clues.
 </p>
-<button onclick="architect()">Investigate</button>
-</div>
+
+<button onclick="architect()">
+Investigate
+</button>
 
 </div>
+
+
+</div>
+
 
 <div class="card" style="margin-top:18px">
+
 <h3>👥 Competitors — 16</h3>
 
 <div class="players" id="players"></div>
 
 <div class="actions">
-<button onclick="trade()">Trade</button>
-<button onclick="pact()">Secret Pact</button>
-<button onclick="vote()">Vote</button>
-</div>
+
+<button onclick="trade()">
+💱 Trade
+</button>
+
+<button onclick="pact()">
+🤝 Secret Pact
+</button>
+
+<button onclick="vote()">
+🗳️ Vote
+</button>
+
 </div>
 
-<div class="card" style="margin-top:18px">
-<h3>📡 AFTERLIGHT Log</h3>
-<div class="log" id="log">
-> System online.<br>
-> 16 competitors connected.<br>
-> Welcome to AFTERLIGHT.
 </div>
+
+
+<div class="card" style="margin-top:18px">
+
+<h3>📡 AFTERLIGHT Log</h3>
+
+<div class="log" id="log">
+
+&gt; System online.<br>
+&gt; 16 competitors connected.<br>
+&gt; Welcome to AFTERLIGHT.
+
+</div>
+
 </div>
 
 </main>
 
+
 <footer>
-AFTERLIGHT © 2060 — Your decisions create your consequences.
+
+AFTERLIGHT © 2060 —
+Your decisions create your consequences.
+
 </footer>
 
+
+<!-- MODAL -->
+
 <div class="modal" id="modal">
+
 <div class="modalbox">
-<h2 id="modalTitle">AFTERLIGHT</h2>
+
+<h2 id="modalTitle">
+AFTERLIGHT
+</h2>
+
 <div id="modalContent"></div>
-<button onclick="closeModal()">Close</button>
+
+<button class="close" onclick="closeModal()">
+Close
+</button>
+
 </div>
+
 </div>
+
 
 <script>
 
-let credits=500;
-let influence=10;
-let trust=50;
-let energy=100;
+/* =========================
+   GAME DATA
+========================= */
 
-const names=[
-"Alex","Nova","Kai","Luna",
-"Rex","Mira","Zane","Iris",
-"Leo","Aria","Max","Nia",
-"Ryan","Skye","Jax","You"
+let credits = 500;
+let influence = 10;
+let trust = 50;
+let energy = 100;
+
+const names = [
+    "Alex",
+    "Nova",
+    "Kai",
+    "Luna",
+    "Rex",
+    "Mira",
+    "Zane",
+    "Iris",
+    "Leo",
+    "Aria",
+    "Max",
+    "Nia",
+    "Ryan",
+    "Skye",
+    "Jax",
+    "YOU"
 ];
 
-const roles=[
-"Strategist","Ghost","Leader","Cipher",
-"Social Player","Observer","Champion","Tracker"
+const roles = [
+    "Strategist",
+    "Ghost",
+    "Leader",
+    "Cipher",
+    "Social Player",
+    "Observer",
+    "Champion",
+    "Tracker"
 ];
+
+
+/* =========================
+   UPDATE HUD
+========================= */
 
 function update(){
-document.getElementById("credits").textContent=credits;
-document.getElementById("influence").textContent=influence;
-document.getElementById("trust").textContent=trust;
-document.getElementById("energy").textContent=energy;
+
+    document.getElementById("credits").textContent = credits;
+
+    document.getElementById("influence").textContent = influence;
+
+    document.getElementById("trust").textContent = trust;
+
+    document.getElementById("energy").textContent = energy;
+
 }
 
-function log(text){
-let box=document.getElementById("log");
-box.innerHTML+="<
+
+/* =========================
+   GAME LOG
+========================= */
+
+function log(message){
+
+    const box = document.getElementById("log");
+
+    box.innerHTML += "<br>> " + message;
+
+    box.scrollTop = box.scrollHeight;
+
+}
+
+
+/* =========================
+   PLAYERS
+========================= */
+
+function renderPlayers(){
+
+    const box = document.getElementById("players");
+
+    box.innerHTML = "";
+
+    names.forEach(function(name,index){
+
+        const player = document.createElement("div");
+
+        player.className =
+            "player" +
+            (name === "YOU" ? " me" : "");
+
+        player.innerHTML =
+            "<b>" + name + "</b><br>" +
+            "<small>" +
+            roles[index % roles.length] +
+            "</small>";
+
+        box.appendChild(player);
+
+    });
+
+}
+
+
+/* =========================
+   MODAL
+========================= */
+
+function openModal(type){
+
+    const modal =
+        document.getElementById("modal");
+
+    const title =
+        document.getElementById("modalTitle");
+
+    const content =
+        document.getElementById("modalContent");
+
+
+    modal.style.display = "flex";
+
+
+    /* CHALLENGE */
+
+    if(type === "challenge"){
+
+        title.innerText =
+            "🌉 THE FLOATING BRIDGE";
+
+        content.innerHTML = `
+
+        <p>
+        The first challenge is beginning.
+        Choose your strategy carefully.
+        </p>
+
+        <button class="choice"
+        onclick="challenge('safe')">
+
+        🛡️ PLAY SAFE
+
+        </button>
+
+        <button class="choice"
+        onclick="challenge('risk')">
+
+        ⚡ TAKE THE RISK
+
+        </button>
+
+        <button class="choice"
+        onclick="challenge('observe')">
+
+        👁️ OBSERVE FIRST
+
+        </button>
+
+        `;
+
+    }
+
+
+    /* SOCIAL */
+
+    if(type === "social"){
+
+        title.innerText =
+            "🤝 SOCIAL PHASE";
+
+        content.innerHTML = `
+
+        <p>
+        The challenge is over.
+        Now your relationships matter.
+        </p>
+
+        <button class="choice"
+        onclick="socialAction('alliance')">
+
+        🤝 FORM ALLIANCE
+
+        </button>
+
+        <button class="choice"
+        onclick="socialAction('trade')">
+
+        💱 MAKE TRADE
+
+        </button>
+
+        <button class="choice"
+        onclick="socialAction('information')">
+
+        🕵️ GATHER INFORMATION
+
+        </button>
+
+        <button class="choice"
+        onclick="socialAction('betray')">
+
+        🗡️ BETRAY ALLIANCE
+
+        </button>
+
+        `;
+
+    }
+
+
+    /* STORE */
+
+    if(type === "store"){
+
+        title.innerText =
+            "⚡ POWER STORE";
+
+        content.innerHTML = `
+
+        <p>
+        Your Credits:
+        <b>${credits}</b>
+        </p>
+
+        <button class="choice"
+        onclick="buyPower('Power Ring',100)">
+
+        💍 Power Ring — 100 Credits
+
+        </button>
+
+        <button class="choice"
+        onclick="buyPower('Pulse Watch',150)">
+
+        ⌚ Pulse Watch — 150 Credits
+
+        </button>
+
+        <button class="choice"
+        onclick="buyPower('Gravity Shoes',200)">
+
+        👟 Gravity Shoes — 200 Credits
+
+        </button>
+
+        <button class="choice"
+        onclick="buyPower('Shield Band',250)">
+
+        🛡️ Shield Band — 250 Credits
+
+        </button>
+
+        <button class="choice"
+        onclick="buyPower('Oracle Lens',300)">
+
+        🔮 Oracle Lens — 300 Credits
+
+        </button>
+
+        `;
+
+    }
+
+}
+
+
+/* =========================
+   CLOSE MODAL
+========================= */
+
+function closeModal(){
+
+    document.getElementById("modal")
+    .style.display = "none";
+
+}
+
+
+/* =========================
+   CHALLENGE
+========================= */
+
+function challenge(type){
+
+    if(type === "safe"){
+
+        energy -= 10;
+
+        credits += 50;
+
+        log(
+            "You chose the safe route. +50 Credits."
+        );
+
+    }
+
+
+    if(type === "risk"){
+
+        energy -= 20;
+
+        influence += 5;
+
+        log(
+            "You took the risk. +5 Influence."
+        );
+
+    }
+
+
+    if(type === "observe"){
+
+        influence += 2;
+
+        trust += 2;
+
+        log(
+            "You observed the competitors. +2 Influence and +2 Trust."
+        );
+
+    }
+
+
+    if(energy < 0){
+        energy = 0;
+    }
+
+    update();
+
+    closeModal();
+
+}
+
+
+/* =========================
+   SOCIAL ACTIONS
+========================= */
+
+function socialAction(type){
+
+    if(type === "alliance"){
+
+        trust += 6;
+
+        influence += 2;
+
+        log(
+            "Alliance created. Trust +6."
+        );
+
+    }
+
+
+    if(type === "trade"){
+
+        credits += 75;
+
+        trust += 2;
+
+        log(
+            "Trade completed. +75 Credits."
+        );
+
+    }
+
+
+    if(type === "information"){
+
+        influence += 4;
+
+        energy -= 5;
+
+        log(
+            "You gathered information. +4 Influence."
+        );
+
+    }
+
+
+    if(type === "betray"){
+
+        trust -= 12;
+
+        influence += 6;
+
+        log(
+            "You betrayed an alliance. Influence +6, Trust -12."
+        );
+
+    }
+
+
+    if(trust < 0){
+        trust = 0;
+    }
+
+    if(energy < 0){
+        energy = 0;
+    }
+
+
+    update();
+
+    closeModal();
+
+}
+
+
+/* =========================
+   POWER STORE
+========================= */
+
+function buyPower(item,cost){
+
+    if(credits < cost){
+
+        log(
+            "Not enough Credits to buy " + item + "."
+        );
+
+        closeModal();
+
+        return;
+
+    }
+
+
+    credits -= cost;
+
+
+    if(item === "Power Ring"){
+
+        energy += 20;
+
+        if(energy > 100){
+            energy = 100;
+        }
+
+    }
+
+
+    if(item === "Pulse Watch"){
+
+        influence += 3;
+
+    }
+
+
+    if(item === "Gravity Shoes"){
+
+        energy += 30;
+
+        if(energy > 100){
+            energy = 100;
+        }
+
+    }
+
+
+    if(item === "Shield Band"){
+
+        trust += 5;
+
+    }
+
+
+    if(item === "Oracle Lens"){
+
+        influence += 5;
+
+    }
+
+
+    log(
+        "You purchased " + item + "."
+    );
+
+
+    update();
+
+    closeModal();
+
+}
+
+
+/* =========================
+   FACILITY
+========================= */
+
+function facilityEvent(){
+
+    const events = [
+
+        "You discovered a hidden corridor.",
+
+        "You overheard two competitors discussing an alliance.",
+
+        "You found a strange clue connected to the Architect.",
+
+        "You discovered a resource cache.",
+
+        "Someone was watching you from the observation deck."
+
+    ];
+
+
+    const event =
+        events[
+            Math.floor(
+                Math.random() * events.length
+            )
+        ];
+
+
+    influence += 1;
+
+    log(
+        "🏢 " + event
+    );
+
+
+    update();
+
+}
+
+
+/* =========================
+   SECRET MISSION
+========================= */
+
+function mission(){
+
+    const missions = [
+
+        "Convince another player to trust you.",
+
+        "Trade with someone without revealing your objective.",
+
+        "Protect a rival during the next vote.",
+
+        "Discover who owns a rare Power.",
+
+        "Create an alliance and keep it secret."
+
+    ];
+
+
+    const selected =
+        missions[
+            Math.floor(
+                Math.random() * missions.length
+            )
+        ];
+
+
+    document.getElementById("mission")
+        .textContent = selected;
+
+
+    log(
+        "🕵️ Secret Mission revealed."
+    );
+
+}
+
+
+/* =========================
+   PARALLEL WORLD
+========================= */
+
+function parallel(){
+
+    const visions = [
+
+        "You see a possible future where Nova controls the vote.",
+
+        "You see a possible betrayal inside your alliance.",
+
+        "You see a hidden route connected to the next challenge.",
+
+        "You see a competitor holding a rare Power.",
+
+        "You see a possible future elimination."
+
+    ];
+
+
+    const vision =
+        visions[
+            Math.floor(
+                Math.random() * visions.length
+            )
+        ];
+
+
+    energy -= 15;
+
+    influence += 2;
+
+
+    if(energy < 0){
+        energy = 0;
+    }
+
+
+    log(
+        "🌌 PARALLEL WORLD: " + vision
+    );
+
+
+    update();
+
+}
+
+
+/* =========================
+   UNKNOWN ARCHITECT
+========================= */
+
+function architect(){
+
+    const clues = [
+
+        "The Architect has influenced at least one vote.",
+
+        "The Architect has access to hidden information.",
+
+        "The Architect has interacted with the Power Store.",
+
+        "The Architect may be closer to you than expected."
+
+    ];
+
+
+    const clue =
+        clues[
+            Math.floor(
+                Math.random() * clues.length
+            )
+        ];
+
+
+    influence += 2;
+
+
+    log(
+        "⚡ ARCHITECT CLUE: " + clue
+    );
+
+
+    update();
+
+}
+
+
+/* =========================
+   TRADE
+========================= */
+
+function trade(){
+
+    credits += 50;
+
+    trust += 2;
+
+
+    log(
+        "💱 Trade completed. +50 Credits."
+    );
+
+
+    update();
+
+}
+
+
+/* =========================
+   SECRET PACT
+========================= */
+
+function pact(){
+
+    trust += 5;
+
+    influence += 1;
+
+
+    log(
+        "🤝 Secret Pact created."
+    );
+
+
+    update();
+
+}
+
+
+/* =========================
+   VOTE
+========================= */
+
+function vote(){
+
+    if(influence < 2){
+
+        log(
+            "Not enough Influence to vote."
+        );
+
+        return;
+
+    }
+
+
+    influence -= 2;
+
+
+    log(
+        "🗳️ You used 2 Influence to vote."
+    );
+
+
+    update();
+
+}
+
+
+/* =========================
+   START GAME
+========================= */
+
+renderPlayers();
+
+update();
+
+log(
+    "AFTERLIGHT systems ready."
+);
+
+</script>
+
+</body>
+</html>
