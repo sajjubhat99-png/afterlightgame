@@ -1,17 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
-  />
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
   <title>AFTERLIGHT — Multiplayer</title>
 
   <style>
     * {
       box-sizing: border-box;
+      user-select: none;
     }
 
     html,
@@ -20,8 +17,8 @@
       width: 100%;
       height: 100%;
       overflow: hidden;
-      background: #03070b;
-      color: #eafcff;
+      background: #02060b;
+      color: #e8fbff;
       font-family: Arial, Helvetica, sans-serif;
     }
 
@@ -30,168 +27,154 @@
       font: inherit;
     }
 
-    button {
-      cursor: pointer;
-    }
-
     #game {
-      position: relative;
-      width: 100%;
-      height: 100%;
+      position: fixed;
+      inset: 0;
       overflow: hidden;
     }
 
-    #gameCanvas {
-      position: absolute;
-      inset: 0;
+    canvas {
+      display: block;
       width: 100%;
       height: 100%;
-      display: block;
+      outline: none;
     }
 
-    /* =========================
-       JOIN SCREEN
-       ========================= */
+    /* ---------------- JOIN SCREEN ---------------- */
 
     #joinScreen {
-      position: absolute;
+      position: fixed;
       inset: 0;
       z-index: 100;
       display: flex;
       align-items: center;
       justify-content: center;
       background:
-        radial-gradient(circle at center, rgba(0, 240, 255, 0.08), transparent 35%),
-        linear-gradient(135deg, #020509, #07131a 50%, #020509);
+        radial-gradient(circle at center, rgba(0,210,255,.10), transparent 35%),
+        linear-gradient(135deg,#02060b,#06111b 55%,#010306);
     }
 
-    .joinCard {
-      width: min(460px, calc(100% - 32px));
-      padding: 36px;
-      border: 1px solid rgba(0, 240, 255, 0.28);
-      background: rgba(4, 13, 18, 0.92);
+    .join-card {
+      width: min(440px,92vw);
+      padding: 34px;
+      border: 1px solid rgba(90,230,255,.35);
+      background: rgba(3,13,21,.88);
       box-shadow:
-        0 0 50px rgba(0, 220, 255, 0.08),
-        inset 0 0 40px rgba(0, 220, 255, 0.03);
+        0 0 60px rgba(0,210,255,.12),
+        inset 0 0 30px rgba(0,210,255,.035);
       border-radius: 18px;
       text-align: center;
     }
 
     .logo {
-      margin: 0 0 8px;
-      font-size: 32px;
-      letter-spacing: 8px;
+      font-size: 42px;
+      letter-spacing: 10px;
       font-weight: 800;
-      color: #dffcff;
+      color: #dffaff;
+      text-shadow: 0 0 25px rgba(0,220,255,.65);
+      margin-bottom: 5px;
     }
 
     .tagline {
-      margin: 0 0 28px;
-      color: #74cbd5;
-      font-size: 12px;
-      letter-spacing: 2px;
+      color: #69d9ef;
+      font-size: 11px;
+      letter-spacing: 4px;
+      margin-bottom: 35px;
     }
 
-    .joinTitle {
-      margin-bottom: 18px;
-      font-size: 18px;
-      letter-spacing: 2px;
-    }
-
-    #nameInput {
+    .join-card input {
       width: 100%;
-      height: 50px;
-      padding: 0 16px;
+      height: 48px;
       border-radius: 9px;
-      border: 1px solid rgba(0, 240, 255, 0.35);
-      background: #071218;
+      border: 1px solid rgba(100,230,255,.28);
+      background: rgba(0,0,0,.4);
       color: white;
+      padding: 0 15px;
       outline: none;
-      text-align: center;
+      margin-bottom: 12px;
     }
 
-    #nameInput:focus {
-      border-color: #00eaff;
-      box-shadow: 0 0 20px rgba(0, 234, 255, 0.12);
+    .join-card input:focus {
+      border-color: #5deaff;
+      box-shadow: 0 0 18px rgba(0,220,255,.15);
     }
 
-    #joinButton {
+    .primary {
       width: 100%;
-      height: 50px;
-      margin-top: 12px;
+      height: 48px;
       border: 0;
       border-radius: 9px;
-      background: linear-gradient(90deg, #00b9d4, #00eaff);
-      color: #001015;
+      background: linear-gradient(90deg,#00aeca,#37e6ff);
+      color: #001018;
       font-weight: 800;
-      letter-spacing: 2px;
+      cursor: pointer;
+      letter-spacing: 1px;
     }
 
-    #joinButton:disabled {
-      opacity: 0.4;
-      cursor: not-allowed;
+    .primary:hover {
+      filter: brightness(1.12);
     }
 
-    #connectionStatus {
+    #connectionText {
       margin-top: 15px;
-      min-height: 18px;
+      color: #78929b;
       font-size: 12px;
-      color: #78aeb6;
     }
 
-    /* =========================
-       HUD
-       ========================= */
+    /* ---------------- HUD ---------------- */
 
     #hud {
-      position: absolute;
+      position: fixed;
       inset: 0;
-      z-index: 10;
-      display: none;
       pointer-events: none;
+      z-index: 20;
     }
 
-    .topBar {
+    .hud-panel {
       position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      min-height: 72px;
-      padding: 12px 16px;
+      pointer-events: auto;
+      background: rgba(2,10,16,.76);
+      border: 1px solid rgba(86,220,246,.22);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 0 30px rgba(0,0,0,.25);
+      border-radius: 12px;
+    }
+
+    #topBar {
+      top: 14px;
+      left: 14px;
+      right: 14px;
+      min-height: 64px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 12px;
-      background: linear-gradient(
-        180deg,
-        rgba(2, 8, 12, 0.92),
-        rgba(2, 8, 12, 0.45),
-        transparent
-      );
+      padding: 10px 15px;
+      gap: 15px;
     }
 
-    .brand {
+    .brand-small {
       font-size: 18px;
       font-weight: 800;
       letter-spacing: 4px;
+      white-space: nowrap;
     }
 
-    .phaseBox {
+    .phase-box {
       text-align: center;
-      min-width: 140px;
+      flex: 1;
     }
 
-    .phaseLabel {
+    .phase-label {
+      color: #71939d;
       font-size: 9px;
-      color: #6f9ca5;
-      letter-spacing: 2px;
+      letter-spacing: 3px;
     }
 
-    #phaseValue {
+    #phase {
+      font-size: 16px;
+      font-weight: 700;
+      color: #72edff;
       margin-top: 3px;
-      font-size: 14px;
-      color: #00eaff;
-      font-weight: 800;
     }
 
     .stats {
@@ -202,413 +185,325 @@
     }
 
     .stat {
-      min-width: 75px;
+      min-width: 72px;
       padding: 7px 10px;
-      border: 1px solid rgba(0, 220, 255, 0.16);
+      border: 1px solid rgba(255,255,255,.08);
+      background: rgba(255,255,255,.025);
       border-radius: 7px;
-      background: rgba(3, 13, 18, 0.76);
-      text-align: center;
     }
 
-    .statLabel {
-      display: block;
+    .stat-label {
+      color: #67818b;
       font-size: 8px;
-      color: #668d95;
       letter-spacing: 1px;
     }
 
-    .statValue {
-      display: block;
-      margin-top: 3px;
-      font-size: 12px;
-      color: #e7fdff;
+    .stat-value {
+      margin-top: 2px;
+      font-size: 14px;
+      font-weight: 700;
     }
 
-    /* =========================
-       PANELS
-       ========================= */
+    /* ---------------- LEFT PANEL ---------------- */
 
-    .panel {
-      position: absolute;
-      pointer-events: auto;
-      border: 1px solid rgba(0, 220, 255, 0.17);
-      border-radius: 10px;
-      background: rgba(3, 12, 17, 0.86);
-      backdrop-filter: blur(8px);
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
-    }
-
-    #leftPanel {
+    #competitors {
       left: 14px;
-      top: 88px;
-      width: 205px;
-      max-height: calc(100% - 180px);
+      top: 94px;
+      width: 235px;
+      max-height: 52vh;
       overflow: auto;
       padding: 12px;
     }
 
-    #rightPanel {
-      right: 14px;
-      top: 88px;
-      width: 225px;
-      max-height: calc(100% - 180px);
-      overflow: auto;
-      padding: 12px;
-    }
-
-    .panelTitle {
-      margin-bottom: 9px;
+    .panel-title {
       font-size: 10px;
-      color: #6da8b1;
       letter-spacing: 2px;
-      font-weight: 800;
+      color: #6c909b;
+      margin-bottom: 9px;
+      text-transform: uppercase;
     }
 
-    .actionGrid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 7px;
-    }
-
-    .actionButton {
-      min-height: 38px;
-      padding: 8px 10px;
-      border: 1px solid rgba(0, 220, 255, 0.22);
-      border-radius: 7px;
-      background: rgba(5, 23, 30, 0.9);
-      color: #cceff4;
-      font-size: 11px;
-      text-align: left;
-      transition: 0.15s;
-    }
-
-    .actionButton:hover {
-      border-color: #00eaff;
-      background: rgba(0, 220, 255, 0.09);
-      color: white;
-    }
-
-    .actionButton:active {
-      transform: scale(0.98);
-    }
-
-    .actionButton.primary {
-      border-color: rgba(0, 234, 255, 0.6);
-      background: rgba(0, 190, 220, 0.13);
-    }
-
-    .actionButton.danger {
-      border-color: rgba(255, 70, 90, 0.4);
-    }
-
-    .actionButton:disabled {
-      opacity: 0.35;
-      cursor: not-allowed;
-    }
-
-    /* =========================
-       COMPETITORS
-       ========================= */
-
-    .playerRow {
+    .player-row {
       display: flex;
       align-items: center;
-      gap: 7px;
-      padding: 7px 6px;
+      gap: 8px;
+      padding: 8px;
       margin-bottom: 4px;
-      border-radius: 6px;
-      background: rgba(255, 255, 255, 0.025);
+      border-radius: 7px;
       cursor: pointer;
-      pointer-events: auto;
+      transition: .15s;
     }
 
-    .playerRow:hover {
-      background: rgba(0, 234, 255, 0.08);
+    .player-row:hover,
+    .player-row.selected {
+      background: rgba(65,225,255,.09);
+      border-left: 2px solid #55e8ff;
     }
 
-    .playerDot {
-      width: 7px;
-      height: 7px;
+    .player-dot {
+      width: 8px;
+      height: 8px;
       border-radius: 50%;
-      background: #00eaff;
+      background: #46e5ff;
+      box-shadow: 0 0 9px #46e5ff;
       flex: 0 0 auto;
     }
 
-    .playerDot.dead {
-      background: #6d7375;
+    .player-dot.dead {
+      background: #5b6266;
+      box-shadow: none;
     }
 
-    .playerInfo {
-      min-width: 0;
+    .player-name {
       flex: 1;
-    }
-
-    .playerName {
+      font-size: 12px;
+      min-width: 0;
       overflow: hidden;
       text-overflow: ellipsis;
-      white-space: nowrap;
+    }
+
+    .player-role {
+      font-size: 8px;
+      color: #63838d;
+    }
+
+    /* ---------------- RIGHT PANEL ---------------- */
+
+    #actions {
+      right: 14px;
+      top: 94px;
+      width: 245px;
+      padding: 12px;
+    }
+
+    .action-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+    }
+
+    .action {
+      min-height: 38px;
+      border: 1px solid rgba(90,225,255,.18);
+      border-radius: 7px;
+      background: rgba(15,45,55,.48);
+      color: #bdebf3;
+      cursor: pointer;
+      font-size: 10px;
+      transition: .15s;
+    }
+
+    .action:hover {
+      background: rgba(30,120,140,.45);
+      border-color: rgba(90,225,255,.5);
+      color: white;
+    }
+
+    .action.danger {
+      border-color: rgba(255,90,110,.25);
+    }
+
+    .action.special {
+      border-color: rgba(174,117,255,.3);
+    }
+
+    .action:disabled {
+      opacity: .35;
+      cursor: not-allowed;
+    }
+
+    /* ---------------- CONTEXT ---------------- */
+
+    #context {
+      left: 50%;
+      bottom: 90px;
+      transform: translateX(-50%);
+      min-width: 260px;
+      max-width: 80vw;
+      padding: 12px 18px;
+      text-align: center;
+      opacity: 0;
+      transition: .2s;
+    }
+
+    #context.visible {
+      opacity: 1;
+    }
+
+    #contextTitle {
+      font-size: 13px;
+      font-weight: 700;
+      color: #7eefff;
+    }
+
+    #contextText {
+      margin-top: 4px;
+      color: #9cb4ba;
       font-size: 10px;
     }
 
-    .playerRole {
-      margin-top: 2px;
-      color: #638991;
-      font-size: 8px;
-    }
-
-    .selected {
-      outline: 1px solid #00eaff;
-      background: rgba(0, 234, 255, 0.08);
-    }
-
-    /* =========================
-       LOG
-       ========================= */
+    /* ---------------- LOG ---------------- */
 
     #logPanel {
-      position: absolute;
-      left: 50%;
+      left: 14px;
       bottom: 14px;
-      transform: translateX(-50%);
-      width: min(620px, calc(100% - 470px));
-      min-width: 300px;
-      height: 108px;
-      padding: 10px;
-      pointer-events: auto;
+      width: 330px;
+      max-height: 145px;
+      padding: 11px;
     }
 
-    #gameLog {
-      height: 76px;
+    #log {
+      max-height: 105px;
       overflow-y: auto;
       font-size: 10px;
-      line-height: 1.55;
-      color: #8fb8be;
+      line-height: 1.6;
+      color: #8caab2;
     }
 
-    .logLine {
-      border-bottom: 1px solid rgba(255, 255, 255, 0.025);
+    .log-line {
+      border-bottom: 1px solid rgba(255,255,255,.025);
       padding: 2px 0;
     }
 
-    /* =========================
-       BOTTOM ACTIONS
-       ========================= */
+    /* ---------------- TARGET ---------------- */
 
-    #bottomActions {
-      position: absolute;
-      left: 50%;
-      bottom: 137px;
-      transform: translateX(-50%);
-      display: flex;
-      gap: 7px;
-      pointer-events: auto;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
-
-    .bottomButton {
-      min-height: 40px;
-      padding: 0 14px;
-      border-radius: 8px;
-      border: 1px solid rgba(0, 234, 255, 0.3);
-      background: rgba(3, 15, 20, 0.9);
-      color: white;
-      font-size: 10px;
-      letter-spacing: 0.7px;
-    }
-
-    .bottomButton:hover {
-      border-color: #00eaff;
-    }
-
-    /* =========================
-       TARGET
-       ========================= */
-
-    #targetInfo {
-      margin-top: 8px;
-      padding: 8px;
-      border-radius: 7px;
-      background: rgba(0, 234, 255, 0.05);
-      color: #83c8d0;
-      font-size: 9px;
-      line-height: 1.5;
-    }
-
-    /* =========================
-       MOBILE CONTROLS
-       ========================= */
-
-    #mobileControls {
-      position: absolute;
-      left: 16px;
-      bottom: 145px;
-      width: 130px;
-      height: 130px;
-      pointer-events: auto;
+    #targetPanel {
+      right: 14px;
+      bottom: 14px;
+      width: 245px;
+      padding: 12px;
       display: none;
     }
 
-    .moveButton {
+    #targetPanel.visible {
+      display: block;
+    }
+
+    #targetName {
+      font-size: 15px;
+      font-weight: 700;
+      color: #7eefff;
+    }
+
+    #targetRole {
+      color: #78939c;
+      font-size: 10px;
+      margin-top: 3px;
+    }
+
+    /* ---------------- MOBILE ---------------- */
+
+    #mobileControls {
+      position: fixed;
+      left: 20px;
+      bottom: 25px;
+      z-index: 30;
+      display: none;
+      pointer-events: auto;
+    }
+
+    .mobile-pad {
+      width: 150px;
+      height: 150px;
+      position: relative;
+    }
+
+    .move-btn {
       position: absolute;
-      width: 42px;
-      height: 42px;
-      border-radius: 50%;
-      border: 1px solid rgba(0, 234, 255, 0.3);
-      background: rgba(3, 18, 24, 0.8);
-      color: white;
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      border: 1px solid rgba(90,225,255,.25);
+      background: rgba(4,22,31,.75);
+      color: #aeefff;
+      font-size: 20px;
     }
 
-    #moveUp {
-      left: 44px;
-      top: 0;
-    }
-
-    #moveLeft {
-      left: 0;
-      top: 44px;
-    }
-
-    #moveDown {
-      left: 44px;
-      top: 88px;
-    }
-
-    #moveRight {
-      right: 0;
-      top: 44px;
-    }
-
-    /* =========================
-       TOAST
-       ========================= */
+    .move-btn.up { left: 51px; top: 0; }
+    .move-btn.down { left: 51px; bottom: 0; }
+    .move-btn.left { left: 0; top: 51px; }
+    .move-btn.right { right: 0; top: 51px; }
 
     #toast {
-      position: absolute;
+      position: fixed;
+      top: 92px;
       left: 50%;
-      top: 82px;
-      transform: translateX(-50%);
-      z-index: 30;
-      max-width: 80%;
-      padding: 9px 14px;
-      border: 1px solid rgba(0, 234, 255, 0.3);
-      border-radius: 8px;
-      background: rgba(2, 12, 17, 0.92);
-      color: #d8fbff;
-      font-size: 10px;
+      transform: translateX(-50%) translateY(-15px);
+      z-index: 80;
       opacity: 0;
       pointer-events: none;
-      transition: opacity 0.2s;
+      padding: 10px 17px;
+      border: 1px solid rgba(90,225,255,.3);
+      border-radius: 8px;
+      background: rgba(2,15,23,.9);
+      color: #aeefff;
+      font-size: 11px;
+      transition: .2s;
     }
 
     #toast.show {
       opacity: 1;
+      transform: translateX(-50%) translateY(0);
     }
 
-    /* =========================
-       RESPONSIVE
-       ========================= */
-
-    @media (max-width: 900px) {
-      #leftPanel {
-        width: 175px;
+    @media(max-width:850px) {
+      #topBar {
+        flex-wrap: wrap;
       }
 
-      #rightPanel {
+      .phase-box {
+        order: 3;
+        flex-basis: 100%;
+      }
+
+      #competitors {
+        width: 185px;
+      }
+
+      #actions {
         width: 185px;
       }
 
       #logPanel {
-        width: calc(100% - 390px);
+        width: 260px;
       }
     }
 
-    @media (max-width: 700px) {
-      .topBar {
-        align-items: flex-start;
+    @media(max-width:650px) {
+      #competitors {
+        display: none;
       }
 
-      .brand {
-        font-size: 13px;
-      }
-
-      .phaseBox {
-        min-width: 80px;
-      }
-
-      .stats {
-        max-width: 190px;
-      }
-
-      .stat {
-        min-width: 55px;
-        padding: 5px;
-      }
-
-      #leftPanel {
+      #actions {
+        right: 8px;
         top: auto;
-        bottom: 15px;
-        left: 155px;
-        width: 155px;
-        max-height: 175px;
-      }
-
-      #rightPanel {
-        right: 10px;
-        top: 78px;
-        width: 165px;
-        max-height: 235px;
+        bottom: 185px;
+        width: 180px;
       }
 
       #logPanel {
-        left: 10px;
-        bottom: 10px;
-        transform: none;
-        width: 135px;
-        min-width: 0;
-        height: 120px;
-      }
-
-      #bottomActions {
-        bottom: 190px;
-        left: auto;
-        right: 10px;
-        transform: none;
-        width: 160px;
-      }
-
-      .bottomButton {
-        width: 100%;
+        left: 8px;
+        bottom: 8px;
+        width: 205px;
+        max-height: 105px;
       }
 
       #mobileControls {
         display: block;
       }
-    }
 
-    @media (max-width: 480px) {
-      .logo {
-        font-size: 23px;
+      .stat {
+        min-width: 58px;
       }
 
-      .joinCard {
-        padding: 25px;
+      .brand-small {
+        font-size: 14px;
       }
 
-      .stats {
-        display: none;
-      }
-
-      #leftPanel {
-        display: none;
-      }
-
-      #rightPanel {
-        width: 155px;
-      }
-
-      #bottomActions {
-        width: 145px;
+      #targetPanel {
+        right: 8px;
+        bottom: 8px;
+        width: 180px;
       }
     }
   </style>
@@ -616,241 +511,180 @@
 
 <body>
 
-<div id="game">
+<div id="game"></div>
 
-  <canvas id="gameCanvas"></canvas>
+<!-- JOIN -->
+<div id="joinScreen">
+  <div class="join-card">
+    <div class="logo">AFTERLIGHT</div>
+    <div class="tagline">THE CHALLENGE IS ONLY HALF THE GAME</div>
 
-  <!-- =========================
-       JOIN
-       ========================= -->
+    <input id="nameInput"
+           maxlength="18"
+           autocomplete="off"
+           placeholder="Enter your competitor name">
 
-  <div id="joinScreen">
+    <button class="primary" id="joinButton">
+      ENTER AFTERLIGHT
+    </button>
 
-    <div class="joinCard">
+    <div id="connectionText">
+      Connecting to AFTERLIGHT network...
+    </div>
+  </div>
+</div>
 
-      <div class="logo">AFTERLIGHT</div>
+<!-- HUD -->
+<div id="hud" style="display:none">
 
-      <div class="tagline">
-        THE CHALLENGE IS ONLY HALF THE GAME
+  <div id="topBar" class="hud-panel">
+
+    <div class="brand-small">AFTERLIGHT</div>
+
+    <div class="phase-box">
+      <div class="phase-label">CURRENT PHASE</div>
+      <div id="phase">LOBBY</div>
+    </div>
+
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-label">CREDITS</div>
+        <div class="stat-value" id="credits">500</div>
       </div>
 
-      <div class="joinTitle">
-        ENTER THE COMPETITION
+      <div class="stat">
+        <div class="stat-label">INFLUENCE</div>
+        <div class="stat-value" id="influence">10</div>
       </div>
 
-      <input
-        id="nameInput"
-        type="text"
-        maxlength="20"
-        autocomplete="off"
-        placeholder="Enter your competitor name"
-      />
-
-      <button id="joinButton">
-        JOIN AFTERLIGHT
-      </button>
-
-      <div id="connectionStatus">
-        Connecting to AFTERLIGHT...
+      <div class="stat">
+        <div class="stat-label">TRUST</div>
+        <div class="stat-value" id="trust">50</div>
       </div>
 
+      <div class="stat">
+        <div class="stat-label">ENERGY</div>
+        <div class="stat-value" id="energy">100</div>
+      </div>
     </div>
 
   </div>
 
-  <!-- =========================
-       HUD
-       ========================= -->
-
-  <div id="hud">
-
-    <div class="topBar">
-
-      <div class="brand">
-        AFTERLIGHT
-      </div>
-
-      <div class="phaseBox">
-        <div class="phaseLabel">
-          CURRENT PHASE
-        </div>
-
-        <div id="phaseValue">
-          LOBBY
-        </div>
-      </div>
-
-      <div class="stats">
-
-        <div class="stat">
-          <span class="statLabel">CREDITS</span>
-          <span class="statValue" id="creditsValue">500</span>
-        </div>
-
-        <div class="stat">
-          <span class="statLabel">INFLUENCE</span>
-          <span class="statValue" id="influenceValue">10</span>
-        </div>
-
-        <div class="stat">
-          <span class="statLabel">TRUST</span>
-          <span class="statValue" id="trustValue">50</span>
-        </div>
-
-        <div class="stat">
-          <span class="statLabel">ENERGY</span>
-          <span class="statValue" id="energyValue">100</span>
-        </div>
-
-      </div>
-
+  <!-- competitors -->
+  <div id="competitors" class="hud-panel">
+    <div class="panel-title">
+      Competitors — <span id="competitorCount">0</span>
     </div>
+    <div id="competitorList"></div>
+  </div>
 
-    <!-- LEFT -->
+  <!-- actions -->
+  <div id="actions" class="hud-panel">
 
-    <div id="leftPanel" class="panel">
+    <div class="panel-title">AFTERLIGHT SYSTEM</div>
 
-      <div class="panelTitle">
-        GAME ACTIONS
-      </div>
+    <div class="action-grid">
 
-      <div class="actionGrid">
+      <button class="action" id="readyBtn">READY</button>
 
-        <button class="actionButton primary" data-action="ready">
-          READY / START
-        </button>
+      <button class="action" id="challengeBtn">
+        CHALLENGE
+      </button>
 
-        <button class="actionButton" data-action="safe">
-          Challenge — Safe
-        </button>
+      <button class="action" id="socialBtn">
+        SOCIAL
+      </button>
 
-        <button class="actionButton" data-action="risk">
-          Challenge — Risk
-        </button>
-
-        <button class="actionButton" data-action="observe">
-          Challenge — Observe
-        </button>
-
-        <button class="actionButton" data-action="talk">
-          Social — Talk
-        </button>
-
-        <button class="actionButton" data-action="accuse">
-          Social — Accuse
-        </button>
-
-        <button class="actionButton" data-action="deal">
-          Social — Deal
-        </button>
-
-        <button class="actionButton" data-action="endSocial">
-          End Social Phase
-        </button>
-
-        <button class="actionButton" data-action="mission">
-          Reveal / Complete Mission
-        </button>
-
-      </div>
-
-    </div>
-
-    <!-- RIGHT -->
-
-    <div id="rightPanel" class="panel">
-
-      <div class="panelTitle">
-        COMPETITORS
-      </div>
-
-      <div id="competitorsList"></div>
-
-      <div id="targetInfo">
-        No competitor selected.
-        <br />
-        Click a competitor to target them.
-      </div>
-
-    </div>
-
-    <!-- BOTTOM -->
-
-    <div id="bottomActions">
-
-      <button class="bottomButton" data-action="store">
+      <button class="action" id="storeBtn">
         POWER STORE
       </button>
 
-      <button class="bottomButton" data-action="parallel">
+      <button class="action" id="missionBtn">
+        MISSION
+      </button>
+
+      <button class="action special" id="parallelBtn">
         PARALLEL WORLD
       </button>
 
-      <button class="bottomButton" data-action="architect">
-        INVESTIGATE ARCHITECT
+      <button class="action special" id="architectBtn">
+        ARCHITECT
       </button>
 
-      <button class="bottomButton" data-action="heist">
+      <button class="action special" id="heistBtn">
         THE HEIST
       </button>
 
-      <button class="bottomButton" data-action="vacation">
+      <button class="action" id="vacationBtn">
         VACATION
       </button>
 
-      <button class="bottomButton" data-action="trade">
+      <button class="action" id="tradeBtn">
         TRADE
       </button>
 
-      <button class="bottomButton" data-action="pact">
+      <button class="action" id="pactBtn">
         SECRET PACT
       </button>
 
-      <button class="bottomButton" data-action="protect">
+      <button class="action" id="protectBtn">
         PROTECT
       </button>
 
-      <button class="bottomButton" data-action="vote">
+      <button class="action danger" id="accuseBtn">
+        ACCUSE
+      </button>
+
+      <button class="action danger" id="voteBtn">
         VOTE
       </button>
 
     </div>
+  </div>
 
-    <!-- LOG -->
+  <!-- contextual interaction -->
+  <div id="context" class="hud-panel">
+    <div id="contextTitle">FACILITY</div>
+    <div id="contextText">Explore the facility.</div>
+  </div>
 
-    <div id="logPanel" class="panel">
+  <!-- log -->
+  <div id="logPanel" class="hud-panel">
+    <div class="panel-title">AFTERLIGHT LOG</div>
+    <div id="log"></div>
+  </div>
 
-      <div class="panelTitle">
-        AFTERLIGHT LOG
-      </div>
+  <!-- target -->
+  <div id="targetPanel" class="hud-panel">
 
-      <div id="gameLog"></div>
+    <div class="panel-title">SELECTED COMPETITOR</div>
 
+    <div id="targetName">None</div>
+    <div id="targetRole">No target selected</div>
+
+    <div class="action-grid" style="margin-top:10px">
+      <button class="action" id="targetTalk">TALK</button>
+      <button class="action" id="targetDeal">DEAL</button>
+      <button class="action danger" id="targetAccuse">ACCUSE</button>
+      <button class="action" id="targetTrade">TRADE</button>
     </div>
 
-    <!-- MOBILE MOVEMENT -->
+  </div>
 
-    <div id="mobileControls">
+</div>
 
-      <button class="moveButton" id="moveUp">
-        ▲
-      </button>
+<!-- toast -->
+<div id="toast"></div>
 
-      <button class="moveButton" id="moveLeft">
-        ◀
-      </button>
+<!-- mobile movement -->
+<div id="mobileControls">
 
-      <button class="moveButton" id="moveDown">
-        ▼
-      </button>
+  <div class="mobile-pad">
 
-      <button class="moveButton" id="moveRight">
-        ▶
-      </button>
-
-    </div>
-
-    <div id="toast"></div>
+    <button class="move-btn up" data-dir="up">▲</button>
+    <button class="move-btn down" data-dir="down">▼</button>
+    <button class="move-btn left" data-dir="left">◀</button>
+    <button class="move-btn right" data-dir="right">▶</button>
 
   </div>
 
@@ -859,499 +693,566 @@
 <script type="module">
 
 import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js";
-
-import { AfterlightWorld }
-  from "./world.js";
-
-import { AfterlightPlayer }
-  from "./player.js";
+import { AfterlightWorld } from "./world.js";
+import { AfterlightPlayer } from "./player.js";
 
 
-/* =========================================
-   SERVER
-   ========================================= */
+/* =========================================================
+   CONFIG
+========================================================= */
 
 const SERVER_URL =
   "wss://afterlightgame.sajjubhat99.workers.dev/ws";
 
-
-/* =========================================
-   DOM
-   ========================================= */
-
-const canvas =
-  document.getElementById("gameCanvas");
-
-const joinScreen =
-  document.getElementById("joinScreen");
-
-const nameInput =
-  document.getElementById("nameInput");
-
-const joinButton =
-  document.getElementById("joinButton");
-
-const connectionStatus =
-  document.getElementById("connectionStatus");
-
-const hud =
-  document.getElementById("hud");
-
-const phaseValue =
-  document.getElementById("phaseValue");
-
-const creditsValue =
-  document.getElementById("creditsValue");
-
-const influenceValue =
-  document.getElementById("influenceValue");
-
-const trustValue =
-  document.getElementById("trustValue");
-
-const energyValue =
-  document.getElementById("energyValue");
-
-const competitorsList =
-  document.getElementById("competitorsList");
-
-const gameLog =
-  document.getElementById("gameLog");
-
-const targetInfo =
-  document.getElementById("targetInfo");
-
-const toast =
-  document.getElementById("toast");
+const MAX_PLAYERS = 16;
 
 
-/* =========================================
-   THREE.JS
-   ========================================= */
-
-const renderer =
-  new THREE.WebGLRenderer({
-    canvas,
-    antialias: true,
-    powerPreference: "high-performance"
-  });
-
-renderer.setPixelRatio(
-  Math.min(window.devicePixelRatio || 1, 1.5)
-);
-
-renderer.setSize(
-  window.innerWidth,
-  window.innerHeight
-);
-
-renderer.outputColorSpace =
-  THREE.SRGBColorSpace;
-
-
-const scene =
-  new THREE.Scene();
-
-scene.background =
-  new THREE.Color(0x02070a);
-
-scene.fog =
-  new THREE.Fog(
-    0x02070a,
-    25,
-    80
-  );
-
-
-const camera =
-  new THREE.PerspectiveCamera(
-    60,
-    window.innerWidth / window.innerHeight,
-    0.1,
-    200
-  );
-
-camera.position.set(
-  0,
-  12,
-  18
-);
-
-
-/* =========================================
-   LIGHT
-   ========================================= */
-
-const ambient =
-  new THREE.HemisphereLight(
-    0x9defff,
-    0x020307,
-    1.5
-  );
-
-scene.add(ambient);
-
-
-const directional =
-  new THREE.DirectionalLight(
-    0xffffff,
-    1.2
-  );
-
-directional.position.set(
-  10,
-  20,
-  10
-);
-
-scene.add(directional);
-
-
-/* =========================================
-   WORLD
-   ========================================= */
-
-const world =
-  new AfterlightWorld(scene);
-
-
-/* =========================================
-   GAME STATE
-   ========================================= */
+/* =========================================================
+   GLOBAL STATE
+========================================================= */
 
 let socket = null;
 
-let connected = false;
-
 let joined = false;
-
 let localPlayerId = null;
 
-let roomState = null;
+let roomState = {
+  phase: "LOBBY",
+  players: [],
+  competitors: [],
+  logs: []
+};
 
 let localPlayer = null;
-
 let selectedPlayerId = null;
 
-const players = new Map();
+const remotePlayers = new Map();
+
+const keys = {
+  w:false,
+  a:false,
+  s:false,
+  d:false,
+  arrowup:false,
+  arrowdown:false,
+  arrowleft:false,
+  arrowright:false
+};
+
+let lastMoveSent = 0;
+
+let scene;
+let camera;
+let renderer;
+let world;
+
+let raycaster;
+let mouse;
+
+let clock;
 
 
-/* =========================================
-   CONNECT
-   ========================================= */
+/* =========================================================
+   DOM
+========================================================= */
+
+const joinScreen = document.getElementById("joinScreen");
+const joinButton = document.getElementById("joinButton");
+const nameInput = document.getElementById("nameInput");
+const connectionText = document.getElementById("connectionText");
+
+const hud = document.getElementById("hud");
+
+const phaseEl = document.getElementById("phase");
+const creditsEl = document.getElementById("credits");
+const influenceEl = document.getElementById("influence");
+const trustEl = document.getElementById("trust");
+const energyEl = document.getElementById("energy");
+
+const competitorList =
+  document.getElementById("competitorList");
+
+const competitorCount =
+  document.getElementById("competitorCount");
+
+const logEl = document.getElementById("log");
+
+const context =
+  document.getElementById("context");
+
+const contextTitle =
+  document.getElementById("contextTitle");
+
+const contextText =
+  document.getElementById("contextText");
+
+const targetPanel =
+  document.getElementById("targetPanel");
+
+const targetName =
+  document.getElementById("targetName");
+
+const targetRole =
+  document.getElementById("targetRole");
+
+const toastEl =
+  document.getElementById("toast");
+
+
+/* =========================================================
+   THREE.JS INITIALIZATION
+========================================================= */
+
+function init3D() {
+
+  scene = new THREE.Scene();
+
+  scene.background =
+    new THREE.Color(0x02070c);
+
+  scene.fog =
+    new THREE.FogExp2(0x02070c,0.018);
+
+  camera = new THREE.PerspectiveCamera(
+    62,
+    window.innerWidth / window.innerHeight,
+    0.1,
+    500
+  );
+
+  camera.position.set(
+    0,
+    12,
+    18
+  );
+
+  renderer = new THREE.WebGLRenderer({
+    antialias:false,
+    powerPreference:"low-power"
+  });
+
+  renderer.setPixelRatio(
+    Math.min(window.devicePixelRatio,1.5)
+  );
+
+  renderer.setSize(
+    window.innerWidth,
+    window.innerHeight
+  );
+
+  renderer.outputColorSpace =
+    THREE.SRGBColorSpace;
+
+  document
+    .getElementById("game")
+    .appendChild(renderer.domElement);
+
+  world = new AfterlightWorld(scene);
+
+  raycaster = new THREE.Raycaster();
+  mouse = new THREE.Vector2();
+
+  clock = new THREE.Clock();
+
+  window.addEventListener(
+    "resize",
+    resize
+  );
+
+  renderer.domElement.addEventListener(
+    "pointerdown",
+    handleWorldClick
+  );
+
+  animate();
+}
+
+
+/* =========================================================
+   ANIMATION
+========================================================= */
+
+function animate() {
+
+  requestAnimationFrame(animate);
+
+  const time = clock.getElapsedTime();
+
+  if (world && world.update) {
+    world.update(time);
+  }
+
+  updateMovement(time);
+
+  updateCamera();
+
+  renderer.render(
+    scene,
+    camera
+  );
+}
+
+
+/* =========================================================
+   CAMERA
+========================================================= */
+
+function updateCamera() {
+
+  if (!localPlayer) return;
+
+  const target =
+    localPlayer.group.position;
+
+  const desired = new THREE.Vector3(
+    target.x,
+    target.y + 9,
+    target.z + 13
+  );
+
+  camera.position.lerp(
+    desired,
+    0.08
+  );
+
+  const look = new THREE.Vector3(
+    target.x,
+    target.y + 1.8,
+    target.z
+  );
+
+  camera.lookAt(look);
+}
+
+
+/* =========================================================
+   RESIZE
+========================================================= */
+
+function resize() {
+
+  if (!camera || !renderer) return;
+
+  camera.aspect =
+    window.innerWidth /
+    window.innerHeight;
+
+  camera.updateProjectionMatrix();
+
+  renderer.setSize(
+    window.innerWidth,
+    window.innerHeight
+  );
+}
+
+
+/* =========================================================
+   CONNECTION
+========================================================= */
 
 function connect() {
 
-  connectionStatus.textContent =
-    "Connecting to AFTERLIGHT...";
+  connectionText.textContent =
+    "Connecting to AFTERLIGHT network...";
 
-  socket =
-    new WebSocket(SERVER_URL);
+  socket = new WebSocket(SERVER_URL);
 
   socket.addEventListener(
     "open",
     () => {
 
-      connected = true;
+      connectionText.textContent =
+        "Network connected.";
 
-      connectionStatus.textContent =
-        "Connected. Enter your name.";
-
-      updateJoinButton();
-
+      showToast(
+        "AFTERLIGHT NETWORK CONNECTED"
+      );
     }
   );
-
 
   socket.addEventListener(
     "message",
     event => {
 
-      let message;
+      let data;
 
       try {
-        message =
-          JSON.parse(event.data);
+        data = JSON.parse(event.data);
       } catch {
         return;
       }
 
-      handleServerMessage(message);
-
+      handleServerMessage(data);
     }
   );
-
 
   socket.addEventListener(
     "close",
     () => {
 
-      connected = false;
+      connectionText.textContent =
+        "Connection lost. Refresh to reconnect.";
 
-      connectionStatus.textContent =
-        "Disconnected. Refresh to reconnect.";
-
+      showToast(
+        "CONNECTION LOST"
+      );
     }
   );
-
 
   socket.addEventListener(
     "error",
     () => {
 
-      connected = false;
+      connectionText.textContent =
+        "Network error.";
 
-      connectionStatus.textContent =
-        "Connection error.";
-
+      showToast(
+        "NETWORK ERROR"
+      );
     }
   );
-
 }
 
 
-connect();
+/* =========================================================
+   SERVER MESSAGES
+========================================================= */
 
+function handleServerMessage(data) {
 
-/* =========================================
-   JOIN
-   ========================================= */
+  if (data.type === "welcome") {
 
-function updateJoinButton() {
+    localPlayerId =
+      data.player?.id ||
+      data.id;
 
-  joinButton.disabled =
-    !connected ||
-    joined ||
-    nameInput.value.trim().length < 2;
+    joined = true;
 
-}
+    joinScreen.style.display =
+      "none";
 
+    hud.style.display =
+      "block";
 
-nameInput.addEventListener(
-  "input",
-  updateJoinButton
-);
+    addLog(
+      "Connected to AFTERLIGHT."
+    );
 
-
-nameInput.addEventListener(
-  "keydown",
-  event => {
-
-    if (
-      event.key === "Enter" &&
-      !joinButton.disabled
-    ) {
-      joinGame();
-    }
-
+    return;
   }
-);
 
+  if (
+    data.type === "state" ||
+    data.type === "room" ||
+    data.type === "update"
+  ) {
+
+    roomState =
+      data.state ||
+      data.room ||
+      data;
+
+    updateGameState();
+
+    return;
+  }
+
+  if (data.type === "error") {
+
+    showToast(
+      data.message ||
+      "ACTION FAILED"
+    );
+
+    addLog(
+      data.message ||
+      "System rejected the action."
+    );
+
+    return;
+  }
+
+  if (data.type === "log") {
+
+    addLog(
+      data.message
+    );
+
+    return;
+  }
+}
+
+
+/* =========================================================
+   JOIN
+========================================================= */
 
 joinButton.addEventListener(
   "click",
   joinGame
 );
 
+nameInput.addEventListener(
+  "keydown",
+  event => {
+
+    if (event.key === "Enter") {
+      joinGame();
+    }
+  }
+);
+
 
 function joinGame() {
-
-  if (!connected || joined) {
-    return;
-  }
 
   const name =
     nameInput.value.trim();
 
-  if (name.length < 2) {
+  if (!name) {
 
-    connectionStatus.textContent =
-      "Enter at least 2 characters.";
+    showToast(
+      "ENTER YOUR COMPETITOR NAME"
+    );
 
     nameInput.focus();
 
     return;
   }
 
-  joined = true;
+  if (!socket ||
+      socket.readyState !== WebSocket.OPEN) {
 
-  joinButton.disabled = true;
+    connect();
 
-  connectionStatus.textContent =
-    "Joining AFTERLIGHT...";
+    setTimeout(
+      () => send({
+        type:"join",
+        name
+      }),
+      400
+    );
+
+    return;
+  }
+
+  send({
+    type:"join",
+    name
+  });
+}
+
+
+/* =========================================================
+   SEND
+========================================================= */
+
+function send(message) {
+
+  if (
+    !socket ||
+    socket.readyState !== WebSocket.OPEN
+  ) {
+    return;
+  }
 
   socket.send(
-    JSON.stringify({
-      type: "join",
-      name
-    })
+    JSON.stringify(message)
   );
-
 }
 
 
-/* =========================================
-   SERVER MESSAGE
-   ========================================= */
+/* =========================================================
+   GAME STATE
+========================================================= */
 
-function handleServerMessage(message) {
+function updateGameState() {
 
-  switch (message.type) {
-
-    case "connected":
-
-      connectionStatus.textContent =
-        "Connected. Enter your name.";
-
-      break;
-
-
-    case "welcome":
-
-      handleWelcome(message);
-
-      break;
-
-
-    case "nameConfirmed":
-
-      showToast(
-        `Welcome ${message.name}`
-      );
-
-      break;
-
-
-    case "state":
-
-      handleState(message.room);
-
-      break;
-
-  }
-
-}
-
-
-/* =========================================
-   WELCOME
-   ========================================= */
-
-function handleWelcome(message) {
-
-  localPlayerId =
-    message.player?.id ||
-    message.id ||
-    null;
-
-  joinScreen.style.display =
-    "none";
-
-  hud.style.display =
-    "block";
-
-  showToast(
-    "Welcome to AFTERLIGHT."
-  );
-
-}
-
-
-/* =========================================
-   STATE
-   ========================================= */
-
-function handleState(room) {
-
-  if (!room) return;
-
-  roomState = room;
-
-  updateHUD();
-
-  updatePlayers();
-
-  updateCompetitors();
-
-  updateLog();
-
-}
-
-
-/* =========================================
-   HUD
-   ========================================= */
-
-function updateHUD() {
-
-  phaseValue.textContent =
-    roomState.phase || "LOBBY";
-
-  const me =
-    findLocalPlayer();
-
-  if (!me) return;
-
-  creditsValue.textContent =
-    me.credits ?? 0;
-
-  influenceValue.textContent =
-    me.influence ?? 0;
-
-  trustValue.textContent =
-    me.trust ?? 0;
-
-  energyValue.textContent =
-    me.energy ?? 0;
-
-}
-
-
-/* =========================================
-   FIND LOCAL PLAYER
-   ========================================= */
-
-function findLocalPlayer() {
-
-  if (!roomState) {
-    return null;
-  }
-
-  return (
-    roomState.players?.find(
-      player =>
-        player.id === localPlayerId
-    ) ||
-    roomState.competitors?.find(
-      player =>
-        player.id === localPlayerId
-    ) ||
-    null
-  );
-
-}
-
-
-/* =========================================
-   UPDATE 3D PLAYERS
-   ========================================= */
-
-function updatePlayers() {
-
-  const serverPlayers =
+  const players =
     roomState.players ||
     roomState.competitors ||
     [];
 
-  const activeIds =
-    new Set();
+  const me =
+    players.find(
+      p => p.id === localPlayerId
+    );
 
-  for (const data of serverPlayers) {
+  if (me) {
 
-    activeIds.add(data.id);
+    creditsEl.textContent =
+      me.credits ?? 500;
+
+    influenceEl.textContent =
+      me.influence ?? 10;
+
+    trustEl.textContent =
+      me.trust ?? 50;
+
+    energyEl.textContent =
+      me.energy ?? 100;
+  }
+
+  phaseEl.textContent =
+    roomState.phase ||
+    "LOBBY";
+
+  competitorCount.textContent =
+    players.length;
+
+  updatePlayers(
+    players
+  );
+
+  updateCompetitorList(
+    players
+  );
+
+  updateLogs(
+    roomState.logs ||
+    []
+  );
+
+  updateContext();
+}
+
+
+/* =========================================================
+   PLAYERS
+========================================================= */
+
+function updatePlayers(players) {
+
+  const ids =
+    new Set(
+      players.map(
+        p => p.id
+      )
+    );
+
+  for (
+    const [id,player] of remotePlayers
+  ) {
+
+    if (!ids.has(id)) {
+
+      scene.remove(
+        player.group
+      );
+
+      if (player.remove) {
+        player.remove();
+      }
+
+      remotePlayers.delete(id);
+    }
+  }
+
+  for (const data of players) {
 
     let player =
-      players.get(data.id);
+      remotePlayers.get(
+        data.id
+      );
 
     if (!player) {
 
@@ -1363,829 +1264,293 @@ function updatePlayers() {
           data.id === localPlayerId
         );
 
-      scene.add(player.group);
-
-      players.set(
-        data.id,
-        player
-      );
-
-    }
-
-    player.updateFromServer(data);
-
-    if (data.id === localPlayerId) {
-
-      localPlayer =
-        player;
-
-    }
-
-  }
-
-
-  for (const [id, player] of players) {
-
-    if (!activeIds.has(id)) {
-
-      player.remove();
-
-      scene.remove(
+      scene.add(
         player.group
       );
 
-      players.delete(id);
-
+      remotePlayers.set(
+        data.id,
+        player
+      );
     }
 
-  }
+    if (player.setServerState) {
 
+      player.setServerState({
+        x: data.x || 0,
+        y: data.y || 0,
+        z: data.z || 0
+      });
+    } else {
+
+      player.group.position.set(
+        data.x || 0,
+        data.y || 0,
+        data.z || 0
+      );
+    }
+
+    if (data.id === localPlayerId) {
+      localPlayer = player;
+    }
+  }
 }
 
 
-/* =========================================
+/* =========================================================
    COMPETITOR LIST
-   ========================================= */
+========================================================= */
 
-function updateCompetitors() {
+function updateCompetitorList(players) {
 
-  competitorsList.innerHTML = "";
+  competitorList.innerHTML = "";
 
-  const list =
-    roomState?.players ||
-    roomState?.competitors ||
-    [];
-
-  for (const player of list) {
+  for (const player of players) {
 
     const row =
       document.createElement("div");
 
     row.className =
-      "playerRow";
+      "player-row";
 
     if (
       player.id === selectedPlayerId
     ) {
-      row.classList.add("selected");
+      row.classList.add(
+        "selected"
+      );
     }
 
-    const dot =
-      document.createElement("div");
+    row.innerHTML = `
+      <div class="player-dot ${
+        player.alive === false
+          ? "dead"
+          : ""
+      }"></div>
 
-    dot.className =
-      "playerDot";
+      <div class="player-name">
+        ${escapeHTML(player.name || "Unknown")}
+      </div>
 
-    if (!player.alive) {
-      dot.classList.add("dead");
-    }
-
-    const info =
-      document.createElement("div");
-
-    info.className =
-      "playerInfo";
-
-    const name =
-      document.createElement("div");
-
-    name.className =
-      "playerName";
-
-    name.textContent =
-      player.name;
-
-    const role =
-      document.createElement("div");
-
-    role.className =
-      "playerRole";
-
-    role.textContent =
-      player.role +
-      (player.id === localPlayerId
-        ? " • YOU"
-        : "");
-
-    info.appendChild(name);
-    info.appendChild(role);
-
-    row.appendChild(dot);
-    row.appendChild(info);
+      <div class="player-role">
+        ${escapeHTML(player.role || "")}
+      </div>
+    `;
 
     row.addEventListener(
       "click",
-      () => {
-
-        if (
-          player.id === localPlayerId
-        ) {
-          showToast(
-            "You cannot target yourself."
-          );
-
-          return;
-        }
-
-        selectedPlayerId =
-          player.id;
-
-        updateCompetitors();
-
-        updateTargetInfo();
-
-        select3DPlayer(
-          player.id
-        );
-
-      }
+      () => selectPlayer(
+        player.id
+      )
     );
 
-    competitorsList.appendChild(row);
-
+    competitorList.appendChild(
+      row
+    );
   }
-
-  updateTargetInfo();
-
 }
 
 
-/* =========================================
-   TARGET INFO
-   ========================================= */
+/* =========================================================
+   PLAYER SELECTION
+========================================================= */
 
-function updateTargetInfo() {
+function selectPlayer(id) {
 
-  const target =
-    getPlayerById(
-      selectedPlayerId
-    );
-
-  if (!target) {
-
-    targetInfo.innerHTML =
-      "No competitor selected.<br>Click a competitor to target them.";
-
+  if (id === localPlayerId) {
     return;
   }
 
-  targetInfo.innerHTML = `
-    <strong>${escapeHTML(target.name)}</strong>
-    <br>
-    Role: ${escapeHTML(target.role)}
-    <br>
-    Trust: ${target.trust}
-    <br>
-    Status: ${target.alive ? "ACTIVE" : "ELIMINATED"}
-  `;
+  const players =
+    roomState.players ||
+    roomState.competitors ||
+    [];
 
-}
+  const player =
+    players.find(
+      p => p.id === id
+    );
 
+  if (!player) return;
 
-/* =========================================
-   3D PLAYER CLICK SELECTION
-   ========================================= */
+  selectedPlayerId =
+    id;
 
-function select3DPlayer(id) {
-
-  selectedPlayerId = id;
-
-  updateCompetitors();
-
-  updateTargetInfo();
-
-  showToast(
-    `Target selected: ${getPlayerById(id)?.name || "Player"}`
+  targetPanel.classList.add(
+    "visible"
   );
 
+  targetName.textContent =
+    player.name ||
+    "Unknown";
+
+  targetRole.textContent =
+    player.role ||
+    "Competitor";
+
+  updateCompetitorList(
+    players
+  );
+
+  showToast(
+    `TARGET SELECTED: ${player.name}`
+  );
 }
 
 
-/* =========================================
-   LOG
-   ========================================= */
+/* =========================================================
+   3D PLAYER CLICK
+========================================================= */
 
-function updateLog() {
+function handleWorldClick(event) {
 
-  gameLog.innerHTML = "";
+  if (!renderer) return;
 
-  const logs =
-    roomState.logs || [];
+  const rect =
+    renderer.domElement.getBoundingClientRect();
+
+  mouse.x =
+    ((event.clientX - rect.left) /
+      rect.width) * 2 - 1;
+
+  mouse.y =
+    -((event.clientY - rect.top) /
+      rect.height) * 2 + 1;
+
+  raycaster.setFromCamera(
+    mouse,
+    camera
+  );
+
+  const objects = [];
 
   for (
-    const message of logs.slice(-20)
+    const player of remotePlayers.values()
   ) {
 
-    const line =
-      document.createElement("div");
+    player.group.traverse(
+      object => {
 
-    line.className =
-      "logLine";
-
-    line.textContent =
-      message;
-
-    gameLog.appendChild(line);
-
-  }
-
-  gameLog.scrollTop =
-    gameLog.scrollHeight;
-
-}
-
-
-/* =========================================
-   BUTTON ACTIONS
-   ========================================= */
-
-document
-  .querySelectorAll("[data-action]")
-  .forEach(button => {
-
-    button.addEventListener(
-      "click",
-      () => {
-
-        const action =
-          button.dataset.action;
-
-        executeAction(action);
-
+        if (
+          object.isMesh ||
+          object.isSprite
+        ) {
+          objects.push(object);
+        }
       }
     );
+  }
 
-  });
-
-
-function executeAction(action) {
-
-  if (!socket || socket.readyState !== WebSocket.OPEN) {
-
-    showToast(
-      "Not connected to the server."
+  const hits =
+    raycaster.intersectObjects(
+      objects,
+      true
     );
 
-    return;
+  if (!hits.length) return;
 
-  }
+  let object =
+    hits[0].object;
 
-  switch (action) {
-
-    case "ready":
-
-      send({
-        type: "ready"
-      });
-
-      break;
-
-
-    case "safe":
-
-      sendChallenge("safe");
-
-      break;
-
-
-    case "risk":
-
-      sendChallenge("risk");
-
-      break;
-
-
-    case "observe":
-
-      sendChallenge("observe");
-
-      break;
-
-
-    case "talk":
-
-      sendSocial("talk");
-
-      break;
-
-
-    case "accuse":
-
-      sendSocial("accuse");
-
-      break;
-
-
-    case "deal":
-
-      sendSocial("deal");
-
-      break;
-
-
-    case "endSocial":
-
-      sendSocial("end");
-
-      break;
-
-
-    case "mission":
-
-      send({
-        type: "mission"
-      });
-
-      break;
-
-
-    case "store":
-
-      openPowerStore();
-
-      break;
-
-
-    case "parallel":
-
-      send({
-        type: "parallel"
-      });
-
-      break;
-
-
-    case "architect":
-
-      send({
-        type: "architect"
-      });
-
-      break;
-
-
-    case "heist":
-
-      send({
-        type: "heist"
-      });
-
-      break;
-
-
-    case "vacation":
-
-      send({
-        type: "vacation"
-      });
-
-      break;
-
-
-    case "trade":
-
-      targetRequired(
-        "trade"
-      );
-
-      break;
-
-
-    case "pact":
-
-      targetRequired(
-        "pact"
-      );
-
-      break;
-
-
-    case "protect":
-
-      targetRequired(
-        "protect"
-      );
-
-      break;
-
-
-    case "vote":
-
-      targetRequired(
-        "vote"
-      );
-
-      break;
-
-  }
-
-}
-
-
-/* =========================================
-   CHALLENGE
-   ========================================= */
-
-function sendChallenge(action) {
-
-  send({
-    type: "challenge",
-    action
-  });
-
-}
-
-
-/* =========================================
-   SOCIAL
-   ========================================= */
-
-function sendSocial(action) {
-
-  send({
-    type: "social",
-    action
-  });
-
-}
-
-
-/* =========================================
-   TARGET ACTION
-   ========================================= */
-
-function targetRequired(action) {
-
-  if (!selectedPlayerId) {
-
-    showToast(
-      "Select a competitor first."
-    );
-
-    return;
-
-  }
-
-  if (
-    selectedPlayerId ===
-    localPlayerId
+  while (
+    object &&
+    object.parent
   ) {
 
-    showToast(
-      "You cannot target yourself."
-    );
+    if (object.userData?.playerId) {
 
-    return;
-
-  }
-
-  send({
-    type: action,
-    targetId: selectedPlayerId
-  });
-
-}
-
-
-/* =========================================
-   SEND
-   ========================================= */
-
-function send(data) {
-
-  if (
-    !socket ||
-    socket.readyState !== WebSocket.OPEN
-  ) {
-
-    showToast(
-      "Server connection unavailable."
-    );
-
-    return;
-
-  }
-
-  socket.send(
-    JSON.stringify(data)
-  );
-
-  showToast(
-    actionMessage(data)
-  );
-
-}
-
-
-/* =========================================
-   ACTION FEEDBACK
-   ========================================= */
-
-function actionMessage(data) {
-
-  switch (data.type) {
-
-    case "ready":
-      return "Ready status changed.";
-
-    case "challenge":
-      return `Challenge action: ${data.action}`;
-
-    case "social":
-      return `Social action: ${data.action}`;
-
-    case "mission":
-      return "Mission action submitted.";
-
-    case "parallel":
-      return "Entering Parallel World...";
-
-    case "architect":
-      return "Investigating the Architect...";
-
-    case "heist":
-      return "Shadow Protocol initiated.";
-
-    case "vacation":
-      return "Exploring vacation world...";
-
-    case "trade":
-      return "Trade submitted.";
-
-    case "pact":
-      return "Secret pact submitted.";
-
-    case "protect":
-      return "Protection submitted.";
-
-    case "vote":
-      return "Vote submitted.";
-
-    default:
-      return "Action submitted.";
-
-  }
-
-}
-
-
-/* =========================================
-   POWER STORE
-   ========================================= */
-
-function openPowerStore() {
-
-  const powers =
-    roomState?.powers || [];
-
-  if (!powers.length) {
-
-    showToast(
-      "Power Store unavailable."
-    );
-
-    return;
-
-  }
-
-  const choice =
-    prompt(
-      powers
-        .map(
-          (power, index) =>
-            `${index + 1}. ${power.name} — ${power.cost} Credits\n${power.description}`
-        )
-        .join("\n\n") +
-      "\n\nEnter a number to purchase:"
-    );
-
-  if (!choice) {
-    return;
-  }
-
-  const index =
-    Number(choice) - 1;
-
-  if (
-    !Number.isInteger(index) ||
-    index < 0 ||
-    index >= powers.length
-  ) {
-
-    showToast(
-      "Invalid Power Store selection."
-    );
-
-    return;
-
-  }
-
-  send({
-    type: "buyPower",
-    powerId: powers[index].id
-  });
-
-}
-
-
-/* =========================================
-   3D CLICKING
-   ========================================= */
-
-const raycaster =
-  new THREE.Raycaster();
-
-const pointer =
-  new THREE.Vector2();
-
-
-canvas.addEventListener(
-  "pointerdown",
-  event => {
-
-    /*
-     * Only treat clicks directly on the
-     * 3D canvas as world interaction.
-     */
-
-    pointer.x =
-      (event.clientX /
-        window.innerWidth) *
-        2 -
-      1;
-
-    pointer.y =
-      -(event.clientY /
-        window.innerHeight) *
-        2 +
-      1;
-
-    raycaster.setFromCamera(
-      pointer,
-      camera
-    );
-
-    const objects = [];
-
-    for (
-      const player of players.values()
-    ) {
-
-      if (
-        player.group.visible
-      ) {
-
-        player.group.traverse(
-          object => {
-
-            if (
-              object.isMesh ||
-              object.isSprite
-            ) {
-              objects.push(object);
-            }
-
-          }
-        );
-
-      }
-
-    }
-
-    const hits =
-      raycaster.intersectObjects(
-        objects,
-        true
+      selectPlayer(
+        object.userData.playerId
       );
 
-    if (!hits.length) {
       return;
     }
 
-    let object =
-      hits[0].object;
+    object =
+      object.parent;
+  }
 
-    while (
-      object &&
-      object.parent
+  // fallback: identify closest group
+  for (
+    const [id,player] of remotePlayers
+  ) {
+
+    if (
+      player.group ===
+      hits[0].object.parent
     ) {
 
-      for (
-        const [id, player] of players
-      ) {
+      selectPlayer(id);
 
-        if (
-          player.group === object
-        ) {
-
-          if (
-            id !== localPlayerId
-          ) {
-
-            select3DPlayer(id);
-
-          }
-
-          return;
-
-        }
-
-      }
-
-      object =
-        object.parent;
-
+      break;
     }
-
   }
-);
+}
 
 
-/* =========================================
+/* =========================================================
    MOVEMENT
-   ========================================= */
-
-const keys =
-  new Set();
+========================================================= */
 
 window.addEventListener(
   "keydown",
   event => {
 
-    if (
-      event.target === nameInput
-    ) {
-      return;
+    const key =
+      event.key.toLowerCase();
+
+    if (keys.hasOwnProperty(key)) {
+      keys[key] = true;
     }
-
-    keys.add(
-      event.key.toLowerCase()
-    );
-
   }
 );
-
 
 window.addEventListener(
   "keyup",
   event => {
 
-    keys.delete(
-      event.key.toLowerCase()
-    );
+    const key =
+      event.key.toLowerCase();
 
+    if (keys.hasOwnProperty(key)) {
+      keys[key] = false;
+    }
   }
 );
 
 
-let lastMoveSend = 0;
-
-
 function updateMovement(time) {
 
-  if (!localPlayer) {
-    return;
-  }
-
-  if (!joined) {
+  if (!localPlayer ||
+      !joined) {
     return;
   }
 
   let dx = 0;
   let dz = 0;
 
-  if (
-    keys.has("w") ||
-    keys.has("arrowup")
-  ) {
+  if (keys.w ||
+      keys.arrowup) {
     dz -= 1;
   }
 
-  if (
-    keys.has("s") ||
-    keys.has("arrowdown")
-  ) {
+  if (keys.s ||
+      keys.arrowdown) {
     dz += 1;
   }
 
-  if (
-    keys.has("a") ||
-    keys.has("arrowleft")
-  ) {
+  if (keys.a ||
+      keys.arrowleft) {
     dx -= 1;
   }
 
-  if (
-    keys.has("d") ||
-    keys.has("arrowright")
-  ) {
+  if (keys.d ||
+      keys.arrowright) {
     dx += 1;
   }
 
-  if (
-    dx === 0 &&
-    dz === 0
-  ) {
+  if (dx === 0 &&
+      dz === 0) {
     return;
   }
 
@@ -2198,7 +1563,8 @@ function updateMovement(time) {
   dx /= length;
   dz /= length;
 
-  const speed = 0.12;
+  const speed =
+    0.13;
 
   const position =
     localPlayer.group.position;
@@ -2224,130 +1590,698 @@ function updateMovement(time) {
     );
 
   if (
-    time - lastMoveSend >
-    80
+    time - lastMoveSent >
+    0.08
   ) {
 
-    lastMoveSend =
+    lastMoveSent =
       time;
 
-    sendSilent({
-      type: "move",
-      x: position.x,
-      y: position.y,
-      z: position.z
+    send({
+      type:"move",
+      x:position.x,
+      y:position.y,
+      z:position.z
     });
-
   }
-
 }
 
 
-/* =========================================
-   MOBILE MOVEMENT
-   ========================================= */
+/* =========================================================
+   CONTEXTUAL FACILITY INTERACTION
+========================================================= */
 
-function moveMobile(dx, dz) {
+function updateContext() {
 
   if (!localPlayer) {
     return;
   }
 
-  const position =
+  const p =
     localPlayer.group.position;
 
-  position.x += dx;
-  position.z += dz;
-
-  position.x =
-    THREE.MathUtils.clamp(
-      position.x,
-      -22,
-      22
+  const distance =
+    Math.sqrt(
+      p.x * p.x +
+      p.z * p.z
     );
 
-  position.z =
-    THREE.MathUtils.clamp(
-      position.z,
-      -22,
-      22
-    );
+  let title =
+    "AFTERLIGHT FACILITY";
 
-  sendSilent({
-    type: "move",
-    x: position.x,
-    y: position.y,
-    z: position.z
-  });
+  let description =
+    "Explore the facility.";
 
+  if (distance < 6) {
+
+    title =
+      "AFTERLIGHT CORE";
+
+    description =
+      "The central system is watching every decision.";
+
+  } else if (
+    p.x < -18 &&
+    p.z < 5
+  ) {
+
+    title =
+      "DINING HALL";
+
+    description =
+      "Talk, negotiate, form alliances and gather information.";
+
+  } else if (
+    p.x > 18 &&
+    p.z < 5
+  ) {
+
+    title =
+      "POWER STORE";
+
+    description =
+      "BUY • EARN • TRADE futuristic powers.";
+
+  } else if (
+    p.z < -18
+  ) {
+
+    title =
+      "CHALLENGE DECK";
+
+    description =
+      "Prepare for the next AFTERLIGHT challenge.";
+
+  } else if (
+    p.z > 18
+  ) {
+
+    title =
+      "SOCIAL ROOM";
+
+    description =
+      "Deals, accusations, pacts and secret missions.";
+
+  }
+
+  contextTitle.textContent =
+    title;
+
+  contextText.textContent =
+    description;
+
+  context.classList.add(
+    "visible"
+  );
 }
 
 
+/* =========================================================
+   READY
+========================================================= */
+
 document
-  .getElementById("moveUp")
+  .getElementById("readyBtn")
   .addEventListener(
     "click",
-    () => moveMobile(0, -1)
+    () => {
+
+      send({
+        type:"ready"
+      });
+
+      showToast(
+        "READY STATUS SENT"
+      );
+    }
   );
 
 
+/* =========================================================
+   CHALLENGE
+========================================================= */
+
 document
-  .getElementById("moveDown")
+  .getElementById("challengeBtn")
   .addEventListener(
     "click",
-    () => moveMobile(0, 1)
+    () => {
+
+      send({
+        type:"challenge",
+        action:"safe"
+      });
+
+      showToast(
+        "CHALLENGE ACTION: SAFE"
+      );
+    }
   );
 
 
+/* =========================================================
+   SOCIAL
+========================================================= */
+
 document
-  .getElementById("moveLeft")
+  .getElementById("socialBtn")
   .addEventListener(
     "click",
-    () => moveMobile(-1, 0)
+    () => {
+
+      send({
+        type:"social",
+        action:"talk",
+        targetId:
+          selectedPlayerId
+      });
+
+      showToast(
+        "SOCIAL ACTION SENT"
+      );
+    }
   );
 
 
+/* =========================================================
+   MISSION
+========================================================= */
+
 document
-  .getElementById("moveRight")
+  .getElementById("missionBtn")
   .addEventListener(
     "click",
-    () => moveMobile(1, 0)
+    () => {
+
+      send({
+        type:"mission"
+      });
+
+      showToast(
+        "MISSION CHECKED"
+      );
+    }
   );
 
 
-/* =========================================
-   SILENT SEND
-   ========================================= */
+/* =========================================================
+   POWER STORE
+========================================================= */
 
-function sendSilent(data) {
+document
+  .getElementById("storeBtn")
+  .addEventListener(
+    "click",
+    openPowerStore
+  );
 
-  if (
-    !socket ||
-    socket.readyState !== WebSocket.OPEN
-  ) {
+
+function openPowerStore() {
+
+  const power =
+    prompt(
+      "POWER STORE\n\n" +
+      "Available powers:\n" +
+      "Power Ring\n" +
+      "Pulse Watch\n" +
+      "Gravity Shoes\n" +
+      "Spectra Visor\n" +
+      "Phase Jacket\n" +
+      "Signal Band\n" +
+      "Influence Chip\n" +
+      "Shadow Pack\n" +
+      "Oracle Lens\n" +
+      "Shield Band\n\n" +
+      "Enter power name:"
+    );
+
+  if (!power) return;
+
+  send({
+    type:"buyPower",
+    power
+  });
+
+  showToast(
+    `POWER REQUEST: ${power}`
+  );
+}
+
+
+/* =========================================================
+   PARALLEL WORLD
+========================================================= */
+
+document
+  .getElementById("parallelBtn")
+  .addEventListener(
+    "click",
+    () => {
+
+      send({
+        type:"parallel"
+      });
+
+      showToast(
+        "ENTERING PARALLEL WORLD"
+      );
+    }
+  );
+
+
+/* =========================================================
+   ARCHITECT
+========================================================= */
+
+document
+  .getElementById("architectBtn")
+  .addEventListener(
+    "click",
+    () => {
+
+      send({
+        type:"architect"
+      });
+
+      showToast(
+        "ARCHITECT INVESTIGATION STARTED"
+      );
+    }
+  );
+
+
+/* =========================================================
+   HEIST
+========================================================= */
+
+document
+  .getElementById("heistBtn")
+  .addEventListener(
+    "click",
+    () => {
+
+      send({
+        type:"heist"
+      });
+
+      showToast(
+        "SHADOW PROTOCOL INITIATED"
+      );
+    }
+  );
+
+
+/* =========================================================
+   VACATION
+========================================================= */
+
+document
+  .getElementById("vacationBtn")
+  .addEventListener(
+    "click",
+    () => {
+
+      send({
+        type:"vacation"
+      });
+
+      showToast(
+        "VACATION PHASE REQUESTED"
+      );
+    }
+  );
+
+
+/* =========================================================
+   TRADE
+========================================================= */
+
+function trade() {
+
+  if (!selectedPlayerId) {
+
+    showToast(
+      "SELECT A COMPETITOR FIRST"
+    );
+
     return;
   }
 
-  socket.send(
-    JSON.stringify(data)
+  send({
+    type:"trade",
+    targetId:selectedPlayerId
+  });
+
+  showToast(
+    "TRADE OFFER SENT"
+  );
+}
+
+document
+  .getElementById("tradeBtn")
+  .addEventListener(
+    "click",
+    trade
   );
 
+document
+  .getElementById("targetTrade")
+  .addEventListener(
+    "click",
+    trade
+  );
+
+
+/* =========================================================
+   SECRET PACT
+========================================================= */
+
+document
+  .getElementById("pactBtn")
+  .addEventListener(
+    "click",
+    () => {
+
+      if (!selectedPlayerId) {
+
+        showToast(
+          "SELECT A COMPETITOR FIRST"
+        );
+
+        return;
+      }
+
+      send({
+        type:"pact",
+        targetId:selectedPlayerId
+      });
+
+      showToast(
+        "SECRET PACT OFFER SENT"
+      );
+    }
+  );
+
+
+/* =========================================================
+   PROTECT
+========================================================= */
+
+document
+  .getElementById("protectBtn")
+  .addEventListener(
+    "click",
+    () => {
+
+      if (!selectedPlayerId) {
+
+        showToast(
+          "SELECT A COMPETITOR FIRST"
+        );
+
+        return;
+      }
+
+      send({
+        type:"protect",
+        targetId:selectedPlayerId
+      });
+
+      showToast(
+        "PROTECTION REQUEST SENT"
+      );
+    }
+  );
+
+
+/* =========================================================
+   ACCUSE
+========================================================= */
+
+function accuse() {
+
+  if (!selectedPlayerId) {
+
+    showToast(
+      "SELECT A COMPETITOR FIRST"
+    );
+
+    return;
+  }
+
+  send({
+    type:"social",
+    action:"accuse",
+    targetId:selectedPlayerId
+  });
+
+  showToast(
+    "ACCUSATION SUBMITTED"
+  );
+}
+
+document
+  .getElementById("accuseBtn")
+  .addEventListener(
+    "click",
+    accuse
+  );
+
+document
+  .getElementById("targetAccuse")
+  .addEventListener(
+    "click",
+    accuse
+  );
+
+
+/* =========================================================
+   TALK
+========================================================= */
+
+document
+  .getElementById("targetTalk")
+  .addEventListener(
+    "click",
+    () => {
+
+      if (!selectedPlayerId) return;
+
+      send({
+        type:"social",
+        action:"talk",
+        targetId:selectedPlayerId
+      });
+
+      showToast(
+        "PRIVATE CONVERSATION REQUESTED"
+      );
+    }
+  );
+
+
+/* =========================================================
+   DEAL
+========================================================= */
+
+document
+  .getElementById("targetDeal")
+  .addEventListener(
+    "click",
+    () => {
+
+      if (!selectedPlayerId) return;
+
+      send({
+        type:"social",
+        action:"deal",
+        targetId:selectedPlayerId
+      });
+
+      showToast(
+        "DEAL OFFER SENT"
+      );
+    }
+  );
+
+
+/* =========================================================
+   VOTING
+========================================================= */
+
+document
+  .getElementById("voteBtn")
+  .addEventListener(
+    "click",
+    () => {
+
+      if (!selectedPlayerId) {
+
+        showToast(
+          "SELECT WHO YOU WANT TO VOTE FOR"
+        );
+
+        return;
+      }
+
+      send({
+        type:"vote",
+        targetId:selectedPlayerId
+      });
+
+      showToast(
+        `VOTE CAST`
+      );
+    }
+  );
+
+
+/* =========================================================
+   LOGGING
+========================================================= */
+
+function addLog(message) {
+
+  if (!message) return;
+
+  const line =
+    document.createElement("div");
+
+  line.className =
+    "log-line";
+
+  line.textContent =
+    message;
+
+  logEl.prepend(
+    line
+  );
+
+  while (
+    logEl.children.length > 40
+  ) {
+    logEl.lastChild.remove();
+  }
 }
 
 
-/* =========================================
+function updateLogs(logs) {
+
+  if (!Array.isArray(logs)) {
+    return;
+  }
+
+  logEl.innerHTML = "";
+
+  for (
+    const item of logs.slice(-40)
+  ) {
+
+    const message =
+      typeof item === "string"
+        ? item
+        : item.message;
+
+    if (!message) continue;
+
+    const line =
+      document.createElement("div");
+
+    line.className =
+      "log-line";
+
+    line.textContent =
+      message;
+
+    logEl.appendChild(
+      line
+    );
+  }
+
+  logEl.scrollTop =
+    logEl.scrollHeight;
+}
+
+
+/* =========================================================
+   MOBILE MOVEMENT
+========================================================= */
+
+document
+  .querySelectorAll(".move-btn")
+  .forEach(button => {
+
+    const dir =
+      button.dataset.dir;
+
+    const down = event => {
+
+      event.preventDefault();
+
+      if (dir === "up")
+        keys.w = true;
+
+      if (dir === "down")
+        keys.s = true;
+
+      if (dir === "left")
+        keys.a = true;
+
+      if (dir === "right")
+        keys.d = true;
+    };
+
+    const up = event => {
+
+      event.preventDefault();
+
+      if (dir === "up")
+        keys.w = false;
+
+      if (dir === "down")
+        keys.s = false;
+
+      if (dir === "left")
+        keys.a = false;
+
+      if (dir === "right")
+        keys.d = false;
+    };
+
+    button.addEventListener(
+      "pointerdown",
+      down
+    );
+
+    button.addEventListener(
+      "pointerup",
+      up
+    );
+
+    button.addEventListener(
+      "pointercancel",
+      up
+    );
+
+    button.addEventListener(
+      "pointerleave",
+      up
+    );
+  });
+
+
+/* =========================================================
    TOAST
-   ========================================= */
+========================================================= */
 
 let toastTimer = null;
 
-
 function showToast(message) {
 
-  toast.textContent =
+  toastEl.textContent =
     message;
 
-  toast.classList.add(
+  toastEl.classList.add(
     "show"
   );
 
@@ -2358,165 +2292,39 @@ function showToast(message) {
   toastTimer =
     setTimeout(
       () => {
-        toast.classList.remove(
+
+        toastEl.classList.remove(
           "show"
         );
+
       },
       1800
     );
-
 }
 
 
-/* =========================================
-   HELPERS
-   ========================================= */
-
-function getPlayerById(id) {
-
-  if (!id || !roomState) {
-    return null;
-  }
-
-  return (
-    roomState.players?.find(
-      player => player.id === id
-    ) ||
-    roomState.competitors?.find(
-      player => player.id === id
-    ) ||
-    null
-  );
-
-}
-
+/* =========================================================
+   ESCAPE HTML
+========================================================= */
 
 function escapeHTML(value) {
 
   return String(value)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
-
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
 }
 
 
-/* =========================================
-   CAMERA
-   ========================================= */
+/* =========================================================
+   START
+========================================================= */
 
-function updateCamera() {
+init3D();
 
-  if (!localPlayer) {
-    return;
-  }
-
-  const target =
-    localPlayer.group.position;
-
-  const desired =
-    new THREE.Vector3(
-      target.x,
-      target.y + 10,
-      target.z + 14
-    );
-
-  camera.position.lerp(
-    desired,
-    0.08
-  );
-
-  camera.lookAt(
-    target.x,
-    target.y + 1.3,
-    target.z
-  );
-
-}
-
-
-/* =========================================
-   RESIZE
-   ========================================= */
-
-window.addEventListener(
-  "resize",
-  () => {
-
-    camera.aspect =
-      window.innerWidth /
-      window.innerHeight;
-
-    camera.updateProjectionMatrix();
-
-    renderer.setSize(
-      window.innerWidth,
-      window.innerHeight
-    );
-
-    renderer.setPixelRatio(
-      Math.min(
-        window.devicePixelRatio || 1,
-        1.5
-      )
-    );
-
-  }
-);
-
-
-/* =========================================
-   GAME LOOP
-   ========================================= */
-
-let previousTime =
-  performance.now();
-
-
-function animate(time) {
-
-  requestAnimationFrame(
-    animate
-  );
-
-  const delta =
-    Math.min(
-      0.05,
-      (time - previousTime) / 1000
-    );
-
-  previousTime =
-    time;
-
-  updateMovement(time);
-
-  updateCamera();
-
-  world.update(delta);
-
-  for (
-    const player of players.values()
-  ) {
-
-    player.update(
-      delta
-    );
-
-  }
-
-  renderer.render(
-    scene,
-    camera
-  );
-
-}
-
-
-requestAnimationFrame(
-  animate
-);
+connect();
 
 </script>
 
