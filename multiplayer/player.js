@@ -7,11 +7,11 @@ export class AfterlightPlayer {
     this.role = role || "Competitor";
     this.isLocal = isLocal;
 
-    this.position = new THREE.Vector3(0, 0, 0);
-    this.targetPosition = new THREE.Vector3(0, 0, 0);
+    this.position = new THREE.Vector3();
+    this.targetPosition = new THREE.Vector3();
 
     this.group = new THREE.Group();
-    this.group.name = `player_${this.id}`;
+    this.group.name = `player_${id}`;
 
     this.body = new THREE.Group();
     this.group.add(this.body);
@@ -27,92 +27,82 @@ export class AfterlightPlayer {
   }
 
   getCharacterStyle() {
-    const styles = [
-      {
-        gender: "male",
-        skin: 0xc98b6b,
-        hair: 0x161616,
-        suit: 0x263b52,
-        accent: 0x29d9ff,
-        shoes: 0x11151b,
+    const roleStyles = {
+      Champion: {
+        skin: 0xb97958,
+        hair: 0x17120f,
+        suit: 0x172b42,
+        accent: 0x4ce7ff,
         hairStyle: "short"
       },
-      {
-        gender: "female",
-        skin: 0xd99a78,
-        hair: 0x21150f,
-        suit: 0x402f55,
-        accent: 0xff58d0,
-        shoes: 0x141018,
-        hairStyle: "long"
-      },
-      {
-        gender: "male",
-        skin: 0x9b6549,
-        hair: 0x090909,
-        suit: 0x193d39,
-        accent: 0x46ffd4,
-        shoes: 0x101514,
-        hairStyle: "fade"
-      },
-      {
-        gender: "female",
-        skin: 0xb87955,
-        hair: 0x321d16,
-        suit: 0x473b24,
-        accent: 0xffc857,
-        shoes: 0x17140e,
-        hairStyle: "ponytail"
-      },
-      {
-        gender: "male",
-        skin: 0xe0aa86,
-        hair: 0x3b2416,
-        suit: 0x29334b,
-        accent: 0x7895ff,
-        shoes: 0x11131b,
+
+      Strategist: {
+        skin: 0xd19a78,
+        hair: 0x211812,
+        suit: 0x30294b,
+        accent: 0xb98cff,
         hairStyle: "medium"
       },
-      {
-        gender: "female",
-        skin: 0x75462f,
-        hair: 0x120c0b,
-        suit: 0x452f32,
-        accent: 0xff6f91,
-        shoes: 0x160e10,
+
+      Leader: {
+        skin: 0x9b6548,
+        hair: 0x100d0b,
+        suit: 0x183b37,
+        accent: 0x48f0c5,
+        hairStyle: "fade"
+      },
+
+      "Social Player": {
+        skin: 0xd7a27e,
+        hair: 0x342015,
+        suit: 0x493126,
+        accent: 0xffb45c,
+        hairStyle: "long"
+      },
+
+      Ghost: {
+        skin: 0x754a35,
+        hair: 0x11100f,
+        suit: 0x20262f,
+        accent: 0x8295ff,
         hairStyle: "bob"
       },
-      {
-        gender: "male",
-        skin: 0x6e432e,
-        hair: 0x21130d,
-        suit: 0x283d29,
-        accent: 0x7dff67,
-        shoes: 0x101510,
+
+      Cipher: {
+        skin: 0xe0aa86,
+        hair: 0x432719,
+        suit: 0x263c4b,
+        accent: 0x61dfff,
+        hairStyle: "ponytail"
+      },
+
+      Observer: {
+        skin: 0x9e694e,
+        hair: 0x17100c,
+        suit: 0x423228,
+        accent: 0xff6e9d,
         hairStyle: "curly"
       },
-      {
-        gender: "female",
-        skin: 0xe0a982,
-        hair: 0x56331d,
-        suit: 0x303b54,
-        accent: 0x68a7ff,
-        shoes: 0x10141b,
-        hairStyle: "long"
+
+      Tracker: {
+        skin: 0xc78a68,
+        hair: 0x2c1b14,
+        suit: 0x253b2b,
+        accent: 0x78ff75,
+        hairStyle: "short"
       }
-    ];
+    };
 
-    let hash = 0;
-
-    for (let i = 0; i < this.id.length; i++) {
-      hash = ((hash << 5) - hash) + this.id.charCodeAt(i);
-      hash |= 0;
-    }
-
-    return styles[Math.abs(hash) % styles.length];
+    return roleStyles[this.role] || {
+      skin: 0xc98b6b,
+      hair: 0x161616,
+      suit: 0x263b52,
+      accent: 0x29d9ff,
+      hairStyle: "short"
+    };
   }
 
-  material(color, roughness = 0.65, metalness = 0.05) {
+  mat(color, roughness = 0.55, metalness = 0.08) {
     return new THREE.MeshStandardMaterial({
       color,
       roughness,
@@ -120,246 +110,139 @@ export class AfterlightPlayer {
     });
   }
 
-  createBox(name, size, color, position) {
-    const geometry = new THREE.BoxGeometry(
-      size.x,
-      size.y,
-      size.z
-    );
-
+  addBox(name, size, material, position) {
     const mesh = new THREE.Mesh(
-      geometry,
-      this.material(color)
+      new THREE.BoxGeometry(size.x, size.y, size.z),
+      material
     );
 
     mesh.name = name;
     mesh.position.copy(position);
 
     this.body.add(mesh);
-
     return mesh;
   }
 
-  createSphere(name, radius, color, position, scale = null) {
-    const geometry = new THREE.SphereGeometry(
-      radius,
-      16,
-      12
-    );
-
+  addSphere(name, radius, material, position, scale = null) {
     const mesh = new THREE.Mesh(
-      geometry,
-      this.material(color)
+      new THREE.SphereGeometry(radius, 20, 14),
+      material
     );
 
     mesh.name = name;
     mesh.position.copy(position);
 
-    if (scale) {
-      mesh.scale.copy(scale);
-    }
+    if (scale) mesh.scale.copy(scale);
 
     this.body.add(mesh);
-
     return mesh;
   }
 
   buildCharacter() {
     const s = this.style;
 
-    const skin = this.material(s.skin, 0.8, 0);
-    const hair = this.material(s.hair, 0.5, 0);
-    const suit = this.material(s.suit, 0.62, 0.1);
-    const accent = this.material(s.accent, 0.35, 0.25);
-    const shoes = this.material(s.shoes, 0.5, 0.15);
+    const skin = this.mat(s.skin, 0.78, 0);
+    const hair = this.mat(s.hair, 0.48, 0);
+    const suit = this.mat(s.suit, 0.62, 0.08);
+    const dark = this.mat(0x10151d, 0.45, 0.2);
+    const accent = new THREE.MeshStandardMaterial({
+      color: s.accent,
+      emissive: s.accent,
+      emissiveIntensity: 1.6,
+      roughness: 0.3,
+      metalness: 0.25
+    });
 
     /*
-      BODY
+      LEGS
     */
 
-    const torsoGeometry = new THREE.CapsuleGeometry(
-      s.gender === "female" ? 0.43 : 0.46,
-      0.85,
-      6,
-      12
+    const legMaterial = suit;
+
+    const leftLeg = new THREE.Mesh(
+      new THREE.CapsuleGeometry(0.145, 0.65, 5, 10),
+      legMaterial
     );
 
+    const rightLeg = leftLeg.clone();
+
+    leftLeg.position.set(-0.19, 0.42, 0);
+    rightLeg.position.set(0.19, 0.42, 0);
+
+    this.body.add(leftLeg);
+    this.body.add(rightLeg);
+
+    this.parts.leftLeg = leftLeg;
+    this.parts.rightLeg = rightLeg;
+
+    /*
+      BOOTS
+    */
+
+    const leftBoot = this.addBox(
+      "leftBoot",
+      new THREE.Vector3(0.29, 0.16, 0.48),
+      dark,
+      new THREE.Vector3(-0.19, 0.02, 0.08)
+    );
+
+    const rightBoot = this.addBox(
+      "rightBoot",
+      new THREE.Vector3(0.29, 0.16, 0.48),
+      dark,
+      new THREE.Vector3(0.19, 0.02, 0.08)
+    );
+
+    /*
+      WAIST
+    */
+
+    this.addBox(
+      "waist",
+      new THREE.Vector3(0.68, 0.22, 0.42),
+      suit,
+      new THREE.Vector3(0, 0.82, 0)
+    );
+
+    this.addBox(
+      "belt",
+      new THREE.Vector3(0.72, 0.055, 0.45),
+      accent,
+      new THREE.Vector3(0, 0.82, 0.01)
+    );
+
+    /*
+      TORSO
+    */
+
     const torso = new THREE.Mesh(
-      torsoGeometry,
+      new THREE.CapsuleGeometry(0.43, 0.72, 6, 14),
       suit
     );
 
-    torso.position.y = 1.25;
+    torso.position.y = 1.32;
     torso.scale.z = 0.72;
 
     this.body.add(torso);
     this.parts.torso = torso;
 
     /*
-      NECK
+      JACKET LAYERS
     */
 
-    const neck = new THREE.Mesh(
-      new THREE.CylinderGeometry(
-        0.13,
-        0.15,
-        0.22,
-        12
-      ),
-      skin
+    this.addBox(
+      "chestCore",
+      new THREE.Vector3(0.24, 0.34, 0.035),
+      accent,
+      new THREE.Vector3(0, 1.39, 0.34)
     );
 
-    neck.position.y = 1.84;
-
-    this.body.add(neck);
-
-    /*
-      HEAD
-    */
-
-    const head = new THREE.Mesh(
-      new THREE.SphereGeometry(
-        0.36,
-        20,
-        16
-      ),
-      skin
+    this.addBox(
+      "chestDark",
+      new THREE.Vector3(0.14, 0.22, 0.045),
+      dark,
+      new THREE.Vector3(0, 1.39, 0.365)
     );
-
-    head.position.y = 2.17;
-    head.scale.set(
-      0.92,
-      1.08,
-      0.92
-    );
-
-    this.body.add(head);
-    this.parts.head = head;
-
-    /*
-      EARS
-    */
-
-    const earGeometry = new THREE.SphereGeometry(
-      0.075,
-      10,
-      8
-    );
-
-    const leftEar = new THREE.Mesh(
-      earGeometry,
-      skin
-    );
-
-    const rightEar = new THREE.Mesh(
-      earGeometry,
-      skin
-    );
-
-    leftEar.position.set(
-      -0.345,
-      2.18,
-      0
-    );
-
-    rightEar.position.set(
-      0.345,
-      2.18,
-      0
-    );
-
-    this.body.add(leftEar);
-    this.body.add(rightEar);
-
-    /*
-      EYES
-    */
-
-    const eyeMaterial = new THREE.MeshStandardMaterial({
-      color: 0x111111,
-      roughness: 0.3
-    });
-
-    const eyeGeometry = new THREE.SphereGeometry(
-      0.045,
-      8,
-      8
-    );
-
-    const leftEye = new THREE.Mesh(
-      eyeGeometry,
-      eyeMaterial
-    );
-
-    const rightEye = new THREE.Mesh(
-      eyeGeometry,
-      eyeMaterial
-    );
-
-    leftEye.position.set(
-      -0.125,
-      2.22,
-      0.335
-    );
-
-    rightEye.position.set(
-      0.125,
-      2.22,
-      0.335
-    );
-
-    this.body.add(leftEye);
-    this.body.add(rightEye);
-
-    /*
-      NOSE
-    */
-
-    const nose = new THREE.Mesh(
-      new THREE.ConeGeometry(
-        0.045,
-        0.12,
-        8
-      ),
-      skin
-    );
-
-    nose.rotation.x = Math.PI / 2;
-
-    nose.position.set(
-      0,
-      2.13,
-      0.36
-    );
-
-    this.body.add(nose);
-
-    /*
-      MOUTH
-    */
-
-    const mouth = new THREE.Mesh(
-      new THREE.BoxGeometry(
-        0.13,
-        0.025,
-        0.025
-      ),
-      this.material(0x592d35, 0.8, 0)
-    );
-
-    mouth.position.set(
-      0,
-      2.03,
-      0.345
-    );
-
-    this.body.add(mouth);
-
-    /*
-      HAIR
-    */
-
-    this.createHair();
 
     /*
       SHOULDERS
@@ -367,7 +250,7 @@ export class AfterlightPlayer {
 
     const shoulderGeometry = new THREE.SphereGeometry(
       0.22,
-      12,
+      14,
       10
     );
 
@@ -381,17 +264,8 @@ export class AfterlightPlayer {
       suit
     );
 
-    leftShoulder.position.set(
-      -0.5,
-      1.55,
-      0
-    );
-
-    rightShoulder.position.set(
-      0.5,
-      1.55,
-      0
-    );
+    leftShoulder.position.set(-0.48, 1.57, 0);
+    rightShoulder.position.set(0.48, 1.57, 0);
 
     this.body.add(leftShoulder);
     this.body.add(rightShoulder);
@@ -401,10 +275,10 @@ export class AfterlightPlayer {
     */
 
     const armGeometry = new THREE.CapsuleGeometry(
-      0.115,
-      0.63,
+      0.105,
+      0.58,
       5,
-      8
+      9
     );
 
     const leftArm = new THREE.Mesh(
@@ -417,17 +291,8 @@ export class AfterlightPlayer {
       suit
     );
 
-    leftArm.position.set(
-      -0.56,
-      1.2,
-      0
-    );
-
-    rightArm.position.set(
-      0.56,
-      1.2,
-      0
-    );
+    leftArm.position.set(-0.55, 1.2, 0);
+    rightArm.position.set(0.55, 1.2, 0);
 
     this.body.add(leftArm);
     this.body.add(rightArm);
@@ -439,613 +304,343 @@ export class AfterlightPlayer {
       HANDS
     */
 
-    const handGeometry = new THREE.SphereGeometry(
-      0.12,
-      12,
-      8
+    this.addSphere(
+      "leftHand",
+      0.115,
+      skin,
+      new THREE.Vector3(-0.55, 0.82, 0)
     );
 
-    const leftHand = new THREE.Mesh(
-      handGeometry,
+    this.addSphere(
+      "rightHand",
+      0.115,
+      skin,
+      new THREE.Vector3(0.55, 0.82, 0)
+    );
+
+    /*
+      NECK
+    */
+
+    this.addBox(
+      "neck",
+      new THREE.Vector3(0.18, 0.22, 0.18),
+      skin,
+      new THREE.Vector3(0, 1.88, 0)
+    );
+
+    /*
+      HEAD
+    */
+
+    const head = new THREE.Mesh(
+      new THREE.SphereGeometry(0.355, 24, 18),
       skin
     );
 
-    const rightHand = new THREE.Mesh(
-      handGeometry,
-      skin
-    );
+    head.position.y = 2.18;
+    head.scale.set(0.92, 1.08, 0.9);
 
-    leftHand.position.set(
-      -0.56,
-      0.79,
-      0
-    );
-
-    rightHand.position.set(
-      0.56,
-      0.79,
-      0
-    );
-
-    this.body.add(leftHand);
-    this.body.add(rightHand);
+    this.body.add(head);
+    this.parts.head = head;
 
     /*
-      WAIST
+      EARS
     */
 
-    const waist = new THREE.Mesh(
-      new THREE.CylinderGeometry(
-        0.35,
-        0.4,
-        0.22,
-        12
-      ),
-      suit
+    this.addSphere(
+      "leftEar",
+      0.07,
+      skin,
+      new THREE.Vector3(-0.34, 2.18, 0)
     );
 
-    waist.position.y = 0.78;
-
-    this.body.add(waist);
+    this.addSphere(
+      "rightEar",
+      0.07,
+      skin,
+      new THREE.Vector3(0.34, 2.18, 0)
+    );
 
     /*
-      LEGS
+      EYES
     */
 
-    const legGeometry = new THREE.CapsuleGeometry(
-      0.15,
-      0.72,
-      5,
-      8
+    const eyeMaterial = this.mat(0x090b10, 0.25, 0.05);
+
+    this.addSphere(
+      "leftEye",
+      0.045,
+      eyeMaterial,
+      new THREE.Vector3(-0.12, 2.22, 0.335)
     );
 
-    const leftLeg = new THREE.Mesh(
-      legGeometry,
-      suit
+    this.addSphere(
+      "rightEye",
+      0.045,
+      eyeMaterial,
+      new THREE.Vector3(0.12, 2.22, 0.335)
     );
-
-    const rightLeg = new THREE.Mesh(
-      legGeometry,
-      suit
-    );
-
-    leftLeg.position.set(
-      -0.21,
-      0.35,
-      0
-    );
-
-    rightLeg.position.set(
-      0.21,
-      0.35,
-      0
-    );
-
-    this.body.add(leftLeg);
-    this.body.add(rightLeg);
-
-    this.parts.leftLeg = leftLeg;
-    this.parts.rightLeg = rightLeg;
 
     /*
-      SHOES
+      EYEBROWS
     */
 
-    const shoeGeometry = new THREE.BoxGeometry(
-      0.28,
-      0.16,
-      0.48
+    this.addBox(
+      "leftBrow",
+      new THREE.Vector3(0.10, 0.025, 0.025),
+      hair,
+      new THREE.Vector3(-0.12, 2.30, 0.34)
     );
 
-    const leftShoe = new THREE.Mesh(
-      shoeGeometry,
-      shoes
+    this.addBox(
+      "rightBrow",
+      new THREE.Vector3(0.10, 0.025, 0.025),
+      hair,
+      new THREE.Vector3(0.12, 2.30, 0.34)
     );
-
-    const rightShoe = new THREE.Mesh(
-      shoeGeometry,
-      shoes
-    );
-
-    leftShoe.position.set(
-      -0.21,
-      -0.04,
-      0.08
-    );
-
-    rightShoe.position.set(
-      0.21,
-      -0.04,
-      0.08
-    );
-
-    this.body.add(leftShoe);
-    this.body.add(rightShoe);
 
     /*
-      FUTURISTIC CHEST PANEL
+      NOSE
     */
 
-    const chestPanel = new THREE.Mesh(
-      new THREE.BoxGeometry(
-        0.28,
-        0.36,
-        0.035
-      ),
-      accent
+    this.addSphere(
+      "nose",
+      0.045,
+      skin,
+      new THREE.Vector3(0, 2.13, 0.355),
+      new THREE.Vector3(1, 1.2, 1.2)
     );
-
-    chestPanel.position.set(
-      0,
-      1.36,
-      0.34
-    );
-
-    this.body.add(chestPanel);
 
     /*
-      WAIST LIGHT
+      MOUTH
     */
 
-    const belt = new THREE.Mesh(
-      new THREE.BoxGeometry(
-        0.68,
-        0.06,
-        0.42
-      ),
-      accent
+    this.addBox(
+      "mouth",
+      new THREE.Vector3(0.12, 0.018, 0.018),
+      this.mat(0x552932, 0.8, 0),
+      new THREE.Vector3(0, 2.02, 0.34)
     );
 
-    belt.position.y = 0.83;
-
-    this.body.add(belt);
-
     /*
-      SHOULDER LIGHTS
+      HAIR
     */
 
-    const shoulderLightGeometry =
-      new THREE.SphereGeometry(
-        0.055,
-        10,
-        8
-      );
-
-    const lightMaterial =
-      new THREE.MeshStandardMaterial({
-        color: s.accent,
-        emissive: s.accent,
-        emissiveIntensity: 2
-      });
-
-    const leftLight = new THREE.Mesh(
-      shoulderLightGeometry,
-      lightMaterial
-    );
-
-    const rightLight = new THREE.Mesh(
-      shoulderLightGeometry,
-      lightMaterial
-    );
-
-    leftLight.position.set(
-      -0.52,
-      1.58,
-      0.16
-    );
-
-    rightLight.position.set(
-      0.52,
-      1.58,
-      0.16
-    );
-
-    this.body.add(leftLight);
-    this.body.add(rightLight);
+    this.createHair();
 
     /*
-      LOCAL PLAYER GLOW
+      ROLE DEVICE
+    */
+
+    const device = this.addBox(
+      "roleDevice",
+      new THREE.Vector3(0.14, 0.19, 0.05),
+      accent,
+      new THREE.Vector3(0.34, 1.25, 0.29)
+    );
+
+    device.rotation.z = -0.15;
+
+    /*
+      WRIST LIGHT
+    */
+
+    const wristMaterial = new THREE.MeshStandardMaterial({
+      color: s.accent,
+      emissive: s.accent,
+      emissiveIntensity: 2.5
+    });
+
+    this.addSphere(
+      "wristLight",
+      0.045,
+      wristMaterial,
+      new THREE.Vector3(-0.62, 0.93, 0)
+    );
+
+    /*
+      LOCAL PLAYER RING
     */
 
     if (this.isLocal) {
       const ring = new THREE.Mesh(
-        new THREE.RingGeometry(
-          0.58,
-          0.64,
-          32
-        ),
+        new THREE.RingGeometry(0.58, 0.64, 40),
         new THREE.MeshBasicMaterial({
           color: s.accent,
           transparent: true,
-          opacity: 0.75,
+          opacity: 0.8,
           side: THREE.DoubleSide
         })
       );
 
       ring.rotation.x = -Math.PI / 2;
-      ring.position.y = 0.03;
+      ring.position.y = 0.035;
 
       this.group.add(ring);
       this.parts.localRing = ring;
     }
 
     /*
-      PLAYER SHADOW
+      SHADOW
     */
 
     const shadow = new THREE.Mesh(
-      new THREE.CircleGeometry(
-        0.48,
-        24
-      ),
+      new THREE.CircleGeometry(0.48, 28),
       new THREE.MeshBasicMaterial({
         color: 0x000000,
         transparent: true,
-        opacity: 0.35,
+        opacity: 0.38,
         depthWrite: false
       })
     );
 
     shadow.rotation.x = -Math.PI / 2;
-    shadow.position.y = 0.02;
+    shadow.position.y = 0.025;
 
     this.group.add(shadow);
   }
 
   createHair() {
     const s = this.style;
+    const hairMaterial = this.mat(s.hair, 0.45, 0);
 
-    const hairMaterial = this.material(
-      s.hair,
-      0.5,
-      0
+    const cap = new THREE.Mesh(
+      new THREE.SphereGeometry(0.37, 20, 14),
+      hairMaterial
     );
 
-    if (s.hairStyle === "short") {
-      const hair = new THREE.Mesh(
-        new THREE.SphereGeometry(
-          0.37,
-          16,
-          10,
-          0,
-          Math.PI * 2,
-          0,
-          Math.PI * 0.48
-        ),
-        hairMaterial
-      );
+    cap.position.set(0, 2.33, -0.01);
+    cap.scale.set(1, 0.62, 0.98);
 
-      hair.position.y = 2.32;
-      hair.scale.z = 0.95;
+    this.body.add(cap);
 
-      this.body.add(hair);
+    if (s.hairStyle === "long") {
+      for (const x of [-0.30, 0.30]) {
+        const lock = new THREE.Mesh(
+          new THREE.CapsuleGeometry(0.11, 0.52, 6, 9),
+          hairMaterial
+        );
+
+        lock.position.set(x, 2.10, -0.02);
+        this.body.add(lock);
+      }
     }
 
-    else if (s.hairStyle === "fade") {
-      const top = new THREE.Mesh(
-        new THREE.SphereGeometry(
-          0.34,
-          16,
-          10,
-          0,
-          Math.PI * 2,
-          0,
-          Math.PI * 0.42
-        ),
-        hairMaterial
-      );
-
-      top.position.y = 2.34;
-
-      this.body.add(top);
-    }
-
-    else if (s.hairStyle === "medium") {
-      const hair = new THREE.Mesh(
-        new THREE.SphereGeometry(
-          0.39,
-          16,
-          12
-        ),
-        hairMaterial
-      );
-
-      hair.position.y = 2.3;
-      hair.scale.set(
-        1,
-        0.9,
-        0.95
-      );
-
-      this.body.add(hair);
-    }
-
-    else if (s.hairStyle === "long") {
-      const top = new THREE.Mesh(
-        new THREE.SphereGeometry(
-          0.38,
-          16,
-          12
-        ),
-        hairMaterial
-      );
-
-      top.position.y = 2.3;
-
-      this.body.add(top);
-
-      const leftHair = new THREE.Mesh(
-        new THREE.CapsuleGeometry(
-          0.12,
-          0.52,
-          6,
-          8
-        ),
-        hairMaterial
-      );
-
-      const rightHair = leftHair.clone();
-
-      leftHair.position.set(
-        -0.32,
-        2.05,
-        -0.02
-      );
-
-      rightHair.position.set(
-        0.32,
-        2.05,
-        -0.02
-      );
-
-      this.body.add(leftHair);
-      this.body.add(rightHair);
-    }
-
-    else if (s.hairStyle === "ponytail") {
-      const top = new THREE.Mesh(
-        new THREE.SphereGeometry(
-          0.38,
-          16,
-          12
-        ),
-        hairMaterial
-      );
-
-      top.position.y = 2.3;
-
-      this.body.add(top);
-
+    if (s.hairStyle === "ponytail") {
       const pony = new THREE.Mesh(
-        new THREE.CapsuleGeometry(
-          0.13,
-          0.55,
-          6,
-          8
-        ),
+        new THREE.CapsuleGeometry(0.12, 0.55, 6, 9),
         hairMaterial
       );
 
-      pony.position.set(
-        0,
-        2.05,
-        -0.28
-      );
-
+      pony.position.set(0, 2.08, -0.31);
       pony.rotation.x = -0.35;
 
       this.body.add(pony);
     }
 
-    else if (s.hairStyle === "bob") {
-      const hair = new THREE.Mesh(
-        new THREE.SphereGeometry(
-          0.4,
-          16,
-          12
-        ),
-        hairMaterial
-      );
+    if (s.hairStyle === "curly") {
+      for (let i = 0; i < 9; i++) {
+        const a = (i / 9) * Math.PI * 2;
 
-      hair.position.y = 2.28;
-      hair.scale.y = 0.95;
-
-      this.body.add(hair);
-    }
-
-    else if (s.hairStyle === "curly") {
-      const main = new THREE.Mesh(
-        new THREE.SphereGeometry(
-          0.39,
-          16,
-          12
-        ),
-        hairMaterial
-      );
-
-      main.position.y = 2.31;
-
-      this.body.add(main);
-
-      for (let i = 0; i < 7; i++) {
         const curl = new THREE.Mesh(
-          new THREE.SphereGeometry(
-            0.12,
-            10,
-            8
-          ),
+          new THREE.SphereGeometry(0.105, 10, 8),
           hairMaterial
         );
 
-        const angle =
-          (i / 7) * Math.PI * 2;
-
         curl.position.set(
-          Math.cos(angle) * 0.3,
-          2.29 + Math.sin(i) * 0.04,
-          Math.sin(angle) * 0.25
+          Math.cos(a) * 0.30,
+          2.32 + Math.sin(i) * 0.035,
+          Math.sin(a) * 0.25
         );
 
         this.body.add(curl);
       }
     }
+
+    if (s.hairStyle === "fade") {
+      cap.scale.set(0.95, 0.48, 0.9);
+    }
+
+    if (s.hairStyle === "bob") {
+      cap.scale.set(1.04, 0.75, 1);
+    }
   }
 
   buildNameplate() {
-    const canvas =
-      document.createElement("canvas");
+    const canvas = document.createElement("canvas");
 
     canvas.width = 512;
     canvas.height = 128;
 
     const ctx = canvas.getContext("2d");
 
-    ctx.clearRect(
-      0,
-      0,
-      canvas.width,
-      canvas.height
-    );
+    ctx.clearRect(0, 0, 512, 128);
 
-    /*
-      BACKGROUND
-    */
+    ctx.fillStyle = "rgba(4,10,17,0.88)";
 
-    ctx.fillStyle =
-      "rgba(5,12,20,0.86)";
-
-    this.roundRect(
-      ctx,
-      8,
-      8,
-      496,
-      112,
-      18
-    );
-
+    this.roundRect(ctx, 8, 8, 496, 112, 18);
     ctx.fill();
 
-    /*
-      BORDER
-    */
-
-    ctx.strokeStyle =
-      this.isLocal
-        ? "#35e8ff"
-        : "#587080";
+    ctx.strokeStyle = this.isLocal
+      ? "#35e8ff"
+      : "#496270";
 
     ctx.lineWidth = 4;
 
-    this.roundRect(
-      ctx,
-      8,
-      8,
-      496,
-      112,
-      18
-    );
-
+    this.roundRect(ctx, 8, 8, 496, 112, 18);
     ctx.stroke();
-
-    /*
-      NAME
-    */
 
     ctx.textAlign = "center";
 
-    ctx.font =
-      "bold 32px Arial";
-
-    ctx.fillStyle =
-      "#ffffff";
+    ctx.font = "bold 31px Arial";
+    ctx.fillStyle = "#ffffff";
 
     ctx.fillText(
-      this.name,
+      this.name.substring(0, 20),
       256,
-      52
+      51
     );
 
-    /*
-      ROLE
-    */
-
-    ctx.font =
-      "20px Arial";
-
-    ctx.fillStyle =
-      this.isLocal
-        ? "#35e8ff"
-        : "#a9c5d4";
+    ctx.font = "20px Arial";
+    ctx.fillStyle = this.isLocal
+      ? "#35e8ff"
+      : "#a9c5d4";
 
     ctx.fillText(
       this.role,
       256,
-      84
+      82
     );
 
-    /*
-      LOCAL LABEL
-    */
-
     if (this.isLocal) {
-      ctx.font =
-        "bold 16px Arial";
-
-      ctx.fillStyle =
-        "#ffffff";
-
-      ctx.fillText(
-        "YOU",
-        256,
-        106
-      );
+      ctx.font = "bold 16px Arial";
+      ctx.fillStyle = "#ffffff";
+      ctx.fillText("YOU", 256, 106);
     }
 
-    const texture =
-      new THREE.CanvasTexture(canvas);
-
+    const texture = new THREE.CanvasTexture(canvas);
     texture.needsUpdate = true;
 
-    const material =
+    this.nameplate = new THREE.Sprite(
       new THREE.SpriteMaterial({
         map: texture,
         transparent: true,
         depthTest: false
-      });
-
-    this.nameplate =
-      new THREE.Sprite(material);
-
-    this.nameplate.scale.set(
-      2.4,
-      0.6,
-      1
+      })
     );
 
-    this.nameplate.position.y = 3.05;
+    this.nameplate.scale.set(2.4, 0.6, 1);
+    this.nameplate.position.y = 3.03;
 
     this.group.add(this.nameplate);
   }
 
-  roundRect(
-    ctx,
-    x,
-    y,
-    width,
-    height,
-    radius
-  ) {
+  roundRect(ctx, x, y, width, height, radius) {
     ctx.beginPath();
 
-    ctx.moveTo(
-      x + radius,
-      y
-    );
-
-    ctx.lineTo(
-      x + width - radius,
-      y
-    );
+    ctx.moveTo(x + radius, y);
+    ctx.lineTo(x + width - radius, y);
 
     ctx.quadraticCurveTo(
       x + width,
@@ -1066,10 +661,7 @@ export class AfterlightPlayer {
       y + height
     );
 
-    ctx.lineTo(
-      x + radius,
-      y + height
-    );
+    ctx.lineTo(x + radius, y + height);
 
     ctx.quadraticCurveTo(
       x,
@@ -1078,10 +670,7 @@ export class AfterlightPlayer {
       y + height - radius
     );
 
-    ctx.lineTo(
-      x,
-      y + radius
-    );
+    ctx.lineTo(x, y + radius);
 
     ctx.quadraticCurveTo(
       x,
@@ -1119,48 +708,19 @@ export class AfterlightPlayer {
         );
       }
     }
-
-    if (data.name) {
-      this.name = data.name;
-    }
-
-    if (data.role) {
-      this.role = data.role;
-    }
   }
 
-  setLocalPosition(
-    x,
-    y,
-    z
-  ) {
-    this.position.set(
-      x,
-      y,
-      z
-    );
-
-    this.targetPosition.copy(
-      this.position
-    );
-
-    this.group.position.copy(
-      this.position
-    );
+  setLocalPosition(x, y, z) {
+    this.position.set(x, y, z);
+    this.targetPosition.copy(this.position);
+    this.group.position.copy(this.position);
   }
 
   update(delta = 0.016) {
-    /*
-      Remote player interpolation
-    */
-
     if (!this.isLocal) {
       this.position.lerp(
         this.targetPosition,
-        Math.min(
-          1,
-          delta * 10
-        )
+        Math.min(1, delta * 10)
       );
 
       this.group.position.copy(
@@ -1168,95 +728,41 @@ export class AfterlightPlayer {
       );
     }
 
-    /*
-      Detect movement
-    */
-
     const movement =
       this.position.distanceTo(
         this.lastPosition
       );
 
-    const moving =
-      movement > 0.001;
-
-    /*
-      Walking animation
-    */
+    const moving = movement > 0.001;
 
     if (moving) {
-      this.walkTime +=
-        delta * 10;
+      this.walkTime += delta * 10;
 
       const swing =
-        Math.sin(
-          this.walkTime
-        ) * 0.45;
+        Math.sin(this.walkTime) * 0.42;
 
-      if (this.parts.leftArm) {
-        this.parts.leftArm.rotation.x =
-          swing;
-      }
+      this.parts.leftArm.rotation.x = swing;
+      this.parts.rightArm.rotation.x = -swing;
 
-      if (this.parts.rightArm) {
-        this.parts.rightArm.rotation.x =
-          -swing;
-      }
-
-      if (this.parts.leftLeg) {
-        this.parts.leftLeg.rotation.x =
-          -swing;
-      }
-
-      if (this.parts.rightLeg) {
-        this.parts.rightLeg.rotation.x =
-          swing;
-      }
+      this.parts.leftLeg.rotation.x = -swing;
+      this.parts.rightLeg.rotation.x = swing;
 
       this.body.position.y =
         Math.abs(
-          Math.sin(
-            this.walkTime * 2
-          )
+          Math.sin(this.walkTime * 2)
         ) * 0.025;
-    }
-
-    /*
-      Idle animation
-    */
-
-    else {
-      this.walkTime +=
-        delta * 1.5;
-
-      const idle =
-        Math.sin(
-          this.walkTime
-        ) * 0.012;
+    } else {
+      this.walkTime += delta * 1.5;
 
       this.body.position.y =
-        idle;
+        Math.sin(this.walkTime) * 0.012;
 
-      if (this.parts.leftArm) {
-        this.parts.leftArm.rotation.x *= 0.9;
-      }
+      this.parts.leftArm.rotation.x *= 0.9;
+      this.parts.rightArm.rotation.x *= 0.9;
 
-      if (this.parts.rightArm) {
-        this.parts.rightArm.rotation.x *= 0.9;
-      }
-
-      if (this.parts.leftLeg) {
-        this.parts.leftLeg.rotation.x *= 0.9;
-      }
-
-      if (this.parts.rightLeg) {
-        this.parts.rightLeg.rotation.x *= 0.9;
-      }
+      this.parts.leftLeg.rotation.x *= 0.9;
+      this.parts.rightLeg.rotation.x *= 0.9;
     }
-
-    /*
-      Local player ring animation
-    */
 
     if (this.parts.localRing) {
       this.parts.localRing.rotation.z +=
@@ -1281,34 +787,23 @@ export class AfterlightPlayer {
   }
 
   remove() {
-    this.group.traverse(
-      object => {
-        if (object.geometry) {
-          object.geometry.dispose();
-        }
+    this.group.traverse(object => {
+      if (object.geometry) {
+        object.geometry.dispose();
+      }
 
-        if (
-          object.material
-        ) {
-          if (
-            Array.isArray(
-              object.material
-            )
-          ) {
-            object.material.forEach(
-              material =>
-                material.dispose()
-            );
-          } else {
-            object.material.dispose();
-          }
+      if (object.material) {
+        if (Array.isArray(object.material)) {
+          object.material.forEach(
+            material => material.dispose()
+          );
+        } else {
+          object.material.dispose();
         }
       }
-    );
+    });
 
-    if (
-      this.group.parent
-    ) {
+    if (this.group.parent) {
       this.group.parent.remove(
         this.group
       );
