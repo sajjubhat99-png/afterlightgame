@@ -35,8 +35,6 @@
       display: block;
     }
 
-    /* JOIN SCREEN */
-
     #joinScreen {
       position: absolute;
       inset: 0;
@@ -45,7 +43,7 @@
       align-items: center;
       justify-content: center;
       background:
-        radial-gradient(circle at center, rgba(0, 190, 255, 0.12), transparent 45%),
+        radial-gradient(circle at center, rgba(0,190,255,.12), transparent 45%),
         linear-gradient(135deg, #02060a, #06131b 50%, #02060a);
     }
 
@@ -53,11 +51,11 @@
       width: min(440px, calc(100% - 32px));
       padding: 34px;
       text-align: center;
-      border: 1px solid rgba(0, 220, 255, 0.35);
-      background: rgba(3, 14, 21, 0.9);
+      border: 1px solid rgba(0,220,255,.35);
+      background: rgba(3,14,21,.94);
       box-shadow:
-        0 0 40px rgba(0, 200, 255, 0.08),
-        inset 0 0 30px rgba(0, 180, 255, 0.04);
+        0 0 40px rgba(0,200,255,.08),
+        inset 0 0 30px rgba(0,180,255,.04);
     }
 
     .logo {
@@ -66,8 +64,8 @@
       letter-spacing: 10px;
       color: #dfffff;
       text-shadow:
-        0 0 12px rgba(0, 230, 255, 0.8),
-        0 0 35px rgba(0, 180, 255, 0.4);
+        0 0 12px rgba(0,230,255,.8),
+        0 0 35px rgba(0,180,255,.4);
     }
 
     .tagline {
@@ -87,9 +85,9 @@
       width: 100%;
       margin-top: 20px;
       padding: 15px;
-      border: 1px solid rgba(0, 220, 255, 0.4);
+      border: 1px solid rgba(0,220,255,.4);
       outline: none;
-      background: rgba(0, 0, 0, 0.45);
+      background: rgba(0,0,0,.45);
       color: white;
       font-size: 16px;
       text-align: center;
@@ -97,7 +95,7 @@
 
     #nameInput:focus {
       border-color: #00eaff;
-      box-shadow: 0 0 15px rgba(0, 220, 255, 0.15);
+      box-shadow: 0 0 15px rgba(0,220,255,.15);
     }
 
     #joinButton {
@@ -105,7 +103,7 @@
       margin-top: 14px;
       padding: 15px;
       border: 1px solid #00dfff;
-      background: rgba(0, 190, 230, 0.12);
+      background: rgba(0,190,230,.12);
       color: #dfffff;
       cursor: pointer;
       font-weight: bold;
@@ -113,7 +111,7 @@
     }
 
     #joinButton:hover {
-      background: rgba(0, 210, 255, 0.22);
+      background: rgba(0,210,255,.22);
     }
 
     #connectionStatus {
@@ -122,8 +120,6 @@
       color: #75dcea;
       font-size: 12px;
     }
-
-    /* HUD */
 
     #hud {
       position: absolute;
@@ -135,10 +131,10 @@
 
     .hudPanel {
       position: absolute;
-      background: rgba(2, 10, 15, 0.78);
-      border: 1px solid rgba(0, 220, 255, 0.24);
+      background: rgba(2,10,15,.78);
+      border: 1px solid rgba(0,220,255,.24);
       backdrop-filter: blur(8px);
-      box-shadow: 0 0 25px rgba(0, 190, 255, 0.05);
+      box-shadow: 0 0 25px rgba(0,190,255,.05);
     }
 
     #topBar {
@@ -157,7 +153,6 @@
       font-size: 18px;
       font-weight: 900;
       letter-spacing: 4px;
-      color: #dfffff;
     }
 
     #phase {
@@ -165,6 +160,7 @@
       font-size: 12px;
       letter-spacing: 2px;
       text-transform: uppercase;
+      margin-top: 4px;
     }
 
     #stats {
@@ -178,8 +174,8 @@
       min-width: 72px;
       padding: 7px 9px;
       text-align: center;
-      border: 1px solid rgba(0, 220, 255, 0.15);
-      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid rgba(0,220,255,.15);
+      background: rgba(0,0,0,.25);
     }
 
     .statLabel {
@@ -194,10 +190,7 @@
       margin-top: 2px;
       font-size: 13px;
       font-weight: bold;
-      color: #dfffff;
     }
-
-    /* LEFT PANEL */
 
     #competitorsPanel {
       left: 12px;
@@ -227,7 +220,7 @@
       justify-content: space-between;
       gap: 8px;
       padding: 7px 4px;
-      border-bottom: 1px solid rgba(255,255,255,0.05);
+      border-bottom: 1px solid rgba(255,255,255,.05);
       font-size: 11px;
     }
 
@@ -245,11 +238,9 @@
     }
 
     .dead {
-      opacity: 0.35;
+      opacity: .35;
       text-decoration: line-through;
     }
-
-    /* LOG */
 
     #logPanel {
       left: 12px;
@@ -271,8 +262,6 @@
       padding: 2px 0;
     }
 
-    /* ACTIONS */
-
     #actionsPanel {
       right: 12px;
       bottom: 12px;
@@ -289,34 +278,28 @@
 
     .actionButton {
       min-height: 42px;
-      border: 1px solid rgba(0, 220, 255, 0.28);
-      background: rgba(0, 100, 130, 0.16);
+      border: 1px solid rgba(0,220,255,.28);
+      background: rgba(0,100,130,.16);
       color: #dfffff;
       cursor: pointer;
       font-size: 10px;
       font-weight: bold;
-      letter-spacing: 0.5px;
+      letter-spacing: .5px;
     }
 
     .actionButton:hover {
-      background: rgba(0, 200, 240, 0.22);
+      background: rgba(0,200,240,.22);
       border-color: #00dfff;
-    }
-
-    .actionButton:active {
-      transform: scale(0.98);
     }
 
     .actionButton.primary {
       border-color: #00eaff;
-      background: rgba(0, 210, 240, 0.18);
+      background: rgba(0,210,240,.18);
     }
 
     .actionButton.danger {
-      border-color: rgba(255, 90, 110, 0.45);
+      border-color: rgba(255,90,110,.45);
     }
-
-    /* LOCATION */
 
     #locationPanel {
       right: 12px;
@@ -330,8 +313,6 @@
       font-size: 10px;
       letter-spacing: 1px;
     }
-
-    /* MOBILE */
 
     #mobileControls {
       position: absolute;
@@ -353,8 +334,8 @@
       width: 48px;
       height: 48px;
       border-radius: 8px;
-      border: 1px solid rgba(0, 220, 255, 0.35);
-      background: rgba(2, 15, 22, 0.8);
+      border: 1px solid rgba(0,220,255,.35);
+      background: rgba(2,15,22,.8);
       color: white;
       font-size: 18px;
       touch-action: none;
@@ -380,7 +361,7 @@
       top: 51px;
     }
 
-    @media (max-width: 760px) {
+    @media (max-width:760px) {
       #topBar {
         align-items: flex-start;
       }
@@ -425,21 +406,15 @@
       }
     }
 
-    @media (max-width: 520px) {
-      #competitorsPanel {
-        display: none;
-      }
-
-      #logPanel {
+    @media (max-width:520px) {
+      #competitorsPanel,
+      #logPanel,
+      #locationPanel {
         display: none;
       }
 
       #actionsPanel {
         width: 190px;
-      }
-
-      #locationPanel {
-        display: none;
       }
 
       .actionGrid {
@@ -464,1553 +439,1796 @@
 
 <body>
 
-  <canvas id="game"></canvas>
+<canvas id="game"></canvas>
 
-  <!-- JOIN SCREEN -->
+<section id="joinScreen">
 
-  <section id="joinScreen">
-    <div class="joinBox">
-      <div class="logo">AFTERLIGHT</div>
-      <div class="tagline">THE CHALLENGE IS ONLY HALF THE GAME</div>
+  <div class="joinBox">
 
-      <div class="joinTitle">ENTER AFTERLIGHT</div>
+    <div class="logo">AFTERLIGHT</div>
 
-      <input
-        id="nameInput"
-        type="text"
-        maxlength="18"
-        placeholder="Enter your competitor name"
-        autocomplete="off"
-      >
-
-      <button id="joinButton">ENTER FACILITY</button>
-
-      <div id="connectionStatus">Connecting to AFTERLIGHT...</div>
+    <div class="tagline">
+      THE CHALLENGE IS ONLY HALF THE GAME
     </div>
-  </section>
 
-  <!-- GAME HUD -->
+    <div class="joinTitle">
+      ENTER AFTERLIGHT
+    </div>
 
-  <section id="hud">
+    <input
+      id="nameInput"
+      type="text"
+      maxlength="18"
+      placeholder="Enter your competitor name"
+      autocomplete="off"
+      spellcheck="false"
+    >
 
-    <div id="topBar" class="hudPanel">
-      <div>
-        <div id="brandSmall">AFTERLIGHT</div>
-        <div id="phase">LOBBY</div>
+    <button id="joinButton">
+      ENTER FACILITY
+    </button>
+
+    <div id="connectionStatus">
+      Connecting to AFTERLIGHT...
+    </div>
+
+  </div>
+
+</section>
+
+
+<section id="hud">
+
+  <div id="topBar" class="hudPanel">
+
+    <div>
+      <div id="brandSmall">
+        AFTERLIGHT
       </div>
 
-      <div id="stats">
-        <div class="stat">
-          <span class="statLabel">CREDITS</span>
-          <span id="credits" class="statValue">500</span>
-        </div>
-
-        <div class="stat">
-          <span class="statLabel">INFLUENCE</span>
-          <span id="influence" class="statValue">10</span>
-        </div>
-
-        <div class="stat">
-          <span class="statLabel">TRUST</span>
-          <span id="trust" class="statValue">50</span>
-        </div>
-
-        <div class="stat">
-          <span class="statLabel">ENERGY</span>
-          <span id="energy" class="statValue">100</span>
-        </div>
-
-        <div class="stat">
-          <span class="statLabel">PLAYERS</span>
-          <span id="playerCount" class="statValue">0/16</span>
-        </div>
+      <div id="phase">
+        LOBBY
       </div>
     </div>
 
-    <div id="competitorsPanel" class="hudPanel">
-      <div class="panelTitle">Competitors</div>
-      <div id="competitors"></div>
-    </div>
+    <div id="stats">
 
-    <div id="locationPanel" class="hudPanel">
-      <div class="panelTitle">Location</div>
-      <div id="locationText">AFTERLIGHT FACILITY</div>
-    </div>
-
-    <div id="logPanel" class="hudPanel">
-      <div class="panelTitle">AFTERLIGHT LOG</div>
-      <div id="log"></div>
-    </div>
-
-    <div id="actionsPanel" class="hudPanel">
-      <div class="panelTitle">Actions</div>
-
-      <div class="actionGrid">
-
-        <button id="readyButton" class="actionButton primary">
-          READY
-        </button>
-
-        <button id="challengeButton" class="actionButton">
-          CHALLENGE
-        </button>
-
-        <button id="socialButton" class="actionButton">
-          SOCIAL
-        </button>
-
-        <button id="missionButton" class="actionButton">
-          SECRET MISSION
-        </button>
-
-        <button id="parallelButton" class="actionButton">
-          PARALLEL WORLD
-        </button>
-
-        <button id="architectButton" class="actionButton">
-          INVESTIGATE
-        </button>
-
-        <button id="heistButton" class="actionButton">
-          HEIST
-        </button>
-
-        <button id="vacationButton" class="actionButton">
-          VACATION
-        </button>
-
-        <button id="storeButton" class="actionButton">
-          POWER STORE
-        </button>
-
-        <button id="voteButton" class="actionButton danger">
-          VOTE
-        </button>
-
+      <div class="stat">
+        <span class="statLabel">CREDITS</span>
+        <span id="credits" class="statValue">500</span>
       </div>
-    </div>
 
-    <!-- MOBILE MOVEMENT -->
-
-    <div id="mobileControls">
-      <div class="mobilePad">
-
-        <button id="moveUp" class="moveButton">▲</button>
-        <button id="moveLeft" class="moveButton">◀</button>
-        <button id="moveDown" class="moveButton">▼</button>
-        <button id="moveRight" class="moveButton">▶</button>
-
+      <div class="stat">
+        <span class="statLabel">INFLUENCE</span>
+        <span id="influence" class="statValue">10</span>
       </div>
+
+      <div class="stat">
+        <span class="statLabel">TRUST</span>
+        <span id="trust" class="statValue">50</span>
+      </div>
+
+      <div class="stat">
+        <span class="statLabel">ENERGY</span>
+        <span id="energy" class="statValue">100</span>
+      </div>
+
+      <div class="stat">
+        <span class="statLabel">PLAYERS</span>
+        <span id="playerCount" class="statValue">0/16</span>
+      </div>
+
     </div>
 
-  </section>
-
-  <script type="module">
-
-    import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js";
-
-    import { AfterlightWorld }
-      from "./world.js";
-
-    import { AfterlightPlayer }
-      from "./player.js";
+  </div>
 
 
-    /* =========================================================
-       CONFIG
-    ========================================================= */
+  <div id="competitorsPanel" class="hudPanel">
 
-    const SERVER_URL =
-      "wss://afterlightgame.sajjubhat99-png.workers.dev/ws";
+    <div class="panelTitle">
+      Competitors
+    </div>
 
-    const MAX_PLAYERS = 16;
+    <div id="competitors"></div>
 
-
-    /* =========================================================
-       DOM
-    ========================================================= */
-
-    const canvas =
-      document.getElementById("game");
-
-    const joinScreen =
-      document.getElementById("joinScreen");
-
-    const hud =
-      document.getElementById("hud");
-
-    const nameInput =
-      document.getElementById("nameInput");
-
-    const joinButton =
-      document.getElementById("joinButton");
-
-    const connectionStatus =
-      document.getElementById("connectionStatus");
-
-    const phaseElement =
-      document.getElementById("phase");
-
-    const creditsElement =
-      document.getElementById("credits");
-
-    const influenceElement =
-      document.getElementById("influence");
-
-    const trustElement =
-      document.getElementById("trust");
-
-    const energyElement =
-      document.getElementById("energy");
-
-    const playerCountElement =
-      document.getElementById("playerCount");
-
-    const competitorsElement =
-      document.getElementById("competitors");
-
-    const logElement =
-      document.getElementById("log");
-
-    const locationText =
-      document.getElementById("locationText");
+  </div>
 
 
-    /* =========================================================
-       THREE.JS
-    ========================================================= */
+  <div id="locationPanel" class="hudPanel">
 
-    const scene =
-      new THREE.Scene();
+    <div class="panelTitle">
+      Location
+    </div>
 
-    scene.background =
-      new THREE.Color(0x02070b);
+    <div id="locationText">
+      AFTERLIGHT FACILITY
+    </div>
 
-    scene.fog =
-      new THREE.FogExp2(
-        0x02070b,
-        0.018
-      );
+  </div>
 
 
-    const camera =
-      new THREE.PerspectiveCamera(
-        60,
-        window.innerWidth / window.innerHeight,
-        0.1,
-        1000
-      );
+  <div id="logPanel" class="hudPanel">
 
-    camera.position.set(
-      0,
-      7,
-      12
+    <div class="panelTitle">
+      AFTERLIGHT LOG
+    </div>
+
+    <div id="log"></div>
+
+  </div>
+
+
+  <div id="actionsPanel" class="hudPanel">
+
+    <div class="panelTitle">
+      Actions
+    </div>
+
+    <div class="actionGrid">
+
+      <button id="readyButton" class="actionButton primary">
+        READY
+      </button>
+
+      <button id="challengeButton" class="actionButton">
+        CHALLENGE
+      </button>
+
+      <button id="socialButton" class="actionButton">
+        SOCIAL
+      </button>
+
+      <button id="missionButton" class="actionButton">
+        SECRET MISSION
+      </button>
+
+      <button id="parallelButton" class="actionButton">
+        PARALLEL WORLD
+      </button>
+
+      <button id="architectButton" class="actionButton">
+        INVESTIGATE
+      </button>
+
+      <button id="heistButton" class="actionButton">
+        HEIST
+      </button>
+
+      <button id="vacationButton" class="actionButton">
+        VACATION
+      </button>
+
+      <button id="storeButton" class="actionButton">
+        POWER STORE
+      </button>
+
+      <button id="voteButton" class="actionButton danger">
+        VOTE
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <div id="mobileControls">
+
+    <div class="mobilePad">
+
+      <button id="moveUp" class="moveButton">
+        ▲
+      </button>
+
+      <button id="moveLeft" class="moveButton">
+        ◀
+      </button>
+
+      <button id="moveDown" class="moveButton">
+        ▼
+      </button>
+
+      <button id="moveRight" class="moveButton">
+        ▶
+      </button>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<script type="module">
+
+import * as THREE from
+  "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js";
+
+import { AfterlightWorld }
+  from "./world.js";
+
+import { AfterlightPlayer }
+  from "./player.js";
+
+
+/* =========================================================
+   CONNECTION
+========================================================= */
+
+const SERVER_URL =
+  "wss://afterlightgame.sajjubhat99.workers.dev/ws";
+
+const MAX_PLAYERS = 16;
+
+
+/* =========================================================
+   DOM
+========================================================= */
+
+const canvas =
+  document.getElementById("game");
+
+const joinScreen =
+  document.getElementById("joinScreen");
+
+const hud =
+  document.getElementById("hud");
+
+const nameInput =
+  document.getElementById("nameInput");
+
+const joinButton =
+  document.getElementById("joinButton");
+
+const connectionStatus =
+  document.getElementById("connectionStatus");
+
+const phaseElement =
+  document.getElementById("phase");
+
+const creditsElement =
+  document.getElementById("credits");
+
+const influenceElement =
+  document.getElementById("influence");
+
+const trustElement =
+  document.getElementById("trust");
+
+const energyElement =
+  document.getElementById("energy");
+
+const playerCountElement =
+  document.getElementById("playerCount");
+
+const competitorsElement =
+  document.getElementById("competitors");
+
+const logElement =
+  document.getElementById("log");
+
+const locationText =
+  document.getElementById("locationText");
+
+
+/* =========================================================
+   THREE.JS
+========================================================= */
+
+const scene =
+  new THREE.Scene();
+
+scene.background =
+  new THREE.Color(0x02070b);
+
+scene.fog =
+  new THREE.FogExp2(
+    0x02070b,
+    0.018
+  );
+
+
+const camera =
+  new THREE.PerspectiveCamera(
+    60,
+    window.innerWidth /
+      window.innerHeight,
+    0.1,
+    1000
+  );
+
+camera.position.set(
+  0,
+  7,
+  12
+);
+
+
+const renderer =
+  new THREE.WebGLRenderer({
+    canvas,
+    antialias: true,
+    powerPreference: "high-performance"
+  });
+
+renderer.setPixelRatio(
+  Math.min(
+    window.devicePixelRatio,
+    1.5
+  )
+);
+
+renderer.setSize(
+  window.innerWidth,
+  window.innerHeight
+);
+
+
+/* =========================================================
+   WORLD
+========================================================= */
+
+const world =
+  new AfterlightWorld(
+    scene
+  );
+
+
+/* =========================================================
+   STATE
+========================================================= */
+
+let socket = null;
+
+let connected = false;
+
+let joined = false;
+
+let joinRequested = false;
+
+let localPlayerId = null;
+
+let localPlayer = null;
+
+let reconnectTimer = null;
+
+const players =
+  new Map();
+
+const keys = {
+  w: false,
+  a: false,
+  s: false,
+  d: false,
+  ArrowUp: false,
+  ArrowDown: false,
+  ArrowLeft: false,
+  ArrowRight: false
+};
+
+const movement =
+  new THREE.Vector3();
+
+const clock =
+  new THREE.Clock();
+
+
+/* =========================================================
+   HELPERS
+========================================================= */
+
+function safeNumber(
+  value,
+  fallback = 0
+) {
+
+  const number =
+    Number(value);
+
+  return Number.isFinite(number)
+    ? number
+    : fallback;
+}
+
+
+function addLog(
+  message
+) {
+
+  if (!message) {
+    return;
+  }
+
+  const line =
+    document.createElement(
+      "div"
     );
 
+  line.className =
+    "logLine";
 
-    const renderer =
-      new THREE.WebGLRenderer({
-        canvas,
-        antialias: true,
-        powerPreference: "high-performance"
-      });
+  line.textContent =
+    `[${new Date().toLocaleTimeString()}] ${message}`;
 
-    renderer.setPixelRatio(
-      Math.min(window.devicePixelRatio, 1.5)
+  logElement.appendChild(
+    line
+  );
+
+  while (
+    logElement.children.length > 80
+  ) {
+
+    logElement.removeChild(
+      logElement.firstChild
     );
+  }
+
+  logElement.scrollTop =
+    logElement.scrollHeight;
+}
+
+
+function showGame() {
+
+  joinScreen.style.display =
+    "none";
+
+  hud.style.display =
+    "block";
+
+  joined = true;
+}
+
+
+function updateStats(
+  data
+) {
+
+  if (!data) {
+    return;
+  }
+
+  creditsElement.textContent =
+    safeNumber(
+      data.credits,
+      500
+    );
+
+  influenceElement.textContent =
+    safeNumber(
+      data.influence,
+      10
+    );
+
+  trustElement.textContent =
+    safeNumber(
+      data.trust,
+      50
+    );
+
+  energyElement.textContent =
+    safeNumber(
+      data.energy,
+      100
+    );
+}
+
+
+function updatePhase(
+  data
+) {
+
+  if (!data) {
+    return;
+  }
+
+  const phase =
+    data.phase ||
+    data.currentPhase ||
+    "LOBBY";
+
+  phaseElement.textContent =
+    String(
+      phase
+    ).toUpperCase();
+
+  if (
+    phase === "CHALLENGE"
+  ) {
+
+    locationText.textContent =
+      "CHALLENGE ARENA";
+
+  } else if (
+    phase === "SOCIAL"
+  ) {
+
+    locationText.textContent =
+      "SOCIAL FACILITY";
+
+  } else if (
+    phase === "VOTING"
+  ) {
+
+    locationText.textContent =
+      "VOTING ROOM";
+
+  } else {
+
+    locationText.textContent =
+      "AFTERLIGHT FACILITY";
+  }
+}
+
+
+/* =========================================================
+   PLAYER SYSTEM
+========================================================= */
+
+function createPlayer(
+  data
+) {
+
+  if (
+    !data ||
+    !data.id
+  ) {
+    return null;
+  }
+
+  const isLocal =
+    data.id === localPlayerId;
+
+  const player =
+    new AfterlightPlayer(
+      scene,
+      data,
+      isLocal
+    );
+
+  player.updateFromServer(
+    data
+  );
+
+  players.set(
+    data.id,
+    player
+  );
+
+  if (isLocal) {
+    localPlayer =
+      player;
+  }
+
+  return player;
+}
+
+
+function updatePlayer(
+  data
+) {
+
+  if (
+    !data ||
+    !data.id
+  ) {
+    return;
+  }
+
+  let player =
+    players.get(
+      data.id
+    );
+
+  if (!player) {
+    player =
+      createPlayer(
+        data
+      );
+  }
+
+  if (!player) {
+    return;
+  }
+
+  player.updateFromServer(
+    data
+  );
+
+  if (
+    data.id === localPlayerId
+  ) {
+    localPlayer =
+      player;
+  }
+}
+
+
+function updatePlayers(
+  serverPlayers
+) {
+
+  if (
+    !Array.isArray(
+      serverPlayers
+    )
+  ) {
+    return;
+  }
+
+  const ids =
+    new Set();
+
+  for (
+    const data
+    of serverPlayers
+  ) {
+
+    if (!data || !data.id) {
+      continue;
+    }
+
+    ids.add(
+      data.id
+    );
+
+    updatePlayer(
+      data
+    );
+  }
+
+
+  for (
+    const [id, player]
+    of players
+  ) {
+
+    if (
+      !ids.has(id)
+    ) {
+
+      player.remove();
+
+      players.delete(
+        id
+      );
+
+      if (
+        id === localPlayerId
+      ) {
+        localPlayer = null;
+      }
+    }
+  }
+
+
+  playerCountElement.textContent =
+    `${serverPlayers.length}/${MAX_PLAYERS}`;
+
+  renderCompetitorList(
+    serverPlayers
+  );
+}
+
+
+function renderCompetitorList(
+  list
+) {
+
+  competitorsElement.innerHTML =
+    "";
+
+  if (
+    !Array.isArray(list)
+  ) {
+    return;
+  }
+
+  for (
+    const player
+    of list
+  ) {
+
+    const row =
+      document.createElement(
+        "div"
+      );
+
+    row.className =
+      "competitor";
+
+    if (
+      player.alive === false
+    ) {
+      row.classList.add(
+        "dead"
+      );
+    }
+
+    const name =
+      document.createElement(
+        "span"
+      );
+
+    name.className =
+      "competitorName";
+
+    name.textContent =
+      player.id === localPlayerId
+        ? `${player.name || "YOU"} ★`
+        : player.name || "Competitor";
+
+    const role =
+      document.createElement(
+        "span"
+      );
+
+    role.className =
+      "competitorRole";
+
+    role.textContent =
+      player.role ||
+      "Competitor";
+
+    row.appendChild(
+      name
+    );
+
+    row.appendChild(
+      role
+    );
+
+    competitorsElement.appendChild(
+      row
+    );
+  }
+}
+
+
+/* =========================================================
+   CAMERA
+========================================================= */
+
+function updateCamera(
+  delta
+) {
+
+  if (!localPlayer) {
+    return;
+  }
+
+  const group =
+    localPlayer.group;
+
+  if (!group) {
+    return;
+  }
+
+  const target =
+    new THREE.Vector3(
+      group.position.x,
+      group.position.y + 5.5,
+      group.position.z + 9
+    );
+
+  camera.position.lerp(
+    target,
+    Math.min(
+      1,
+      delta * 5
+    )
+  );
+
+  const lookTarget =
+    new THREE.Vector3(
+      group.position.x,
+      group.position.y + 1.2,
+      group.position.z
+    );
+
+  camera.lookAt(
+    lookTarget
+  );
+}
+
+
+/* =========================================================
+   MOVEMENT
+========================================================= */
+
+function updateMovement(
+  delta
+) {
+
+  if (
+    !localPlayer ||
+    !localPlayer.group
+  ) {
+    return;
+  }
+
+  movement.set(
+    0,
+    0,
+    0
+  );
+
+  if (
+    keys.w ||
+    keys.ArrowUp
+  ) {
+    movement.z -= 1;
+  }
+
+  if (
+    keys.s ||
+    keys.ArrowDown
+  ) {
+    movement.z += 1;
+  }
+
+  if (
+    keys.a ||
+    keys.ArrowLeft
+  ) {
+    movement.x -= 1;
+  }
+
+  if (
+    keys.d ||
+    keys.ArrowRight
+  ) {
+    movement.x += 1;
+  }
+
+  if (
+    movement.lengthSq() === 0
+  ) {
+    return;
+  }
+
+  movement.normalize();
+
+  const speed =
+    6 * delta;
+
+  const current =
+    localPlayer.group.position;
+
+  const nextX =
+    THREE.MathUtils.clamp(
+      current.x +
+        movement.x *
+        speed,
+      -22,
+      22
+    );
+
+  const nextZ =
+    THREE.MathUtils.clamp(
+      current.z +
+        movement.z *
+        speed,
+      -22,
+      22
+    );
+
+  localPlayer.setLocalPosition(
+    nextX,
+    current.y,
+    nextZ
+  );
+
+  send({
+    type: "move",
+    x: nextX,
+    y: current.y,
+    z: nextZ
+  });
+}
+
+
+/* =========================================================
+   WEBSOCKET
+========================================================= */
+
+function connect() {
+
+  if (
+    socket &&
+    (
+      socket.readyState ===
+      WebSocket.OPEN ||
+      socket.readyState ===
+      WebSocket.CONNECTING
+    )
+  ) {
+    return;
+  }
+
+  connectionStatus.textContent =
+    "Connecting to AFTERLIGHT...";
+
+  try {
+
+    socket =
+      new WebSocket(
+        SERVER_URL
+      );
+
+  } catch {
+
+    connectionStatus.textContent =
+      "Unable to connect.";
+
+    scheduleReconnect();
+
+    return;
+  }
+
+
+  socket.addEventListener(
+    "open",
+    () => {
+
+      connected = true;
+
+      connectionStatus.textContent =
+        "Connected to AFTERLIGHT.";
+
+      addLog(
+        "Connection established."
+      );
+
+      if (
+        joinRequested
+      ) {
+        sendJoin();
+      }
+    }
+  );
+
+
+  socket.addEventListener(
+    "message",
+    event => {
+
+      let message;
+
+      try {
+
+        message =
+          JSON.parse(
+            event.data
+          );
+
+      } catch {
+
+        return;
+      }
+
+      handleMessage(
+        message
+      );
+    }
+  );
+
+
+  socket.addEventListener(
+    "close",
+    () => {
+
+      connected = false;
+
+      connectionStatus.textContent =
+        "Connection lost. Reconnecting...";
+
+      addLog(
+        "Connection lost."
+      );
+
+      scheduleReconnect();
+    }
+  );
+
+
+  socket.addEventListener(
+    "error",
+    () => {
+
+      connected = false;
+
+      connectionStatus.textContent =
+        "Connection error.";
+    }
+  );
+}
+
+
+function scheduleReconnect() {
+
+  if (
+    reconnectTimer
+  ) {
+    return;
+  }
+
+  reconnectTimer =
+    setTimeout(
+      () => {
+
+        reconnectTimer =
+          null;
+
+        connect();
+
+      },
+      4000
+    );
+}
+
+
+function send(
+  message
+) {
+
+  if (
+    !socket ||
+    socket.readyState !==
+      WebSocket.OPEN
+  ) {
+    return false;
+  }
+
+  try {
+
+    socket.send(
+      JSON.stringify(
+        message
+      )
+    );
+
+    return true;
+
+  } catch {
+
+    return false;
+  }
+}
+
+
+function sendJoin() {
+
+  if (!connected) {
+    return;
+  }
+
+  const name =
+    nameInput.value.trim()
+    || "Competitor";
+
+  send({
+    type: "join",
+    name
+  });
+}
+
+
+/* =========================================================
+   SERVER MESSAGES
+========================================================= */
+
+function handleMessage(
+  message
+) {
+
+  if (!message) {
+    return;
+  }
+
+
+  if (
+    message.type ===
+    "welcome"
+  ) {
+
+    localPlayerId =
+      message.id ||
+      message.playerId ||
+      message.player?.id ||
+      localPlayerId;
+
+    showGame();
+
+    addLog(
+      "Welcome to AFTERLIGHT."
+    );
+
+    if (
+      Array.isArray(
+        message.players
+      )
+    ) {
+
+      updatePlayers(
+        message.players
+      );
+    }
+
+    if (
+      message.state
+    ) {
+
+      updatePhase(
+        message.state
+      );
+
+      updateStats(
+        message.state.self ||
+        message.state.player ||
+        message.state
+      );
+    }
+
+    return;
+  }
+
+
+  if (
+    message.type ===
+    "players"
+  ) {
+
+    updatePlayers(
+      message.players
+    );
+
+    return;
+  }
+
+
+  if (
+    message.type ===
+    "state"
+  ) {
+
+    const state =
+      message.state ||
+      message;
+
+    updatePhase(
+      state
+    );
+
+    updateStats(
+      state.self ||
+      state.player ||
+      state
+    );
+
+    if (
+      Array.isArray(
+        state.players
+      )
+    ) {
+
+      updatePlayers(
+        state.players
+      );
+    }
+
+    if (
+      state.message
+    ) {
+
+      addLog(
+        state.message
+      );
+    }
+
+    return;
+  }
+
+
+  if (
+    message.type ===
+    "log"
+  ) {
+
+    addLog(
+      message.message ||
+      message.text
+    );
+
+    return;
+  }
+
+
+  if (
+    message.type ===
+    "error"
+  ) {
+
+    addLog(
+      `ERROR: ${message.message || "Unknown error"}`
+    );
+
+    return;
+  }
+
+
+  if (
+    Array.isArray(
+      message.players
+    )
+  ) {
+
+    updatePlayers(
+      message.players
+    );
+  }
+
+  if (
+    message.state
+  ) {
+
+    updatePhase(
+      message.state
+    );
+
+    updateStats(
+      message.state.self ||
+      message.state.player ||
+      message.state
+    );
+  }
+
+  if (
+    message.message
+  ) {
+
+    addLog(
+      message.message
+    );
+  }
+}
+
+
+/* =========================================================
+   ACTIONS
+========================================================= */
+
+function action(
+  type,
+  extra = {}
+) {
+
+  send({
+    type,
+    ...extra
+  });
+}
+
+
+document
+  .getElementById(
+    "readyButton"
+  )
+  .addEventListener(
+    "click",
+    () => {
+
+      action(
+        "ready"
+      );
+
+      addLog(
+        "Ready signal sent."
+      );
+    }
+  );
+
+
+document
+  .getElementById(
+    "challengeButton"
+  )
+  .addEventListener(
+    "click",
+    () => {
+
+      action(
+        "challenge",
+        {
+          action: "observe"
+        }
+      );
+
+      addLog(
+        "Challenge action submitted."
+      );
+    }
+  );
+
+
+document
+  .getElementById(
+    "socialButton"
+  )
+  .addEventListener(
+    "click",
+    () => {
+
+      action(
+        "social",
+        {
+          action: "talk"
+        }
+      );
+
+      addLog(
+        "Social action submitted."
+      );
+    }
+  );
+
+
+document
+  .getElementById(
+    "missionButton"
+  )
+  .addEventListener(
+    "click",
+    () => {
+
+      action(
+        "mission"
+      );
+
+      addLog(
+        "Secret mission requested."
+      );
+    }
+  );
+
+
+document
+  .getElementById(
+    "parallelButton"
+  )
+  .addEventListener(
+    "click",
+    () => {
+
+      action(
+        "parallel"
+      );
+
+      addLog(
+        "Parallel World requested."
+      );
+    }
+  );
+
+
+document
+  .getElementById(
+    "architectButton"
+  )
+  .addEventListener(
+    "click",
+    () => {
+
+      action(
+        "architect"
+      );
+
+      addLog(
+        "Architect investigation started."
+      );
+    }
+  );
+
+
+document
+  .getElementById(
+    "heistButton"
+  )
+  .addEventListener(
+    "click",
+    () => {
+
+      action(
+        "heist"
+      );
+
+      addLog(
+        "Heist protocol requested."
+      );
+    }
+  );
+
+
+document
+  .getElementById(
+    "vacationButton"
+  )
+  .addEventListener(
+    "click",
+    () => {
+
+      action(
+        "vacation"
+      );
+
+      addLog(
+        "Vacation phase requested."
+      );
+    }
+  );
+
+
+document
+  .getElementById(
+    "storeButton"
+  )
+  .addEventListener(
+    "click",
+    () => {
+
+      action(
+        "buyPower",
+        {
+          power: "Shield Band"
+        }
+      );
+
+      addLog(
+        "Power Store request submitted."
+      );
+    }
+  );
+
+
+document
+  .getElementById(
+    "voteButton"
+  )
+  .addEventListener(
+    "click",
+    () => {
+
+      action(
+        "vote"
+      );
+
+      addLog(
+        "Voting action submitted."
+      );
+    }
+  );
+
+
+/* =========================================================
+   KEYBOARD
+========================================================= */
+
+window.addEventListener(
+  "keydown",
+  event => {
+
+    if (
+      event.target ===
+      nameInput
+    ) {
+      return;
+    }
+
+    const key =
+      event.key;
+
+    if (
+      key in keys
+    ) {
+
+      keys[key] = true;
+
+      event.preventDefault();
+    }
+
+    if (
+      key === "w" ||
+      key === "W"
+    ) {
+      keys.w = true;
+    }
+
+    if (
+      key === "a" ||
+      key === "A"
+    ) {
+      keys.a = true;
+    }
+
+    if (
+      key === "s" ||
+      key === "S"
+    ) {
+      keys.s = true;
+    }
+
+    if (
+      key === "d" ||
+      key === "D"
+    ) {
+      keys.d = true;
+    }
+  }
+);
+
+
+window.addEventListener(
+  "keyup",
+  event => {
+
+    const key =
+      event.key;
+
+    if (
+      key in keys
+    ) {
+      keys[key] = false;
+    }
+
+    if (
+      key === "w" ||
+      key === "W"
+    ) {
+      keys.w = false;
+    }
+
+    if (
+      key === "a" ||
+      key === "A"
+    ) {
+      keys.a = false;
+    }
+
+    if (
+      key === "s" ||
+      key === "S"
+    ) {
+      keys.s = false;
+    }
+
+    if (
+      key === "d" ||
+      key === "D"
+    ) {
+      keys.d = false;
+    }
+  }
+);
+
+
+/* =========================================================
+   MOBILE CONTROLS
+========================================================= */
+
+function bindMobileButton(
+  elementId,
+  key
+) {
+
+  const button =
+    document.getElementById(
+      elementId
+    );
+
+  button.addEventListener(
+    "pointerdown",
+    event => {
+
+      event.preventDefault();
+
+      keys[key] = true;
+    }
+  );
+
+  button.addEventListener(
+    "pointerup",
+    event => {
+
+      event.preventDefault();
+
+      keys[key] = false;
+    }
+  );
+
+  button.addEventListener(
+    "pointercancel",
+    event => {
+
+      event.preventDefault();
+
+      keys[key] = false;
+    }
+  );
+
+  button.addEventListener(
+    "pointerleave",
+    event => {
+
+      event.preventDefault();
+
+      keys[key] = false;
+    }
+  );
+}
+
+
+bindMobileButton(
+  "moveUp",
+  "w"
+);
+
+bindMobileButton(
+  "moveDown",
+  "s"
+);
+
+bindMobileButton(
+  "moveLeft",
+  "a"
+);
+
+bindMobileButton(
+  "moveRight",
+  "d"
+);
+
+
+/* =========================================================
+   JOIN
+========================================================= */
+
+joinButton.addEventListener(
+  "click",
+  () => {
+
+    const name =
+      nameInput.value.trim();
+
+    if (!name) {
+
+      connectionStatus.textContent =
+        "Enter a competitor name.";
+
+      nameInput.focus();
+
+      return;
+    }
+
+    joinRequested =
+      true;
+
+    if (!connected) {
+
+      connectionStatus.textContent =
+        "Connecting to AFTERLIGHT...";
+
+      connect();
+
+      return;
+    }
+
+    sendJoin();
+  }
+);
+
+
+nameInput.addEventListener(
+  "keydown",
+  event => {
+
+    if (
+      event.key === "Enter"
+    ) {
+
+      event.preventDefault();
+
+      joinButton.click();
+    }
+  }
+);
+
+
+/* =========================================================
+   RESIZE
+========================================================= */
+
+window.addEventListener(
+  "resize",
+  () => {
+
+    camera.aspect =
+      window.innerWidth /
+      window.innerHeight;
+
+    camera.updateProjectionMatrix();
 
     renderer.setSize(
       window.innerWidth,
       window.innerHeight
     );
 
-    renderer.shadowMap.enabled = false;
-
-
-    /* =========================================================
-       WORLD
-    ========================================================= */
-
-    const world =
-      new AfterlightWorld(scene);
-
-
-    /* =========================================================
-       GAME STATE
-    ========================================================= */
-
-    let socket = null;
-
-    let connected = false;
-
-    let joined = false;
-
-    let localPlayerId = null;
-
-    let localPlayer = null;
-
-    const players =
-      new Map();
-
-    let latestState = null;
-
-    const keys = {
-      w: false,
-      a: false,
-      s: false,
-      d: false,
-      ArrowUp: false,
-      ArrowDown: false,
-      ArrowLeft: false,
-      ArrowRight: false
-    };
-
-    const movement =
-      new THREE.Vector3();
-
-    const clock =
-      new THREE.Clock();
-
-
-    /* =========================================================
-       UTILS
-    ========================================================= */
-
-    function safeNumber(value, fallback = 0) {
-      const number = Number(value);
-
-      return Number.isFinite(number)
-        ? number
-        : fallback;
-    }
-
-
-    function addLog(message) {
-
-      if (!message) {
-        return;
-      }
-
-      const line =
-        document.createElement("div");
-
-      line.className =
-        "logLine";
-
-      line.textContent =
-        `[${new Date().toLocaleTimeString()}] ${message}`;
-
-      logElement.appendChild(line);
-
-      while (
-        logElement.children.length > 80
-      ) {
-        logElement.removeChild(
-          logElement.firstChild
-        );
-      }
-
-      logElement.scrollTop =
-        logElement.scrollHeight;
-    }
-
-
-    function showGame() {
-
-      joinScreen.style.display =
-        "none";
-
-      hud.style.display =
-        "block";
-
-      joined = true;
-    }
-
-
-    function updateStats(data) {
-
-      if (!data) {
-        return;
-      }
-
-      creditsElement.textContent =
-        safeNumber(data.credits, 500);
-
-      influenceElement.textContent =
-        safeNumber(data.influence, 10);
-
-      trustElement.textContent =
-        safeNumber(data.trust, 50);
-
-      energyElement.textContent =
-        safeNumber(data.energy, 100);
-    }
-
-
-    function updatePhase(data) {
-
-      if (!data) {
-        return;
-      }
-
-      const phase =
-        data.phase ||
-        data.currentPhase ||
-        "LOBBY";
-
-      phaseElement.textContent =
-        String(phase).toUpperCase();
-
-      if (phase === "CHALLENGE") {
-        locationText.textContent =
-          "CHALLENGE ARENA";
-      }
-      else if (phase === "SOCIAL") {
-        locationText.textContent =
-          "SOCIAL FACILITY";
-      }
-      else if (phase === "VOTING") {
-        locationText.textContent =
-          "VOTING ROOM";
-      }
-      else {
-        locationText.textContent =
-          "AFTERLIGHT FACILITY";
-      }
-    }
-
-
-    /* =========================================================
-       PLAYER MANAGEMENT
-    ========================================================= */
-
-    function createPlayer(data) {
-
-      if (!data || !data.id) {
-        return null;
-      }
-
-      const isLocal =
-        data.id === localPlayerId;
-
-      const player =
-        new AfterlightPlayer(
-          scene,
-          data,
-          isLocal
-        );
-
-      player.updateFromServer(data);
-
-      players.set(
-        data.id,
-        player
-      );
-
-      return player;
-    }
-
-
-    function updatePlayer(data) {
-
-      if (!data || !data.id) {
-        return;
-      }
-
-      let player =
-        players.get(data.id);
-
-      if (!player) {
-        player =
-          createPlayer(data);
-      }
-
-      if (!player) {
-        return;
-      }
-
-      player.updateFromServer(data);
-
-      if (
-        data.id === localPlayerId
-      ) {
-        localPlayer =
-          player;
-      }
-    }
-
-
-    function removeMissingPlayers(serverPlayers) {
-
-      const ids =
-        new Set(
-          serverPlayers.map(
-            player => player.id
-          )
-        );
-
-      for (
-        const [id, player]
-        of players
-      ) {
-
-        if (!ids.has(id)) {
-
-          player.remove();
-
-          players.delete(id);
-        }
-      }
-    }
-
-
-    function updatePlayers(serverPlayers) {
-
-      if (!Array.isArray(serverPlayers)) {
-        return;
-      }
-
-      for (
-        const data
-        of serverPlayers
-      ) {
-        updatePlayer(data);
-      }
-
-      removeMissingPlayers(
-        serverPlayers
-      );
-
-      playerCountElement.textContent =
-        `${serverPlayers.length}/${MAX_PLAYERS}`;
-
-      renderCompetitorList(
-        serverPlayers
-      );
-    }
-
-
-    function renderCompetitorList(list) {
-
-      competitorsElement.innerHTML = "";
-
-      if (!Array.isArray(list)) {
-        return;
-      }
-
-      for (
-        const player
-        of list
-      ) {
-
-        const row =
-          document.createElement("div");
-
-        row.className =
-          "competitor";
-
-        if (player.alive === false) {
-          row.classList.add("dead");
-        }
-
-        const name =
-          document.createElement("span");
-
-        name.className =
-          "competitorName";
-
-        name.textContent =
-          player.id === localPlayerId
-            ? `${player.name || "YOU"} ★`
-            : (player.name || "Competitor");
-
-        const role =
-          document.createElement("span");
-
-        role.className =
-          "competitorRole";
-
-        role.textContent =
-          player.role || "Competitor";
-
-        row.appendChild(name);
-        row.appendChild(role);
-
-        competitorsElement.appendChild(row);
-      }
-    }
-
-
-    /* =========================================================
-       CAMERA
-    ========================================================= */
-
-    function updateCamera(delta) {
-
-      if (!localPlayer) {
-        return;
-      }
-
-      const group =
-        localPlayer.group;
-
-      if (!group) {
-        return;
-      }
-
-      const target =
-        new THREE.Vector3(
-          group.position.x,
-          group.position.y + 5.5,
-          group.position.z + 9
-        );
-
-      camera.position.lerp(
-        target,
-        Math.min(
-          1,
-          delta * 5
-        )
-      );
-
-      const lookTarget =
-        new THREE.Vector3(
-          group.position.x,
-          group.position.y + 1.2,
-          group.position.z
-        );
-
-      camera.lookAt(
-        lookTarget
-      );
-    }
-
-
-    /* =========================================================
-       MOVEMENT
-    ========================================================= */
-
-    function updateMovement(delta) {
-
-      if (!localPlayer) {
-        return;
-      }
-
-      movement.set(
-        0,
-        0,
-        0
-      );
-
-      if (
-        keys.w ||
-        keys.ArrowUp
-      ) {
-        movement.z -= 1;
-      }
-
-      if (
-        keys.s ||
-        keys.ArrowDown
-      ) {
-        movement.z += 1;
-      }
-
-      if (
-        keys.a ||
-        keys.ArrowLeft
-      ) {
-        movement.x -= 1;
-      }
-
-      if (
-        keys.d ||
-        keys.ArrowRight
-      ) {
-        movement.x += 1;
-      }
-
-      if (
-        movement.lengthSq() === 0
-      ) {
-        return;
-      }
-
-      movement.normalize();
-
-      const speed =
-        6 * delta;
-
-      const current =
-        localPlayer.group.position;
-
-      const nextX =
-        THREE.MathUtils.clamp(
-          current.x + movement.x * speed,
-          -22,
-          22
-        );
-
-      const nextZ =
-        THREE.MathUtils.clamp(
-          current.z + movement.z * speed,
-          -22,
-          22
-        );
-
-      localPlayer.setLocalPosition(
-        nextX,
-        current.y,
-        nextZ
-      );
-
-      send({
-        type: "move",
-        x: nextX,
-        y: current.y,
-        z: nextZ
-      });
-    }
-
-
-    /* =========================================================
-       WEBSOCKET
-    ========================================================= */
-
-    function connect() {
-
-      if (socket) {
-        try {
-          socket.close();
-        } catch {}
-      }
-
-      connectionStatus.textContent =
-        "Connecting to AFTERLIGHT...";
-
-      socket =
-        new WebSocket(
-          SERVER_URL
-        );
-
-      socket.addEventListener(
-        "open",
-        () => {
-
-          connected = true;
-
-          connectionStatus.textContent =
-            "Connection established.";
-
-          addLog(
-            "Connection established."
-          );
-
-          if (joined) {
-            sendJoin();
-          }
-        }
-      );
-
-
-      socket.addEventListener(
-        "message",
-        event => {
-
-          let message;
-
-          try {
-            message =
-              JSON.parse(
-                event.data
-              );
-          }
-          catch {
-            return;
-          }
-
-          handleMessage(
-            message
-          );
-        }
-      );
-
-
-      socket.addEventListener(
-        "close",
-        () => {
-
-          connected = false;
-
-          connectionStatus.textContent =
-            "Disconnected. Reconnecting...";
-
-          addLog(
-            "Connection lost."
-          );
-
-          setTimeout(
-            () => {
-
-              if (!connected) {
-                connect();
-
-                if (joined) {
-                  sendJoin();
-                }
-              }
-
-            },
-            3000
-          );
-        }
-      );
-
-
-      socket.addEventListener(
-        "error",
-        () => {
-
-          connected = false;
-
-          connectionStatus.textContent =
-            "Connection error.";
-
-        }
-      );
-    }
-
-
-    function send(message) {
-
-      if (
-        !socket ||
-        socket.readyState !== WebSocket.OPEN
-      ) {
-        return false;
-      }
-
-      try {
-
-        socket.send(
-          JSON.stringify(
-            message
-          )
-        );
-
-        return true;
-
-      }
-      catch {
-        return false;
-      }
-    }
-
-
-    function sendJoin() {
-
-      const name =
-        nameInput.value.trim()
-        || "Competitor";
-
-      send({
-        type: "join",
-        name
-      });
-    }
-
-
-    /* =========================================================
-       SERVER MESSAGE HANDLER
-    ========================================================= */
-
-    function handleMessage(message) {
-
-      if (!message) {
-        return;
-      }
-
-
-      /* WELCOME */
-
-      if (
-        message.type === "welcome"
-      ) {
-
-        localPlayerId =
-          message.id ||
-          message.playerId ||
-          message.player?.id ||
-          null;
-
-        showGame();
-
-        addLog(
-          "Welcome to AFTERLIGHT."
-        );
-
-        if (
-          Array.isArray(
-            message.players
-          )
-        ) {
-          updatePlayers(
-            message.players
-          );
-        }
-
-        if (message.state) {
-          latestState =
-            message.state;
-
-          updatePhase(
-            message.state
-          );
-        }
-
-        return;
-      }
-
-
-      /* PLAYER LIST */
-
-      if (
-        message.type === "players"
-      ) {
-
-        if (
-          Array.isArray(
-            message.players
-          )
-        ) {
-          updatePlayers(
-            message.players
-          );
-        }
-
-        return;
-      }
-
-
-      /* ROOM STATE */
-
-      if (
-        message.type === "state"
-      ) {
-
-        const state =
-          message.state ||
-          message;
-
-        latestState =
-          state;
-
-        updatePhase(
-          state
-        );
-
-        if (
-          state.self
-        ) {
-          updateStats(
-            state.self
-          );
-        }
-        else if (
-          state.player
-        ) {
-          updateStats(
-            state.player
-          );
-        }
-        else {
-          updateStats(
-            state
-          );
-        }
-
-        if (
-          Array.isArray(
-            state.players
-          )
-        ) {
-          updatePlayers(
-            state.players
-          );
-        }
-
-        if (
-          state.message
-        ) {
-          addLog(
-            state.message
-          );
-        }
-
-        return;
-      }
-
-
-      /* LOG */
-
-      if (
-        message.type === "log"
-      ) {
-
-        addLog(
-          message.message ||
-          message.text ||
-          ""
-        );
-
-        return;
-      }
-
-
-      /* ERROR */
-
-      if (
-        message.type === "error"
-      ) {
-
-        addLog(
-          `ERROR: ${message.message || "Unknown error"}`
-        );
-
-        return;
-      }
-
-
-      /* GENERIC PLAYER DATA */
-
-      if (
-        Array.isArray(
-          message.players
-        )
-      ) {
-        updatePlayers(
-          message.players
-        );
-      }
-
-      if (
-        message.state
-      ) {
-
-        latestState =
-          message.state;
-
-        updatePhase(
-          message.state
-        );
-
-        updateStats(
-          message.state.self ||
-          message.state.player ||
-          message.state
-        );
-      }
-
-      if (
-        message.message
-      ) {
-        addLog(
-          message.message
-        );
-      }
-    }
-
-
-    /* =========================================================
-       GAME ACTIONS
-    ========================================================= */
-
-    function action(type, extra = {}) {
-
-      send({
-        type,
-        ...extra
-      });
-    }
-
-
-    document
-      .getElementById("readyButton")
-      .addEventListener(
-        "click",
-        () => {
-
-          action("ready");
-
-          addLog(
-            "Ready signal sent."
-          );
-        }
-      );
-
-
-    document
-      .getElementById("challengeButton")
-      .addEventListener(
-        "click",
-        () => {
-
-          action(
-            "challenge",
-            {
-              action: "observe"
-            }
-          );
-
-          addLog(
-            "Challenge action submitted."
-          );
-        }
-      );
-
-
-    document
-      .getElementById("socialButton")
-      .addEventListener(
-        "click",
-        () => {
-
-          action(
-            "social",
-            {
-              action: "talk"
-            }
-          );
-
-          addLog(
-            "You entered the social phase."
-          );
-        }
-      );
-
-
-    document
-      .getElementById("missionButton")
-      .addEventListener(
-        "click",
-        () => {
-
-          action(
-            "mission"
-          );
-
-          addLog(
-            "Secret mission requested."
-          );
-        }
-      );
-
-
-    document
-      .getElementById("parallelButton")
-      .addEventListener(
-        "click",
-        () => {
-
-          action(
-            "parallel"
-          );
-
-          addLog(
-            "Entering the Parallel World..."
-          );
-        }
-      );
-
-
-    document
-      .getElementById("architectButton")
-      .addEventListener(
-        "click",
-        () => {
-
-          action(
-            "architect"
-          );
-
-          addLog(
-            "Architect investigation started."
-          );
-        }
-      );
-
-
-    document
-      .getElementById("heistButton")
-      .addEventListener(
-        "click",
-        () => {
-
-          action(
-            "heist"
-          );
-
-          addLog(
-            "The Heist protocol has begun."
-          );
-        }
-      );
-
-
-    document
-      .getElementById("vacationButton")
-      .addEventListener(
-        "click",
-        () => {
-
-          action(
-            "vacation"
-          );
-
-          addLog(
-            "Vacation phase requested."
-          );
-        }
-      );
-
-
-    document
-      .getElementById("storeButton")
-      .addEventListener(
-        "click",
-        () => {
-
-          action(
-            "buyPower",
-            {
-              power: "Shield Band"
-            }
-          );
-
-          addLog(
-            "Power Store request submitted."
-          );
-        }
-      );
-
-
-    document
-      .getElementById("voteButton")
-      .addEventListener(
-        "click",
-        () => {
-
-          action(
-            "vote"
-          );
-
-          addLog(
-            "Voting action submitted."
-          );
-        }
-      );
-
-
-    /* =========================================================
-       KEYBOARD
-    ========================================================= */
-
-    window.addEventListener(
-      "keydown",
-      event => {
-
-        const key =
-          event.key;
-
-        if (
-          key in keys
-        ) {
-          keys[key] = true;
-          event.preventDefault();
-        }
-
-        if (
-          key === "w" ||
-          key === "W"
-        ) {
-          keys.w = true;
-        }
-
-        if (
-          key === "a" ||
-          key === "A"
-        ) {
-          keys.a = true;
-        }
-
-        if (
-          key === "s" ||
-          key === "S"
-        ) {
-          keys.s = true;
-        }
-
-        if (
-          key === "d" ||
-          key === "D"
-        ) {
-          keys.d = true;
-        }
-      }
+    renderer.setPixelRatio(
+      Math.min(
+        window.devicePixelRatio,
+        1.5
+      )
+    );
+  }
+);
+
+
+/* =========================================================
+   ANIMATION
+========================================================= */
+
+function animate() {
+
+  requestAnimationFrame(
+    animate
+  );
+
+  const delta =
+    Math.min(
+      clock.getDelta(),
+      0.05
     );
 
+  updateMovement(
+    delta
+  );
 
-    window.addEventListener(
-      "keyup",
-      event => {
+  for (
+    const player
+    of players.values()
+  ) {
 
-        const key =
-          event.key;
-
-        if (
-          key in keys
-        ) {
-          keys[key] = false;
-        }
-
-        if (
-          key === "w" ||
-          key === "W"
-        ) {
-          keys.w = false;
-        }
-
-        if (
-          key === "a" ||
-          key === "A"
-        ) {
-          keys.a = false;
-        }
-
-        if (
-          key === "s" ||
-          key === "S"
-        ) {
-          keys.s = false;
-        }
-
-        if (
-          key === "d" ||
-          key === "D"
-        ) {
-          keys.d = false;
-        }
-      }
+    player.update(
+      delta
     );
+  }
+
+  world.update(
+    delta
+  );
+
+  updateCamera(
+    delta
+  );
+
+  renderer.render(
+    scene,
+    camera
+  );
+}
 
 
-    /* =========================================================
-       MOBILE MOVEMENT
-    ========================================================= */
+/* =========================================================
+   START
+========================================================= */
 
-    function bindMobileButton(
-      elementId,
-      key
-    ) {
+addLog(
+  "AFTERLIGHT systems initializing..."
+);
 
-      const button =
-        document.getElementById(
-          elementId
-        );
+connect();
 
-      const start =
-        event => {
+animate();
 
-          event.preventDefault();
-
-          keys[key] = true;
-        };
-
-      const stop =
-        event => {
-
-          event.preventDefault();
-
-          keys[key] = false;
-        };
-
-      button.addEventListener(
-        "pointerdown",
-        start
-      );
-
-      button.addEventListener(
-        "pointerup",
-        stop
-      );
-
-      button.addEventListener(
-        "pointercancel",
-        stop
-      );
-
-      button.addEventListener(
-        "pointerleave",
-        stop
-      );
-    }
-
-
-    bindMobileButton(
-      "moveUp",
-      "w"
-    );
-
-    bindMobileButton(
-      "moveDown",
-      "s"
-    );
-
-    bindMobileButton(
-      "moveLeft",
-      "a"
-    );
-
-    bindMobileButton(
-      "moveRight",
-      "d"
-    );
-
-
-    /* =========================================================
-       JOIN
-    ========================================================= */
-
-    joinButton.addEventListener(
-      "click",
-      () => {
-
-        const name =
-          nameInput.value.trim();
-
-        if (!name) {
-
-          connectionStatus.textContent =
-            "Enter a competitor name.";
-
-          nameInput.focus();
-
-          return;
-        }
-
-        showGame();
-
-        if (connected) {
-          sendJoin();
-        }
-        else {
-          connectionStatus.textContent =
-            "Waiting for connection...";
-        }
-      }
-    );
-
-
-    nameInput.addEventListener(
-      "keydown",
-      event => {
-
-        if (
-          event.key === "Enter"
-        ) {
-          joinButton.click();
-        }
-      }
-    );
-
-
-    /* =========================================================
-       RESIZE
-    ========================================================= */
-
-    window.addEventListener(
-      "resize",
-      () => {
-
-        camera.aspect =
-          window.innerWidth /
-          window.innerHeight;
-
-        camera.updateProjectionMatrix();
-
-        renderer.setSize(
-          window.innerWidth,
-          window.innerHeight
-        );
-
-        renderer.setPixelRatio(
-          Math.min(
-            window.devicePixelRatio,
-            1.5
-          )
-        );
-      }
-    );
-
-
-    /* =========================================================
-       ANIMATION LOOP
-    ========================================================= */
-
-    function animate() {
-
-      requestAnimationFrame(
-        animate
-      );
-
-      const delta =
-        Math.min(
-          clock.getDelta(),
-          0.05
-        );
-
-      updateMovement(
-        delta
-      );
-
-      for (
-        const player
-        of players.values()
-      ) {
-
-        player.update(
-          delta
-        );
-      }
-
-      world.update(
-        delta
-      );
-
-      updateCamera(
-        delta
-      );
-
-      renderer.render(
-        scene,
-        camera
-      );
-    }
-
-
-    /* =========================================================
-       START
-    ========================================================= */
-
-    addLog(
-      "AFTERLIGHT systems initializing..."
-    );
-
-    connect();
-
-    animate();
-
-  </script>
+</script>
 
 </body>
 </html>
