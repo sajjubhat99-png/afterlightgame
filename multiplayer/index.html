@@ -17,7 +17,7 @@ body {
   height: 100%;
   overflow: hidden;
   background: #02050a;
-  color: white;
+  color: #ffffff;
   font-family: Arial, Helvetica, sans-serif;
 }
 
@@ -28,237 +28,401 @@ body {
 
 canvas {
   display: block;
-  width: 100%;
-  height: 100%;
 }
 
-/* JOIN SCREEN */
+/* =====================================================
+   JOIN SCREEN
+   ===================================================== */
 
 #joinScreen {
   position: fixed;
   inset: 0;
   z-index: 1000;
+
   display: flex;
   align-items: center;
   justify-content: center;
+
   padding: 20px;
+
   background:
-    radial-gradient(circle at center, rgba(0, 220, 255, 0.08), transparent 45%),
+    radial-gradient(
+      circle at center,
+      rgba(0, 210, 255, 0.08),
+      transparent 45%
+    ),
     #02050a;
 }
 
 .joinBox {
-  width: min(420px, 92vw);
-  padding: 32px;
+  width: min(380px, 92vw);
+
+  padding: 30px 28px;
+
   text-align: center;
-  border: 1px solid rgba(0, 220, 255, 0.35);
-  background: rgba(5, 12, 20, 0.94);
-  border-radius: 18px;
-  box-shadow: 0 0 40px rgba(0, 220, 255, 0.12);
+
+  border: 1px solid rgba(0, 220, 255, 0.3);
+
+  background:
+    rgba(4, 12, 20, 0.96);
+
+  border-radius: 16px;
+
+  box-shadow:
+    0 0 35px rgba(0, 210, 255, 0.1);
 }
 
+/* SMALLER AFTERLIGHT LOGO */
+
 .logo {
-  font-size: clamp(42px, 10vw, 64px);
-  font-weight: 800;
-  letter-spacing: 8px;
+  font-size: 32px;
   line-height: 1;
-  margin-bottom: 14px;
+
+  font-weight: 800;
+
+  letter-spacing: 5px;
+
+  margin: 0 0 12px;
+
   color: #eaffff;
-  text-shadow: 0 0 20px rgba(0, 220, 255, 0.45);
+
+  text-shadow:
+    0 0 15px rgba(0, 220, 255, 0.4);
 }
 
 .tagline {
-  color: #7bdbea;
-  font-size: 12px;
-  letter-spacing: 2px;
-  margin-bottom: 30px;
+  margin-bottom: 28px;
+
+  color: #69cbdc;
+
+  font-size: 10px;
+
+  letter-spacing: 1.8px;
+
+  line-height: 1.5;
 }
 
 .joinTitle {
-  font-size: 19px;
-  margin-bottom: 16px;
+  margin-bottom: 14px;
+
+  color: #ffffff;
+
+  font-size: 17px;
+
+  font-weight: 600;
 }
 
 #nameInput {
   width: 100%;
   height: 50px;
-  padding: 0 16px;
-  border-radius: 10px;
-  border: 1px solid rgba(0, 220, 255, 0.45);
+
+  padding: 0 15px;
+
+  border-radius: 9px;
+
+  border: 1px solid rgba(0, 220, 255, 0.4);
+
   outline: none;
+
   background: #07111b;
-  color: white;
+
+  color: #ffffff;
+
   font-size: 16px;
-  margin-bottom: 12px;
+
+  margin-bottom: 10px;
+}
+
+#nameInput::placeholder {
+  color: #6e858e;
 }
 
 #nameInput:focus {
   border-color: #00d9ff;
-  box-shadow: 0 0 15px rgba(0, 217, 255, 0.15);
+
+  box-shadow:
+    0 0 14px rgba(0, 217, 255, 0.15);
 }
 
 #joinButton {
   width: 100%;
-  height: 50px;
-  border: 0;
-  border-radius: 10px;
-  background: linear-gradient(90deg, #00a9c7, #00e0ff);
+  height: 48px;
+
+  border: none;
+
+  border-radius: 9px;
+
+  background:
+    linear-gradient(
+      90deg,
+      #00a9c7,
+      #00ddff
+    );
+
   color: #001018;
-  font-size: 15px;
+
+  font-size: 13px;
+
   font-weight: 800;
+
   cursor: pointer;
 }
 
 #joinButton:hover {
-  filter: brightness(1.1);
+  filter: brightness(1.08);
+}
+
+#joinButton:active {
+  transform: translateY(1px);
 }
 
 #connectionStatus {
-  min-height: 20px;
-  margin-top: 14px;
-  color: #78c9d8;
-  font-size: 12px;
+  min-height: 18px;
+
+  margin-top: 12px;
+
+  color: #79aeb9;
+
+  font-size: 11px;
+
+  line-height: 1.4;
 }
 
-/* HUD */
+/* =====================================================
+   HUD
+   ===================================================== */
 
 #hud {
   position: fixed;
   inset: 0;
+
   z-index: 100;
-  pointer-events: none;
+
   display: none;
+
+  pointer-events: none;
 }
 
 .panel {
-  background: rgba(3, 10, 17, 0.82);
-  border: 1px solid rgba(0, 220, 255, 0.25);
-  border-radius: 12px;
+  background:
+    rgba(3, 10, 17, 0.84);
+
+  border:
+    1px solid rgba(0, 220, 255, 0.22);
+
+  border-radius: 11px;
+
   backdrop-filter: blur(8px);
 }
 
+/* =====================================================
+   TOP BAR
+   ===================================================== */
+
 #topBar {
   position: absolute;
-  top: 15px;
-  left: 15px;
-  right: 15px;
+
+  top: 14px;
+  left: 14px;
+  right: 14px;
+
   display: flex;
+
   justify-content: space-between;
+
+  align-items: flex-start;
+
   gap: 12px;
 }
 
 .stats {
   display: flex;
-  gap: 8px;
+
+  gap: 7px;
+
   flex-wrap: wrap;
 }
 
 .stat {
-  padding: 9px 12px;
-  min-width: 90px;
+  min-width: 78px;
+
+  padding: 8px 10px;
 }
 
 .statLabel {
-  color: #6d8994;
-  font-size: 9px;
+  color: #718991;
+
+  font-size: 8px;
+
   text-transform: uppercase;
+
+  letter-spacing: 0.5px;
 }
 
 .statValue {
   margin-top: 3px;
-  font-size: 15px;
+
+  font-size: 14px;
+
   font-weight: bold;
 }
 
 #phasePanel {
-  padding: 10px 14px;
-  min-width: 160px;
+  min-width: 150px;
+
+  padding: 9px 12px;
 }
 
 #phase {
+  margin-top: 2px;
+
   color: #00d9ff;
+
+  font-size: 13px;
+
   font-weight: bold;
 }
 
 #challenge {
-  color: #a7c0c8;
-  font-size: 11px;
-  margin-top: 4px;
+  margin-top: 3px;
+
+  color: #91a9b1;
+
+  font-size: 10px;
 }
+
+/* =====================================================
+   COMPETITORS
+   ===================================================== */
 
 #competitors {
   position: absolute;
-  top: 82px;
-  left: 15px;
-  width: 210px;
-  padding: 14px;
+
+  top: 76px;
+  left: 14px;
+
+  width: 205px;
+
+  padding: 12px;
 }
 
 .panelTitle {
+  margin-bottom: 9px;
+
   color: #00d9ff;
-  font-size: 11px;
+
+  font-size: 10px;
+
   font-weight: bold;
+
   letter-spacing: 1px;
-  margin-bottom: 10px;
 }
 
 #competitorList {
-  max-height: 280px;
+  max-height: 270px;
+
   overflow-y: auto;
 }
 
 .competitor {
-  padding: 7px 5px;
-  border-bottom: 1px solid rgba(255,255,255,0.06);
-  font-size: 11px;
+  padding: 6px 4px;
+
+  border-bottom:
+    1px solid rgba(255, 255, 255, 0.06);
+
+  font-size: 10px;
 }
 
 .competitorRole {
-  color: #718992;
-  font-size: 9px;
   margin-top: 2px;
+
+  color: #708790;
+
+  font-size: 8px;
 }
+
+/* =====================================================
+   ACTIONS
+   ===================================================== */
 
 #actions {
   position: absolute;
-  right: 15px;
-  bottom: 15px;
-  width: 190px;
+
+  right: 14px;
+  bottom: 14px;
+
+  width: 180px;
+
   display: grid;
-  gap: 7px;
+
+  gap: 6px;
+
   pointer-events: auto;
 }
 
 .actionButton {
-  min-height: 38px;
-  border: 1px solid rgba(0, 220, 255, 0.25);
+  min-height: 36px;
+
+  padding: 7px;
+
+  border:
+    1px solid rgba(0, 220, 255, 0.23);
+
   border-radius: 8px;
-  background: rgba(4, 15, 23, 0.9);
-  color: #d9faff;
+
+  background:
+    rgba(4, 15, 23, 0.9);
+
+  color: #d8faff;
+
   cursor: pointer;
-  font-size: 11px;
+
+  font-size: 10px;
+
   font-weight: bold;
+
+  transition:
+    background 0.15s,
+    border-color 0.15s;
 }
 
 .actionButton:hover {
   border-color: #00d9ff;
-  background: rgba(0, 217, 255, 0.12);
+
+  background:
+    rgba(0, 217, 255, 0.12);
 }
+
+.actionButton:active {
+  transform: translateY(1px);
+}
+
+/* =====================================================
+   LOG
+   ===================================================== */
 
 #logPanel {
   position: absolute;
-  left: 15px;
-  bottom: 15px;
-  width: 300px;
-  max-height: 150px;
-  padding: 12px;
+
+  left: 14px;
+  bottom: 14px;
+
+  width: 290px;
+
+  max-height: 145px;
+
+  padding: 11px;
 }
 
 #log {
-  max-height: 105px;
+  max-height: 100px;
+
   overflow-y: auto;
+
   color: #91aab2;
-  font-size: 10px;
+
+  font-size: 9px;
+
   line-height: 1.5;
 }
 
@@ -266,29 +430,45 @@ canvas {
   margin-bottom: 3px;
 }
 
-/* MOBILE */
+/* =====================================================
+   MOBILE CONTROLS
+   ===================================================== */
 
 #mobileControls {
   position: absolute;
-  left: 18px;
-  bottom: 18px;
+
+  left: 16px;
+  bottom: 16px;
+
   display: none;
+
   pointer-events: auto;
 }
 
 .mobilePad {
   display: grid;
-  grid-template-columns: 48px 48px 48px;
-  grid-template-rows: 48px 48px;
+
+  grid-template-columns:
+    46px 46px 46px;
+
+  grid-template-rows:
+    46px 46px;
+
   gap: 5px;
 }
 
 .mobileButton {
-  border: 1px solid rgba(0,220,255,.35);
-  background: rgba(3,15,23,.85);
-  color: white;
-  border-radius: 10px;
-  font-size: 18px;
+  border:
+    1px solid rgba(0, 220, 255, 0.35);
+
+  background:
+    rgba(3, 15, 23, 0.86);
+
+  color: #ffffff;
+
+  border-radius: 9px;
+
+  font-size: 17px;
 }
 
 .up {
@@ -307,14 +487,28 @@ canvas {
   grid-column: 3;
 }
 
+/* =====================================================
+   MOBILE
+   ===================================================== */
+
 @media (max-width: 700px) {
+
   .joinBox {
-    padding: 25px 20px;
+    width: min(350px, 92vw);
+
+    padding: 26px 20px;
   }
 
   .logo {
-    font-size: 42px;
-    letter-spacing: 5px;
+    font-size: 28px;
+
+    letter-spacing: 4px;
+  }
+
+  .tagline {
+    font-size: 9px;
+
+    letter-spacing: 1.4px;
   }
 
   #competitors {
@@ -322,24 +516,60 @@ canvas {
   }
 
   #logPanel {
-    width: 210px;
-    bottom: 15px;
-    left: 15px;
+    width: 205px;
+
+    left: 10px;
+    bottom: 10px;
   }
 
   #actions {
-    width: 150px;
+    width: 145px;
+
     right: 10px;
     bottom: 10px;
+  }
+
+  .stat {
+    min-width: 67px;
+
+    padding: 7px 8px;
+  }
+
+  .statValue {
+    font-size: 12px;
+  }
+
+  #phasePanel {
+    min-width: 125px;
+
+    padding: 8px;
   }
 
   #mobileControls {
     display: block;
   }
+}
 
-  .stat {
-    min-width: 70px;
-    padding: 7px 9px;
+@media (max-width: 430px) {
+
+  .joinBox {
+    padding: 24px 18px;
+  }
+
+  .logo {
+    font-size: 25px;
+
+    letter-spacing: 3px;
+  }
+
+  .tagline {
+    margin-bottom: 22px;
+
+    font-size: 8px;
+  }
+
+  .joinTitle {
+    font-size: 16px;
   }
 }
 </style>
@@ -349,11 +579,17 @@ canvas {
 
 <div id="game"></div>
 
-<!-- JOIN SCREEN -->
+<!-- =====================================================
+     JOIN SCREEN
+     ===================================================== -->
+
 <div id="joinScreen">
+
   <div class="joinBox">
 
-    <div class="logo">AFTERLIGHT</div>
+    <div class="logo">
+      AFTERLIGHT
+    </div>
 
     <div class="tagline">
       THE CHALLENGE IS ONLY HALF THE GAME
@@ -368,10 +604,14 @@ canvas {
       type="text"
       maxlength="18"
       autocomplete="off"
+      spellcheck="false"
       placeholder="Enter your name"
     >
 
-    <button id="joinButton" type="button">
+    <button
+      id="joinButton"
+      type="button"
+    >
       ENTER GAME
     </button>
 
@@ -380,9 +620,14 @@ canvas {
     </div>
 
   </div>
+
 </div>
 
-<!-- GAME HUD -->
+
+<!-- =====================================================
+     GAME HUD
+     ===================================================== -->
+
 <div id="hud">
 
   <div id="topBar">
@@ -390,77 +635,244 @@ canvas {
     <div class="stats">
 
       <div class="panel stat">
-        <div class="statLabel">Credits</div>
-        <div class="statValue" id="credits">500</div>
+        <div class="statLabel">
+          Credits
+        </div>
+
+        <div
+          class="statValue"
+          id="credits"
+        >
+          500
+        </div>
       </div>
 
       <div class="panel stat">
-        <div class="statLabel">Influence</div>
-        <div class="statValue" id="influence">10</div>
+        <div class="statLabel">
+          Influence
+        </div>
+
+        <div
+          class="statValue"
+          id="influence"
+        >
+          10
+        </div>
       </div>
 
       <div class="panel stat">
-        <div class="statLabel">Trust</div>
-        <div class="statValue" id="trust">50</div>
+        <div class="statLabel">
+          Trust
+        </div>
+
+        <div
+          class="statValue"
+          id="trust"
+        >
+          50
+        </div>
       </div>
 
       <div class="panel stat">
-        <div class="statLabel">Energy</div>
-        <div class="statValue" id="energy">100</div>
+        <div class="statLabel">
+          Energy
+        </div>
+
+        <div
+          class="statValue"
+          id="energy"
+        >
+          100
+        </div>
       </div>
 
       <div class="panel stat">
-        <div class="statLabel">Players</div>
-        <div class="statValue" id="playerCount">0</div>
+        <div class="statLabel">
+          Players
+        </div>
+
+        <div
+          class="statValue"
+          id="playerCount"
+        >
+          0
+        </div>
       </div>
 
     </div>
 
-    <div id="phasePanel" class="panel">
-      <div class="statLabel">Current Phase</div>
-      <div id="phase">LOBBY</div>
-      <div id="challenge">Waiting for competitors...</div>
+
+    <div
+      id="phasePanel"
+      class="panel"
+    >
+
+      <div class="statLabel">
+        CURRENT PHASE
+      </div>
+
+      <div id="phase">
+        LOBBY
+      </div>
+
+      <div id="challenge">
+        Waiting for competitors...
+      </div>
+
     </div>
 
   </div>
 
-  <div id="competitors" class="panel">
-    <div class="panelTitle">COMPETITORS</div>
+
+  <!-- COMPETITORS -->
+
+  <div
+    id="competitors"
+    class="panel"
+  >
+
+    <div class="panelTitle">
+      COMPETITORS
+    </div>
+
     <div id="competitorList"></div>
+
   </div>
 
-  <div id="logPanel" class="panel">
-    <div class="panelTitle">AFTERLIGHT LOG</div>
+
+  <!-- LOG -->
+
+  <div
+    id="logPanel"
+    class="panel"
+  >
+
+    <div class="panelTitle">
+      AFTERLIGHT LOG
+    </div>
+
     <div id="log"></div>
+
   </div>
+
+
+  <!-- ACTIONS -->
 
   <div id="actions">
 
-    <button class="actionButton" data-action="ready">READY</button>
-    <button class="actionButton" data-action="challenge">CHALLENGE</button>
-    <button class="actionButton" data-action="social">SOCIAL PHASE</button>
-    <button class="actionButton" data-action="mission">SECRET MISSION</button>
-    <button class="actionButton" data-action="parallel">PARALLEL WORLD</button>
-    <button class="actionButton" data-action="architect">INVESTIGATE</button>
-    <button class="actionButton" data-action="heist">THE HEIST</button>
-    <button class="actionButton" data-action="vacation">VACATION</button>
-    <button class="actionButton" data-action="power">POWER STORE</button>
-    <button class="actionButton" data-action="vote">VOTE</button>
+    <button
+      class="actionButton"
+      data-action="ready"
+    >
+      READY
+    </button>
+
+    <button
+      class="actionButton"
+      data-action="challenge"
+    >
+      CHALLENGE
+    </button>
+
+    <button
+      class="actionButton"
+      data-action="social"
+    >
+      SOCIAL PHASE
+    </button>
+
+    <button
+      class="actionButton"
+      data-action="mission"
+    >
+      SECRET MISSION
+    </button>
+
+    <button
+      class="actionButton"
+      data-action="parallel"
+    >
+      PARALLEL WORLD
+    </button>
+
+    <button
+      class="actionButton"
+      data-action="architect"
+    >
+      INVESTIGATE
+    </button>
+
+    <button
+      class="actionButton"
+      data-action="heist"
+    >
+      THE HEIST
+    </button>
+
+    <button
+      class="actionButton"
+      data-action="vacation"
+    >
+      VACATION
+    </button>
+
+    <button
+      class="actionButton"
+      data-action="power"
+    >
+      POWER STORE
+    </button>
+
+    <button
+      class="actionButton"
+      data-action="vote"
+    >
+      VOTE
+    </button>
 
   </div>
+
+
+  <!-- MOBILE MOVEMENT -->
 
   <div id="mobileControls">
 
     <div class="mobilePad">
-      <button class="mobileButton up" data-key="w">▲</button>
-      <button class="mobileButton left" data-key="a">◀</button>
-      <button class="mobileButton down" data-key="s">▼</button>
-      <button class="mobileButton right" data-key="d">▶</button>
+
+      <button
+        class="mobileButton up"
+        data-key="w"
+      >
+        ▲
+      </button>
+
+      <button
+        class="mobileButton left"
+        data-key="a"
+      >
+        ◀
+      </button>
+
+      <button
+        class="mobileButton down"
+        data-key="s"
+      >
+        ▼
+      </button>
+
+      <button
+        class="mobileButton right"
+        data-key="d"
+      >
+        ▶
+      </button>
+
     </div>
 
   </div>
 
 </div>
+
 
 <script type="module">
 
@@ -474,44 +886,71 @@ import { AfterlightPlayer }
 from "./player.js";
 
 
-/* SERVER */
+/* =====================================================
+   SERVER
+   ===================================================== */
 
 const SERVER_URL =
 "wss://afterlightgame.sajjubhat99.workers.dev/ws";
 
 
-/* ELEMENTS */
+/* =====================================================
+   ELEMENTS
+   ===================================================== */
 
-const game = document.getElementById("game");
-const joinScreen = document.getElementById("joinScreen");
-const hud = document.getElementById("hud");
+const game =
+document.getElementById("game");
 
-const nameInput = document.getElementById("nameInput");
-const joinButton = document.getElementById("joinButton");
+const joinScreen =
+document.getElementById("joinScreen");
+
+const hud =
+document.getElementById("hud");
+
+const nameInput =
+document.getElementById("nameInput");
+
+const joinButton =
+document.getElementById("joinButton");
+
 const connectionStatus =
-document.getElementById("connectionStatus");
+document.getElementById(
+  "connectionStatus"
+);
 
 
-/* THREE */
+/* =====================================================
+   THREE.JS
+   ===================================================== */
 
-const scene = new THREE.Scene();
+const scene =
+new THREE.Scene();
 
 scene.background =
 new THREE.Color(0x02050a);
 
 scene.fog =
-new THREE.Fog(0x02050a, 25, 100);
+new THREE.Fog(
+  0x02050a,
+  25,
+  100
+);
 
 
 const camera =
 new THREE.PerspectiveCamera(
   60,
-  window.innerWidth / window.innerHeight,
+  window.innerWidth /
+  window.innerHeight,
   0.1,
   200
 );
 
-camera.position.set(0, 8, 12);
+camera.position.set(
+  0,
+  8,
+  12
+);
 
 
 const renderer =
@@ -521,7 +960,10 @@ new THREE.WebGLRenderer({
 });
 
 renderer.setPixelRatio(
-  Math.min(window.devicePixelRatio, 1.5)
+  Math.min(
+    window.devicePixelRatio,
+    1.5
+  )
 );
 
 renderer.setSize(
@@ -529,30 +971,47 @@ renderer.setSize(
   window.innerHeight
 );
 
-game.appendChild(renderer.domElement);
+game.appendChild(
+  renderer.domElement
+);
 
 
-/* WORLD */
+/* =====================================================
+   WORLD
+   ===================================================== */
 
 const world =
 new AfterlightWorld(scene);
 
 
-/* PLAYERS */
+/* =====================================================
+   PLAYERS
+   ===================================================== */
 
-const players = new Map();
+const players =
+new Map();
 
-let localPlayerId = null;
-
-
-/* CONNECTION */
-
-let socket = null;
-let joined = false;
-let reconnectTimer = null;
+let localPlayerId =
+null;
 
 
-/* INPUT */
+/* =====================================================
+   CONNECTION
+   ===================================================== */
+
+let socket =
+null;
+
+let joined =
+false;
+
+let reconnectTimer =
+null;
+
+
+/* =====================================================
+   INPUT
+   ===================================================== */
 
 const keys = {
   w: false,
@@ -562,28 +1021,38 @@ const keys = {
 };
 
 
-/* JOIN */
+/* =====================================================
+   CONNECT
+   ===================================================== */
 
 function connect() {
 
   if (
     socket &&
     (
-      socket.readyState === WebSocket.OPEN ||
-      socket.readyState === WebSocket.CONNECTING
+      socket.readyState ===
+      WebSocket.OPEN ||
+
+      socket.readyState ===
+      WebSocket.CONNECTING
     )
   ) {
     return;
   }
 
+
   connectionStatus.textContent =
     "Connecting to AFTERLIGHT...";
 
+
   try {
 
-    socket = new WebSocket(SERVER_URL);
+    socket =
+      new WebSocket(
+        SERVER_URL
+      );
 
-  } catch (error) {
+  } catch {
 
     connectionStatus.textContent =
       "Connection failed.";
@@ -594,87 +1063,121 @@ function connect() {
   }
 
 
-  socket.addEventListener("open", () => {
-
-    connectionStatus.textContent =
-      "Connected. Enter your name.";
-
-    /*
-      IMPORTANT:
-      Do NOT hide the join screen here.
-      The player must be able to type normally.
-    */
-
-    nameInput.focus();
-
-  });
-
-
-  socket.addEventListener("close", () => {
-
-    if (!joined) {
+  socket.addEventListener(
+    "open",
+    () => {
 
       connectionStatus.textContent =
-        "Connection lost. Reconnecting...";
+        "Connected. Enter your name.";
 
-      scheduleReconnect();
+      /*
+       * Keep the join screen open.
+       * Keep the input active.
+       */
 
-    }
-
-  });
-
-
-  socket.addEventListener("error", () => {
-
-    if (!joined) {
-
-      connectionStatus.textContent =
-        "Connection error. Retrying...";
+      nameInput.focus();
 
     }
+  );
 
-  });
 
+  socket.addEventListener(
+    "close",
+    () => {
 
-  socket.addEventListener("message", event => {
+      if (!joined) {
 
-    let message;
+        connectionStatus.textContent =
+          "Connection lost. Reconnecting...";
 
-    try {
-      message = JSON.parse(event.data);
-    } catch {
-      return;
+        scheduleReconnect();
+
+      }
+
     }
+  );
 
-    handleMessage(message);
 
-  });
+  socket.addEventListener(
+    "error",
+    () => {
+
+      if (!joined) {
+
+        connectionStatus.textContent =
+          "Connection error. Retrying...";
+
+      }
+
+    }
+  );
+
+
+  socket.addEventListener(
+    "message",
+    event => {
+
+      let message;
+
+      try {
+
+        message =
+          JSON.parse(
+            event.data
+          );
+
+      } catch {
+
+        return;
+
+      }
+
+      handleMessage(
+        message
+      );
+
+    }
+  );
 
 }
 
 
-/* RECONNECT */
+/* =====================================================
+   RECONNECT
+   ===================================================== */
 
 function scheduleReconnect() {
 
-  if (reconnectTimer) return;
+  if (reconnectTimer) {
+    return;
+  }
 
-  reconnectTimer = setTimeout(() => {
 
-    reconnectTimer = null;
-    connect();
+  reconnectTimer =
+    setTimeout(
+      () => {
 
-  }, 3000);
+        reconnectTimer =
+          null;
+
+        connect();
+
+      },
+      3000
+    );
 
 }
 
 
-/* SEND JOIN */
+/* =====================================================
+   JOIN GAME
+   ===================================================== */
 
 function joinGame() {
 
   const name =
     nameInput.value.trim();
+
 
   if (!name) {
 
@@ -684,29 +1187,41 @@ function joinGame() {
     nameInput.focus();
 
     return;
+
   }
+
 
   if (
     !socket ||
-    socket.readyState !== WebSocket.OPEN
+    socket.readyState !==
+    WebSocket.OPEN
   ) {
 
     connectionStatus.textContent =
       "Still connecting...";
 
     return;
+
   }
 
 
-  socket.send(JSON.stringify({
-    type: "join",
-    name: name
-  }));
+  connectionStatus.textContent =
+    "Entering AFTERLIGHT...";
+
+
+  socket.send(
+    JSON.stringify({
+      type: "join",
+      name: name
+    })
+  );
 
 }
 
 
-/* JOIN BUTTON */
+/* =====================================================
+   JOIN BUTTON
+   ===================================================== */
 
 joinButton.addEventListener(
   "click",
@@ -714,15 +1229,20 @@ joinButton.addEventListener(
 );
 
 
-/* ENTER KEY */
+/* =====================================================
+   ENTER KEY
+   ===================================================== */
 
 nameInput.addEventListener(
   "keydown",
   event => {
 
-    if (event.key === "Enter") {
+    if (
+      event.key === "Enter"
+    ) {
 
       event.preventDefault();
+
       joinGame();
 
     }
@@ -731,11 +1251,17 @@ nameInput.addEventListener(
 );
 
 
-/* SERVER MESSAGES */
+/* =====================================================
+   SERVER MESSAGES
+   ===================================================== */
 
-function handleMessage(message) {
+function handleMessage(
+  message
+) {
 
-  switch (message.type) {
+  switch (
+    message.type
+  ) {
 
     case "welcome":
 
@@ -746,8 +1272,19 @@ function handleMessage(message) {
         message.id ||
         null;
 
-      joinScreen.style.display = "none";
-      hud.style.display = "block";
+
+      /*
+       * ONLY hide the join
+       * screen after the server
+       * confirms the player.
+       */
+
+      joinScreen.style.display =
+        "none";
+
+      hud.style.display =
+        "block";
+
 
       addLog(
         "Welcome to AFTERLIGHT."
@@ -767,7 +1304,9 @@ function handleMessage(message) {
 
     case "state":
 
-      updateGameState(message);
+      updateGameState(
+        message
+      );
 
       break;
 
@@ -785,6 +1324,10 @@ function handleMessage(message) {
 
     case "error":
 
+      connectionStatus.textContent =
+        message.message ||
+        "Unable to join.";
+
       addLog(
         message.message ||
         "Server error."
@@ -797,9 +1340,13 @@ function handleMessage(message) {
 }
 
 
-/* PLAYER UPDATE */
+/* =====================================================
+   UPDATE PLAYERS
+   ===================================================== */
 
-function updatePlayers(serverPlayers) {
+function updatePlayers(
+  serverPlayers
+) {
 
   document.getElementById(
     "playerCount"
@@ -811,12 +1358,20 @@ function updatePlayers(serverPlayers) {
     new Set();
 
 
-  for (const data of serverPlayers) {
+  for (
+    const data
+    of serverPlayers
+  ) {
 
-    activeIds.add(data.id);
+    activeIds.add(
+      data.id
+    );
+
 
     let player =
-      players.get(data.id);
+      players.get(
+        data.id
+      );
 
 
     if (!player) {
@@ -825,8 +1380,10 @@ function updatePlayers(serverPlayers) {
         new AfterlightPlayer(
           scene,
           data,
-          data.id === localPlayerId
+          data.id ===
+          localPlayerId
         );
+
 
       players.set(
         data.id,
@@ -835,7 +1392,9 @@ function updatePlayers(serverPlayers) {
 
     } else {
 
-      player.updateFromServer(data);
+      player.updateFromServer(
+        data
+      );
 
     }
 
@@ -843,13 +1402,19 @@ function updatePlayers(serverPlayers) {
 
 
   for (
-    const [id, player]
+    const [
+      id,
+      player
+    ]
     of players
   ) {
 
-    if (!activeIds.has(id)) {
+    if (
+      !activeIds.has(id)
+    ) {
 
       player.remove();
+
       players.delete(id);
 
     }
@@ -864,47 +1429,71 @@ function updatePlayers(serverPlayers) {
 }
 
 
-/* COMPETITOR LIST */
+/* =====================================================
+   COMPETITOR LIST
+   ===================================================== */
 
-function updateCompetitorList(list) {
+function updateCompetitorList(
+  list
+) {
 
   const container =
     document.getElementById(
       "competitorList"
     );
 
-  container.innerHTML = "";
+
+  container.innerHTML =
+    "";
 
 
-  list.forEach(player => {
+  list.forEach(
+    player => {
 
-    const row =
-      document.createElement("div");
-
-    row.className =
-      "competitor";
-
-
-    row.innerHTML = `
-      <div>
-        ${escapeHTML(player.name || "Unknown")}
-      </div>
-      <div class="competitorRole">
-        ${escapeHTML(player.role || "Competitor")}
-      </div>
-    `;
+      const row =
+        document.createElement(
+          "div"
+        );
 
 
-    container.appendChild(row);
+      row.className =
+        "competitor";
 
-  });
+
+      row.innerHTML = `
+        <div>
+          ${escapeHTML(
+            player.name ||
+            "Unknown"
+          )}
+        </div>
+
+        <div class="competitorRole">
+          ${escapeHTML(
+            player.role ||
+            "Competitor"
+          )}
+        </div>
+      `;
+
+
+      container.appendChild(
+        row
+      );
+
+    }
+  );
 
 }
 
 
-/* GAME STATE */
+/* =====================================================
+   GAME STATE
+   ===================================================== */
 
-function updateGameState(data) {
+function updateGameState(
+  data
+) {
 
   if (data.phase) {
 
@@ -928,49 +1517,68 @@ function updateGameState(data) {
 
   const me =
     data.players?.find(
-      p => p.id === localPlayerId
+      player =>
+        player.id ===
+        localPlayerId
     );
 
 
-  if (!me) return;
+  if (!me) {
+    return;
+  }
 
 
   document.getElementById(
     "credits"
   ).textContent =
-    me.credits ?? 500;
+    me.credits ??
+    500;
 
 
   document.getElementById(
     "influence"
   ).textContent =
-    me.influence ?? 10;
+    me.influence ??
+    10;
 
 
   document.getElementById(
     "trust"
   ).textContent =
-    me.trust ?? 50;
+    me.trust ??
+    50;
 
 
   document.getElementById(
     "energy"
   ).textContent =
-    me.energy ?? 100;
+    me.energy ??
+    100;
 
 }
 
 
-/* ACTIONS */
+/* =====================================================
+   ACTIONS
+   ===================================================== */
 
-function sendAction(action, extra = {}) {
+function sendAction(
+  action,
+  extra = {}
+) {
 
   if (
     !socket ||
-    socket.readyState !== WebSocket.OPEN
+    socket.readyState !==
+    WebSocket.OPEN
   ) {
-    addLog("Not connected.");
+
+    addLog(
+      "Not connected."
+    );
+
     return;
+
   }
 
 
@@ -985,81 +1593,143 @@ function sendAction(action, extra = {}) {
 
 
 document
-.querySelectorAll(".actionButton")
-.forEach(button => {
+  .querySelectorAll(
+    ".actionButton"
+  )
+  .forEach(
+    button => {
 
-  button.addEventListener(
-    "click",
-    () => {
+      button.addEventListener(
+        "click",
+        () => {
 
-      const action =
-        button.dataset.action;
+          const action =
+            button.dataset.action;
 
 
-      switch (action) {
+          switch (action) {
 
-        case "ready":
-          sendAction("ready");
-          break;
+            case "ready":
 
-        case "challenge":
-          sendAction(
-            "challenge",
-            { choice: "risk" }
-          );
-          break;
+              sendAction(
+                "ready"
+              );
 
-        case "social":
-          sendAction("social");
-          break;
+              break;
 
-        case "mission":
-          sendAction("mission");
-          break;
 
-        case "parallel":
-          sendAction("parallel");
-          break;
+            case "challenge":
 
-        case "architect":
-          sendAction("architect");
-          break;
+              sendAction(
+                "challenge",
+                {
+                  choice:
+                    "risk"
+                }
+              );
 
-        case "heist":
-          sendAction("heist");
-          break;
+              break;
 
-        case "vacation":
-          sendAction("vacation");
-          break;
 
-        case "power":
-          sendAction(
-            "buyPower",
-            { power: "Shield Band" }
-          );
-          break;
+            case "social":
 
-        case "vote":
-          sendAction(
-            "vote",
-            { target: null }
-          );
-          break;
+              sendAction(
+                "social"
+              );
 
-      }
+              break;
+
+
+            case "mission":
+
+              sendAction(
+                "mission"
+              );
+
+              break;
+
+
+            case "parallel":
+
+              sendAction(
+                "parallel"
+              );
+
+              break;
+
+
+            case "architect":
+
+              sendAction(
+                "architect"
+              );
+
+              break;
+
+
+            case "heist":
+
+              sendAction(
+                "heist"
+              );
+
+              break;
+
+
+            case "vacation":
+
+              sendAction(
+                "vacation"
+              );
+
+              break;
+
+
+            case "power":
+
+              sendAction(
+                "buyPower",
+                {
+                  power:
+                    "Shield Band"
+                }
+              );
+
+              break;
+
+
+            case "vote":
+
+              sendAction(
+                "vote",
+                {
+                  target:
+                    null
+                }
+              );
+
+              break;
+
+          }
+
+        }
+      );
 
     }
   );
 
-});
 
+/* =====================================================
+   LOG
+   ===================================================== */
 
-/* LOG */
+function addLog(
+  text
+) {
 
-function addLog(text) {
-
-  if (!text) return;
+  if (!text) {
+    return;
+  }
 
 
   const log =
@@ -1069,20 +1739,27 @@ function addLog(text) {
 
 
   const line =
-    document.createElement("div");
+    document.createElement(
+      "div"
+    );
+
 
   line.className =
     "logLine";
+
 
   line.textContent =
     text;
 
 
-  log.appendChild(line);
+  log.appendChild(
+    line
+  );
 
 
   while (
-    log.children.length > 30
+    log.children.length >
+    30
   ) {
 
     log.removeChild(
@@ -1098,35 +1775,59 @@ function addLog(text) {
 }
 
 
-/* SAFE TEXT */
+/* =====================================================
+   ESCAPE HTML
+   ===================================================== */
 
-function escapeHTML(value) {
+function escapeHTML(
+  value
+) {
 
   return String(value)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
+    .replaceAll(
+      "&",
+      "&amp;"
+    )
+    .replaceAll(
+      "<",
+      "&lt;"
+    )
+    .replaceAll(
+      ">",
+      "&gt;"
+    )
+    .replaceAll(
+      '"',
+      "&quot;"
+    )
+    .replaceAll(
+      "'",
+      "&#039;"
+    );
 
 }
 
 
-/* KEYBOARD */
+/* =====================================================
+   KEYBOARD
+   ===================================================== */
 
 window.addEventListener(
   "keydown",
   event => {
 
     /*
-      Never capture typing inside
-      the name input.
-    */
+     * NEVER capture movement
+     * while the player is typing.
+     */
 
     if (
-      document.activeElement === nameInput
+      document.activeElement ===
+      nameInput
     ) {
+
       return;
+
     }
 
 
@@ -1136,10 +1837,14 @@ window.addEventListener(
 
     if (
       Object.prototype.hasOwnProperty
-      .call(keys, key)
+        .call(
+          keys,
+          key
+        )
     ) {
 
-      keys[key] = true;
+      keys[key] =
+        true;
 
     }
 
@@ -1157,10 +1862,14 @@ window.addEventListener(
 
     if (
       Object.prototype.hasOwnProperty
-      .call(keys, key)
+        .call(
+          keys,
+          key
+        )
     ) {
 
-      keys[key] = false;
+      keys[key] =
+        false;
 
     }
 
@@ -1168,81 +1877,129 @@ window.addEventListener(
 );
 
 
-/* MOBILE CONTROLS */
+/* =====================================================
+   MOBILE CONTROLS
+   ===================================================== */
 
 document
-.querySelectorAll(".mobileButton")
-.forEach(button => {
+  .querySelectorAll(
+    ".mobileButton"
+  )
+  .forEach(
+    button => {
 
-  const key =
-    button.dataset.key;
+      const key =
+        button.dataset.key;
 
 
-  button.addEventListener(
-    "pointerdown",
-    event => {
+      button.addEventListener(
+        "pointerdown",
+        event => {
 
-      event.preventDefault();
-      keys[key] = true;
+          event.preventDefault();
+
+          keys[key] =
+            true;
+
+        }
+      );
+
+
+      button.addEventListener(
+        "pointerup",
+        () => {
+
+          keys[key] =
+            false;
+
+        }
+      );
+
+
+      button.addEventListener(
+        "pointercancel",
+        () => {
+
+          keys[key] =
+            false;
+
+        }
+      );
+
+
+      button.addEventListener(
+        "pointerleave",
+        () => {
+
+          keys[key] =
+            false;
+
+        }
+      );
 
     }
   );
 
 
-  button.addEventListener(
-    "pointerup",
-    () => {
+/* =====================================================
+   MOVEMENT
+   ===================================================== */
 
-      keys[key] = false;
+function updateMovement(
+  delta
+) {
 
-    }
-  );
-
-
-  button.addEventListener(
-    "pointerleave",
-    () => {
-
-      keys[key] = false;
-
-    }
-  );
-
-});
-
-
-/* MOVEMENT */
-
-function updateMovement(delta) {
-
-  if (!localPlayerId) return;
+  if (!localPlayerId) {
+    return;
+  }
 
 
   const player =
-    players.get(localPlayerId);
+    players.get(
+      localPlayerId
+    );
 
 
-  if (!player) return;
+  if (!player) {
+    return;
+  }
 
 
-  const speed = 6;
+  const speed =
+    6;
 
 
-  let dx = 0;
-  let dz = 0;
+  let dx =
+    0;
+
+  let dz =
+    0;
 
 
-  if (keys.w) dz -= 1;
-  if (keys.s) dz += 1;
-  if (keys.a) dx -= 1;
-  if (keys.d) dx += 1;
+  if (keys.w) {
+    dz -= 1;
+  }
+
+  if (keys.s) {
+    dz += 1;
+  }
+
+  if (keys.a) {
+    dx -= 1;
+  }
+
+  if (keys.d) {
+    dx += 1;
+  }
 
 
   if (
     dx === 0 &&
     dz === 0
   ) {
+
     return;
+
   }
 
 
@@ -1286,15 +2043,22 @@ function updateMovement(delta) {
 
   if (
     socket &&
-    socket.readyState === WebSocket.OPEN
+    socket.readyState ===
+    WebSocket.OPEN
   ) {
 
     socket.send(
       JSON.stringify({
         type: "move",
-        x: player.group.position.x,
-        y: player.group.position.y,
-        z: player.group.position.z
+
+        x:
+          player.group.position.x,
+
+        y:
+          player.group.position.y,
+
+        z:
+          player.group.position.z
       })
     );
 
@@ -1303,18 +2067,28 @@ function updateMovement(delta) {
 }
 
 
-/* CAMERA */
+/* =====================================================
+   CAMERA
+   ===================================================== */
 
-function updateCamera(delta) {
+function updateCamera(
+  delta
+) {
 
-  if (!localPlayerId) return;
+  if (!localPlayerId) {
+    return;
+  }
 
 
   const player =
-    players.get(localPlayerId);
+    players.get(
+      localPlayerId
+    );
 
 
-  if (!player) return;
+  if (!player) {
+    return;
+  }
 
 
   const target =
@@ -1343,7 +2117,9 @@ function updateCamera(delta) {
 }
 
 
-/* RESIZE */
+/* =====================================================
+   RESIZE
+   ===================================================== */
 
 window.addEventListener(
   "resize",
@@ -1352,6 +2128,7 @@ window.addEventListener(
     camera.aspect =
       window.innerWidth /
       window.innerHeight;
+
 
     camera.updateProjectionMatrix();
 
@@ -1365,13 +2142,17 @@ window.addEventListener(
 );
 
 
-/* LOOP */
+/* =====================================================
+   GAME LOOP
+   ===================================================== */
 
 let previousTime =
 performance.now();
 
 
-function animate(time) {
+function animate(
+  time
+) {
 
   requestAnimationFrame(
     animate
@@ -1381,14 +2162,20 @@ function animate(time) {
   const delta =
     Math.min(
       0.05,
-      (time - previousTime) / 1000
+      (
+        time -
+        previousTime
+      ) / 1000
     );
 
 
-  previousTime = time;
+  previousTime =
+    time;
 
 
-  world.update(delta);
+  world.update(
+    delta
+  );
 
 
   for (
@@ -1396,13 +2183,20 @@ function animate(time) {
     of players.values()
   ) {
 
-    player.update(delta);
+    player.update(
+      delta
+    );
 
   }
 
 
-  updateMovement(delta);
-  updateCamera(delta);
+  updateMovement(
+    delta
+  );
+
+  updateCamera(
+    delta
+  );
 
 
   renderer.render(
@@ -1414,7 +2208,10 @@ function animate(time) {
 
 
 connect();
-animate(performance.now());
+
+animate(
+  performance.now()
+);
 
 </script>
 
