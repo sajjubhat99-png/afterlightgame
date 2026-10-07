@@ -13,85 +13,102 @@ const ROLES = [
 
 const MISSIONS = [
   "Gain another player's trust.",
-  "Complete a secret trade.",
-  "Protect a player who does not expect it.",
-  "Influence another player's vote.",
+  "Influence a future vote.",
+  "Complete a trade without revealing your goal.",
+  "Protect another competitor.",
   "Discover who owns a rare power.",
-  "Create an alliance and keep it secret.",
-  "Convince another player to trade with you.",
-  "Make a promise and keep it."
+  "Create an alliance and keep it.",
+  "Convince another player to trade.",
+  "Survive a risky decision."
 ];
 
-const POWERS = {
-  "Power Ring": {
-    price: 150,
-    description: "Temporary stamina advantage."
+const POWERS = [
+  {
+    id: "power-ring",
+    name: "Power Ring",
+    cost: 150,
+    description: "Temporary stamina boost."
   },
-  "Pulse Watch": {
-    price: 180,
-    description: "Receive limited challenge information."
+  {
+    id: "pulse-watch",
+    name: "Pulse Watch",
+    cost: 175,
+    description: "Reveals limited challenge information."
   },
-  "Gravity Shoes": {
-    price: 200,
-    description: "Movement advantage during challenges."
+  {
+    id: "gravity-shoes",
+    name: "Gravity Shoes",
+    cost: 200,
+    description: "Improves movement during challenges."
   },
-  "Spectra Visor": {
-    price: 220,
-    description: "Reveal a hidden clue."
+  {
+    id: "spectra-visor",
+    name: "Spectra Visor",
+    cost: 150,
+    description: "Reveals hidden paths and clues."
   },
-  "Phase Jacket": {
-    price: 250,
-    description: "Cancel one environmental penalty."
+  {
+    id: "phase-jacket",
+    name: "Phase Jacket",
+    cost: 250,
+    description: "Blocks one environmental penalty."
   },
-  "Signal Band": {
-    price: 120,
+  {
+    id: "signal-band",
+    name: "Signal Band",
+    cost: 125,
     description: "Send a secret message."
   },
-  "Influence Chip": {
-    price: 300,
-    description: "Increase voting influence."
+  {
+    id: "influence-chip",
+    name: "Influence Chip",
+    cost: 100,
+    description: "Adds voting influence."
   },
-  "Shadow Pack": {
-    price: 170,
-    description: "Increase item capacity."
+  {
+    id: "shadow-pack",
+    name: "Shadow Pack",
+    cost: 125,
+    description: "Increases item storage."
   },
-  "Oracle Lens": {
-    price: 260,
-    description: "Receive a limited hint."
+  {
+    id: "oracle-lens",
+    name: "Oracle Lens",
+    cost: 225,
+    description: "Provides a limited hint."
   },
-  "Shield Band": {
-    price: 240,
-    description: "Cancel one minor disadvantage."
+  {
+    id: "shield-band",
+    name: "Shield Band",
+    cost: 175,
+    description: "Cancels one minor disadvantage."
   }
-};
-
-const PHASES = [
-  "LOBBY",
-  "ORIENTATION",
-  "CHALLENGE",
-  "BREAK",
-  "SOCIAL",
-  "VOTING",
-  "RESULT",
-  "FINAL",
-  "WINNER"
 ];
 
-function cleanName(value) {
-  return String(value || "Player")
+const PHASES = {
+  LOBBY: "LOBBY",
+  ORIENTATION: "ORIENTATION",
+  CHALLENGE: "CHALLENGE",
+  BREAK: "BREAK",
+  SOCIAL: "SOCIAL",
+  VOTING: "VOTING",
+  RESULT: "RESULT",
+  FINAL: "FINAL",
+  WINNER: "WINNER"
+};
+
+function cleanName(name) {
+  if (!name) return "Player";
+
+  return String(name)
     .replace(/[<>]/g, "")
+    .replace(/\s+/g, " ")
     .trim()
     .slice(0, 20) || "Player";
 }
 
-function clamp(value, min, max) {
-  const number = Number(value);
-
-  if (!Number.isFinite(number)) {
-    return min;
-  }
-
-  return Math.max(min, Math.min(max, number));
+function randomMission() {
+  return MISSIONS[Math.floor(Math.random() * MISSIONS.length)];
 }
 
 function createPlayer(id, number) {
@@ -101,7 +118,7 @@ function createPlayer(id, number) {
     role: ROLES[(number - 1) % ROLES.length],
 
     x: 0,
-    y: 1,
+    y: 0,
     z: 0,
 
     credits: 500,
@@ -112,16 +129,15 @@ function createPlayer(id, number) {
     alive: true,
     ready: false,
 
-    protection: false,
+    protection: 0,
+
     powers: [],
 
-    mission: MISSIONS[Math.floor(Math.random() * MISSIONS.length)],
+    mission: randomMission(),
     missionComplete: false,
 
     votesReceived: 0,
-    votedFor: null,
-
-    joinedAt: Date.now()
+    votedFor: null
   };
 }
 
@@ -131,45 +147,36 @@ export class Room {
     this.env = env;
 
     this.players = new Map();
+    this.sockets = new Map();
 
-    this.phase = "LOBBY";
+    this.phase = PHASES.LOBBY;
     this.round = 1;
-
-    this.started = false;
-    this.challenge = null;
-
-    this.voteOpen = false;
-    this.votes = new Map();
 
     this.prizePool = 16000;
 
-    this.log = [
-      "AFTERLIGHT systems online.",
-      "Waiting for competitors."
+    this.logs = [
+      "System online.",
+      "AFTERLIGHT systems ready."
     ];
+
+    this.started = false;
   }
 
   async fetch(request) {
-    if (request.headers.get("Upgrade") !== "websocket") {
-      return new Response(
-        JSON.stringify({
-          game: "AFTERLIGHT",
-          status: "online",
-          multiplayer: true,
-          players: this.players.size,
-          maxPlayers: MAX_PLAYERS
-        }),
-        {
-          headers: {
-            "content-type": "application/json"
-          }
+    const url = new URL(request.url);
+
+    if (url.pathname !== "/ws") {
+      return new Response("AFTERLIGHT ROOM ONLINE", {
+        status: 200,
+        headers: {
+          "content-type": "text/plain"
         }
-      );
+      });
     }
 
-    if (this.players.size >= MAX_PLAYERS) {
-      return new Response("AFTERLIGHT room is full.", {
-        status: 409
+    if (request.headers.get("Upgrade") !== "websocket") {
+      return new Response("WebSocket connection required.", {
+        status: 426
       });
     }
 
@@ -188,16 +195,23 @@ export class Room {
 
     server.accept();
 
-    server.send(
-      JSON.stringify({
-        type: "welcome",
-        id,
-        player,
-        room: this.publicState()
-      })
-    );
+    /*
+     * IMPORTANT:
+     *
+     * Do NOT send welcome here.
+     *
+     * The browser must first show the name screen.
+     * Welcome is now sent only after the player submits a name.
+     */
 
-    this.addLog(`${player.name} entered AFTERLIGHT.`);
+    this.sockets.set(id, server);
+
+    this.addLog(`Player ${playerNumber} connected.`);
+
+    this.send(server, {
+      type: "connected",
+      id
+    });
 
     this.broadcastState();
 
@@ -206,15 +220,11 @@ export class Room {
     });
 
     server.addEventListener("close", () => {
-      const leavingPlayer = this.players.get(id);
+      this.removePlayer(id);
+    });
 
-      if (leavingPlayer) {
-        this.addLog(`${leavingPlayer.name} disconnected.`);
-      }
-
-      this.players.delete(id);
-
-      this.broadcastState();
+    server.addEventListener("error", () => {
+      this.removePlayer(id);
     });
 
     return new Response(null, {
@@ -223,18 +233,20 @@ export class Room {
     });
   }
 
-  handleMessage(id, rawData) {
+  handleMessage(id, rawMessage) {
+    const player = this.players.get(id);
+
+    if (!player) return;
+
     let message;
 
     try {
-      message = JSON.parse(rawData);
+      message = JSON.parse(rawMessage);
     } catch {
       return;
     }
 
-    const player = this.players.get(id);
-
-    if (!player) {
+    if (!message || typeof message.type !== "string") {
       return;
     }
 
@@ -243,40 +255,40 @@ export class Room {
         this.join(player, message);
         break;
 
+      case "ready":
+        this.ready(player);
+        break;
+
+      case "start":
+        this.startGame();
+        break;
+
       case "move":
         this.move(player, message);
         break;
 
-      case "ready":
-        this.setReady(player, message);
-        break;
-
-      case "start":
-        this.startGame(player);
-        break;
-
       case "challenge":
-        this.challengeAction(player, message);
+        this.challenge(player, message);
         break;
 
       case "social":
-        this.socialAction(player, message);
+        this.social(player, message);
         break;
 
       case "mission":
-        this.missionAction(player);
+        this.completeMission(player);
         break;
 
       case "trade":
-        this.tradeAction(player, message);
+        this.trade(player, message);
         break;
 
       case "pact":
-        this.pactAction(player, message);
+        this.secretPact(player, message);
         break;
 
       case "protect":
-        this.protectAction(player, message);
+        this.protect(player, message);
         break;
 
       case "buyPower":
@@ -284,496 +296,502 @@ export class Room {
         break;
 
       case "parallel":
-        this.parallelAction(player);
+        this.parallelWorld(player);
         break;
 
       case "architect":
-        this.architectAction(player);
+        this.investigateArchitect(player);
         break;
 
       case "heist":
-        this.heistAction(player);
+        this.heist(player);
         break;
 
       case "vacation":
-        this.vacationAction(player);
+        this.vacation(player);
         break;
 
       case "vote":
         this.vote(player, message);
         break;
 
+      case "eliminate":
+        this.eliminate(player, message);
+        break;
+
+      case "nextRound":
+        this.nextRound();
+        break;
+
       default:
         break;
     }
-
-    this.broadcastState();
   }
 
   join(player, message) {
+    const oldName = player.name;
+
     player.name = cleanName(message.name);
 
     this.addLog(`${player.name} joined the competition.`);
-  }
 
-  move(player, message) {
-    if (!player.alive) {
-      return;
+    const socket = this.sockets.get(player.id);
+
+    /*
+     * THIS IS THE IMPORTANT FIX.
+     *
+     * The welcome message is sent only after the player has
+     * actually entered their name.
+     */
+    if (socket) {
+      this.send(socket, {
+        type: "welcome",
+        id: player.id,
+        player,
+        room: this.publicState()
+      });
     }
 
-    player.x = clamp(message.x, -22, 22);
-    player.y = clamp(message.y, 0.5, 5);
-    player.z = clamp(message.z, -22, 22);
+    this.broadcastState();
+
+    if (oldName !== player.name) {
+      this.send(socket, {
+        type: "nameConfirmed",
+        name: player.name
+      });
+    }
   }
 
-  setReady(player, message) {
-    player.ready = Boolean(message.ready);
+  ready(player) {
+    player.ready = !player.ready;
 
     this.addLog(
-      `${player.name} is ${player.ready ? "READY" : "NOT READY"}.`
+      `${player.name} is ${player.ready ? "ready" : "not ready"}.`
     );
+
+    this.broadcastState();
+
+    const activePlayers = [...this.players.values()].filter(
+      p => p.alive
+    );
+
+    if (
+      !this.started &&
+      activePlayers.length >= 2 &&
+      activePlayers.every(p => p.ready)
+    ) {
+      this.startGame();
+    }
   }
 
-  startGame(player) {
-    if (this.started) {
-      return;
-    }
+  startGame() {
+    if (this.started) return;
 
-    const players = [...this.players.values()];
+    const activePlayers = [...this.players.values()].filter(
+      p => p.alive
+    );
 
-    if (players.length < 2) {
-      this.addLog("At least 2 competitors are required to start.");
-      return;
-    }
-
-    if (!player.ready) {
-      this.addLog(`${player.name} must be ready first.`);
-      return;
-    }
-
-    const readyPlayers = players.filter(p => p.ready);
-
-    if (readyPlayers.length < players.length) {
-      this.addLog("All connected competitors must be ready.");
+    if (activePlayers.length < 2) {
+      this.addLog("At least 2 competitors are required.");
+      this.broadcastState();
       return;
     }
 
     this.started = true;
-    this.phase = "ORIENTATION";
 
-    this.addLog("ORIENTATION begins.");
+    this.phase = PHASES.ORIENTATION;
+
+    this.addLog("Orientation beginning.");
+
+    this.broadcastState();
 
     setTimeout(() => {
-      if (!this.started) {
-        return;
-      }
+      if (this.phase !== PHASES.ORIENTATION) return;
 
-      this.phase = "CHALLENGE";
+      this.phase = PHASES.CHALLENGE;
 
-      this.challenge = {
-        name: "THE FLOATING BRIDGE",
-        description:
-          "Choose your route. Safe decisions protect energy. Risky decisions can increase your reward.",
-        active: true
-      };
-
-      this.addLog("Challenge 1: THE FLOATING BRIDGE.");
+      this.addLog("Challenge phase activated.");
 
       this.broadcastState();
     }, 3000);
   }
 
-  challengeAction(player, message) {
-    if (!player.alive) {
+  move(player, message) {
+    if (!player.alive) return;
+
+    const x = Number(message.x);
+    const y = Number(message.y);
+    const z = Number(message.z);
+
+    if (!Number.isFinite(x) || !Number.isFinite(y) || !Number.isFinite(z)) {
       return;
     }
 
-    if (this.phase !== "CHALLENGE") {
+    player.x = Math.max(-22, Math.min(22, x));
+    player.y = Math.max(0, Math.min(10, y));
+    player.z = Math.max(-22, Math.min(22, z));
+
+    this.broadcastState();
+  }
+
+  challenge(player, message) {
+    if (!player.alive) return;
+
+    if (
+      this.phase !== PHASES.CHALLENGE &&
+      this.phase !== PHASES.FINAL
+    ) {
       return;
     }
 
-    const choice = String(message.choice || "");
+    const action = message.action;
 
-    if (!["safe", "risk", "observe"].includes(choice)) {
-      return;
-    }
-
-    if (choice === "observe") {
-      if (player.energy < 10) {
-        this.addLog(`${player.name} lacks energy to observe.`);
-        return;
-      }
-
-      player.energy -= 10;
-
-      this.addLog(
-        `${player.name} studied the Floating Bridge before moving.`
-      );
-
-      return;
-    }
-
-    if (choice === "safe") {
-      player.energy = clamp(player.energy - 10, 0, 100);
-      player.credits += 40;
+    if (action === "safe") {
+      player.energy = Math.max(0, player.energy - 5);
 
       this.addLog(`${player.name} chose the safe route.`);
     }
 
-    if (choice === "risk") {
-      player.energy = clamp(player.energy - 25, 0, 100);
+    if (action === "risk") {
+      player.energy = Math.max(0, player.energy - 15);
 
       const success = Math.random() > 0.35;
 
       if (success) {
-        player.credits += 140;
+        player.credits += 100;
         player.influence += 2;
 
         this.addLog(
-          `${player.name} took the risk and succeeded.`
+          `${player.name} took a risk and succeeded.`
         );
       } else {
-        player.energy = clamp(player.energy - 20, 0, 100);
-        player.trust = clamp(player.trust - 5, 0, 100);
+        player.energy = Math.max(0, player.energy - 15);
 
         this.addLog(
-          `${player.name} took the risk and suffered a penalty.`
+          `${player.name} took a risk and suffered a penalty.`
         );
       }
     }
 
-    this.checkChallengeComplete();
+    if (action === "observe") {
+      player.energy = Math.max(0, player.energy - 3);
+
+      this.addLog(
+        `${player.name} observed the challenge carefully.`
+      );
+    }
+
+    this.broadcastState();
+
+    setTimeout(() => {
+      if (this.phase === PHASES.CHALLENGE) {
+        this.phase = PHASES.BREAK;
+
+        this.addLog("Challenge complete. Break phase beginning.");
+
+        this.broadcastState();
+
+        setTimeout(() => {
+          if (this.phase !== PHASES.BREAK) return;
+
+          this.phase = PHASES.SOCIAL;
+
+          this.addLog("Social phase is now open.");
+
+          this.broadcastState();
+        }, 3000);
+      }
+    }, 2500);
   }
 
-  checkChallengeComplete() {
-    const alivePlayers = [...this.players.values()].filter(
-      p => p.alive
-    );
+  social(player, message) {
+    if (!player.alive) return;
 
-    if (alivePlayers.length === 0) {
+    if (this.phase !== PHASES.SOCIAL) {
       return;
     }
 
-    const activePlayers = alivePlayers.filter(
-      p => p.energy > 0
-    );
-
-    if (
-      activePlayers.length <= 1 ||
-      alivePlayers.every(p => p.energy < 20)
-    ) {
-      this.phase = "BREAK";
-
-      this.challenge = null;
-
-      this.addLog("Challenge complete. Break phase begins.");
-
-      setTimeout(() => {
-        if (this.started && this.phase === "BREAK") {
-          this.beginSocialPhase();
-        }
-      }, 3000);
-    }
-  }
-
-  beginSocialPhase() {
-    this.phase = "SOCIAL";
-
-    this.addLog("SOCIAL PHASE begins.");
-
-    for (const player of this.players.values()) {
-      player.votedFor = null;
-      player.votesReceived = 0;
-    }
-  }
-
-  socialAction(player, message) {
-    if (!player.alive || this.phase !== "SOCIAL") {
-      return;
-    }
-
-    const action = String(message.action || "");
+    const action = message.action;
 
     if (action === "talk") {
-      player.trust = clamp(player.trust + 2, 0, 100);
+      player.trust = Math.min(100, player.trust + 2);
 
-      this.addLog(`${player.name} talked with the other competitors.`);
+      this.addLog(`${player.name} started a conversation.`);
     }
 
     if (action === "accuse") {
-      player.influence += 1;
-      player.trust = clamp(player.trust - 3, 0, 100);
+      player.influence = Math.max(0, player.influence - 1);
 
       this.addLog(`${player.name} made an accusation.`);
     }
 
     if (action === "deal") {
-      if (player.credits < 50) {
-        return;
-      }
+      player.trust = Math.min(100, player.trust + 1);
+      player.credits += 25;
 
-      player.credits -= 50;
-      player.influence += 1;
-
-      this.addLog(`${player.name} created a private deal.`);
+      this.addLog(`${player.name} made a deal.`);
     }
 
     if (action === "end") {
-      this.phase = "VOTING";
-      this.voteOpen = true;
+      this.phase = PHASES.VOTING;
 
-      this.addLog("The social phase has ended.");
-      this.addLog("VOTING is now open.");
+      this.addLog("Voting phase activated.");
     }
+
+    this.broadcastState();
   }
 
-  missionAction(player) {
-    if (!player.alive || player.missionComplete) {
-      return;
-    }
-
-    if (this.phase !== "SOCIAL") {
-      return;
-    }
+  completeMission(player) {
+    if (!player.alive || player.missionComplete) return;
 
     player.missionComplete = true;
 
-    player.credits += 100;
-    player.influence += 2;
+    player.credits += 150;
+    player.influence += 3;
+    player.trust = Math.min(100, player.trust + 5);
 
     this.addLog(`${player.name} completed a secret mission.`);
+
+    this.broadcastState();
   }
 
-  tradeAction(player, message) {
-    if (!player.alive || this.phase !== "SOCIAL") {
-      return;
-    }
+  trade(player, message) {
+    if (!player.alive) return;
 
-    const target = this.players.get(String(message.targetId));
+    const target = this.players.get(message.targetId);
 
     if (!target || !target.alive || target.id === player.id) {
       return;
     }
 
-    if (player.credits < 50) {
+    if (player.credits < 25) {
+      this.addLog(`${player.name} cannot afford the trade.`);
+      this.broadcastState();
       return;
     }
 
-    player.credits -= 50;
-    target.credits += 50;
+    player.credits -= 25;
+    target.credits += 25;
 
-    player.trust = clamp(player.trust + 3, 0, 100);
-    target.trust = clamp(target.trust + 3, 0, 100);
+    player.trust = Math.min(100, player.trust + 2);
+    target.trust = Math.min(100, target.trust + 2);
 
     this.addLog(
-      `${player.name} completed a trade with ${target.name}.`
+      `${player.name} traded 25 Credits with ${target.name}.`
     );
+
+    this.broadcastState();
   }
 
-  pactAction(player, message) {
-    if (!player.alive || this.phase !== "SOCIAL") {
-      return;
-    }
+  secretPact(player, message) {
+    if (!player.alive) return;
 
-    const target = this.players.get(String(message.targetId));
+    const target = this.players.get(message.targetId);
 
     if (!target || !target.alive || target.id === player.id) {
       return;
     }
 
-    player.trust = clamp(player.trust + 5, 0, 100);
-    target.trust = clamp(target.trust + 5, 0, 100);
+    player.trust = Math.min(100, player.trust + 4);
+    target.trust = Math.min(100, target.trust + 4);
 
     this.addLog(
       `${player.name} formed a secret pact with ${target.name}.`
     );
+
+    this.broadcastState();
   }
 
-  protectAction(player, message) {
-    if (!player.alive || this.phase !== "SOCIAL") {
+  protect(player, message) {
+    if (!player.alive) return;
+
+    if (player.influence < 3) {
+      this.addLog(`${player.name} does not have enough Influence.`);
+      this.broadcastState();
       return;
     }
 
-    const target = this.players.get(String(message.targetId));
+    const target = this.players.get(message.targetId);
 
     if (!target || !target.alive) {
       return;
     }
 
-    if (player.influence < 3) {
-      this.addLog(`${player.name} lacks enough influence.`);
-      return;
-    }
-
     player.influence -= 3;
-    target.protection = true;
+    target.protection += 1;
 
     this.addLog(
-      `${player.name} secretly protected ${target.name}.`
+      `${player.name} protected ${target.name}.`
     );
+
+    this.broadcastState();
   }
 
   buyPower(player, message) {
-    if (!player.alive) {
+    if (!player.alive) return;
+
+    const power = POWERS.find(
+      item => item.id === message.powerId
+    );
+
+    if (!power) return;
+
+    if (player.credits < power.cost) {
+      this.addLog(
+        `${player.name} cannot afford ${power.name}.`
+      );
+
+      this.broadcastState();
       return;
     }
 
-    const powerName = String(message.power || "");
-    const power = POWERS[powerName];
-
-    if (!power) {
+    if (player.powers.includes(power.id)) {
       return;
     }
 
-    if (player.credits < power.price) {
-      this.addLog(`${player.name} cannot afford ${powerName}.`);
-      return;
+    player.credits -= power.cost;
+
+    player.powers.push(power.id);
+
+    if (power.id === "influence-chip") {
+      player.influence += 2;
     }
 
-    if (player.powers.includes(powerName)) {
-      return;
+    if (power.id === "shadow-pack") {
+      player.energy = Math.min(100, player.energy + 10);
     }
 
-    player.credits -= power.price;
-    player.powers.push(powerName);
+    this.addLog(
+      `${player.name} acquired ${power.name}.`
+    );
 
-    this.addLog(`${player.name} acquired ${powerName}.`);
+    this.broadcastState();
   }
 
-  parallelAction(player) {
-    if (!player.alive) {
+  parallelWorld(player) {
+    if (!player.alive) return;
+
+    if (player.energy < 10) {
+      this.addLog(
+        `${player.name} does not have enough Energy to enter the Parallel World.`
+      );
+
+      this.broadcastState();
       return;
     }
 
-    if (player.energy < 20) {
-      this.addLog(`${player.name} lacks energy for the Parallel World.`);
-      return;
-    }
-
-    player.energy -= 20;
+    player.energy -= 10;
 
     const outcomes = [
-      "TRUE MEMORY: Someone nearby may be hiding a powerful item.",
-      "FALSE MEMORY: A trusted alliance may not be what it seems.",
-      "ALTERED MEMORY: Someone's story contains a contradiction.",
-      "UNKNOWN: The next vote may have an unexpected consequence."
+      "TRUE MEMORY",
+      "FALSE MEMORY",
+      "ALTERED MEMORY",
+      "UNKNOWN"
     ];
 
     const result =
       outcomes[Math.floor(Math.random() * outcomes.length)];
 
-    this.addLog(`${player.name} entered the Parallel World.`);
-    this.addLog(result);
-  }
-
-  architectAction(player) {
-    if (!player.alive) {
-      return;
-    }
-
-    const costs = [50, 100, 150, 200, 250];
-
-    const level = Math.min(
-      5,
-      Math.max(1, Math.floor((500 - player.credits) / 50) + 1)
+    this.addLog(
+      `${player.name} entered the Parallel World and discovered: ${result}.`
     );
 
-    const cost = costs[level - 1];
+    this.broadcastState();
+  }
+
+  investigateArchitect(player) {
+    if (!player.alive) return;
+
+    const cost = 50;
 
     if (player.credits < cost) {
-      this.addLog(`${player.name} needs ${cost} credits.`);
+      this.addLog(
+        `${player.name} needs 50 Credits to investigate the Architect.`
+      );
+
+      this.broadcastState();
       return;
     }
 
     player.credits -= cost;
 
     const clues = [
-      "CLUE: The Architect watches social decisions.",
-      "CLUE: The Architect has influenced a previous event.",
-      "CLUE: The Architect may not be a single person.",
-      "CLUE: Someone has access to hidden information.",
-      "CLUE: The game itself may be part of the mystery."
+      "The Architect has interacted with another competitor.",
+      "The Architect has accessed a restricted area.",
+      "The Architect has manipulated information.",
+      "The Architect may have a hidden alliance.",
+      "The Architect has influenced a previous decision."
     ];
 
+    const clue =
+      clues[Math.floor(Math.random() * clues.length)];
+
     this.addLog(
-      `${player.name} investigated Architect level ${level}.`
+      `${player.name} discovered an Architect clue: ${clue}`
     );
 
-    this.addLog(clues[level - 1]);
+    this.broadcastState();
   }
 
-  heistAction(player) {
-    if (!player.alive) {
+  heist(player) {
+    if (!player.alive) return;
+
+    if (player.energy < 20) {
+      this.addLog(
+        `${player.name} does not have enough Energy for the Heist.`
+      );
+
+      this.broadcastState();
       return;
     }
 
-    if (player.energy < 30) {
-      this.addLog(`${player.name} lacks energy for Shadow Protocol.`);
-      return;
-    }
-
-    player.energy -= 30;
+    player.energy -= 20;
 
     const success = Math.random() > 0.4;
 
     if (success) {
-      player.credits += 200;
-      player.influence += 3;
+      player.credits += 300;
+      player.influence += 5;
 
       this.addLog(
-        `${player.name} completed part of SHADOW PROTOCOL.`
+        `${player.name} completed the Shadow Protocol Heist.`
       );
     } else {
-      player.energy = clamp(player.energy - 15, 0, 100);
+      player.energy = Math.max(0, player.energy - 10);
 
       this.addLog(
-        `${player.name} triggered a Shadow Protocol complication.`
+        `${player.name} failed the Heist and suffered a penalty.`
       );
     }
+
+    this.broadcastState();
   }
 
-  vacationAction(player) {
-    if (!player.alive) {
-      return;
-    }
+  vacation(player) {
+    if (!player.alive) return;
 
-    const destinations = [
-      "THE LAST VALLEY",
-      "AZURE ARCHIPELAGO",
-      "AURORA",
-      "THE RED HORIZON"
-    ];
-
-    const destination =
-      destinations[Math.floor(Math.random() * destinations.length)];
-
-    player.energy = clamp(player.energy + 30, 0, 100);
-
-    player.trust = clamp(player.trust + 2, 0, 100);
+    player.energy = Math.min(100, player.energy + 20);
+    player.trust = Math.min(100, player.trust + 2);
 
     this.addLog(
-      `${player.name} explored ${destination}.`
+      `${player.name} explored the vacation world.`
     );
+
+    this.broadcastState();
   }
 
   vote(player, message) {
-    if (!player.alive || this.phase !== "VOTING") {
+    if (!player.alive) return;
+
+    if (this.phase !== PHASES.VOTING) {
       return;
     }
 
-    if (!this.voteOpen) {
-      return;
-    }
-
-    const targetId = String(message.targetId || "");
-
-    const target = this.players.get(targetId);
+    const target = this.players.get(message.targetId);
 
     if (!target || !target.alive || target.id === player.id) {
       return;
     }
-
-    this.votes.set(player.id, target.id);
 
     player.votedFor = target.id;
 
@@ -781,71 +799,100 @@ export class Room {
       `${player.name} submitted a vote.`
     );
 
+    this.broadcastState();
+
+    this.checkVotingComplete();
+  }
+
+  checkVotingComplete() {
     const alivePlayers = [...this.players.values()].filter(
       p => p.alive
     );
 
-    if (this.votes.size >= alivePlayers.length) {
-      this.resolveVoting();
-    }
-  }
-
-  resolveVoting() {
-    this.voteOpen = false;
-
-    for (const player of this.players.values()) {
-      player.votesReceived = 0;
+    if (alivePlayers.length <= 1) {
+      this.finishWinner();
+      return;
     }
 
-    for (const targetId of this.votes.values()) {
-      const target = this.players.get(targetId);
+    const allVoted = alivePlayers.every(
+      p => p.votedFor
+    );
 
-      if (target) {
-        target.votesReceived += 1;
+    if (!allVoted) {
+      return;
+    }
+
+    const counts = new Map();
+
+    for (const player of alivePlayers) {
+      if (!player.votedFor) continue;
+
+      counts.set(
+        player.votedFor,
+        (counts.get(player.votedFor) || 0) + 1
+      );
+    }
+
+    let highest = 0;
+    let eliminatedId = null;
+
+    for (const [id, count] of counts.entries()) {
+      if (count > highest) {
+        highest = count;
+        eliminatedId = id;
       }
     }
 
-    const candidates = [...this.players.values()]
-      .filter(p => p.alive)
-      .sort((a, b) => b.votesReceived - a.votesReceived);
+    if (eliminatedId) {
+      const eliminated = this.players.get(eliminatedId);
 
-    const target = candidates[0];
+      if (eliminated) {
+        this.eliminatePlayer(eliminated);
+      }
+    }
 
-    if (!target || target.votesReceived === 0) {
-      this.phase = "BREAK";
-      this.addLog("No elimination occurred.");
+    this.phase = PHASES.RESULT;
+
+    this.broadcastState();
+
+    setTimeout(() => {
       this.nextRound();
+    }, 4000);
+  }
+
+  eliminate(player, message) {
+    if (!player.alive) return;
+
+    const target = this.players.get(message.targetId);
+
+    if (!target || !target.alive) {
       return;
     }
 
-    if (target.protection) {
-      target.protection = false;
+    this.eliminatePlayer(target);
 
-      this.phase = "RESULT";
+    this.broadcastState();
+  }
+
+  eliminatePlayer(player) {
+    if (player.protection > 0) {
+      player.protection -= 1;
 
       this.addLog(
-        `${target.name} was protected and survived elimination.`
+        `${player.name} survived because of Protection.`
       );
-
-      this.nextRound();
 
       return;
     }
 
-    target.alive = false;
+    player.alive = false;
 
-    const reward = 1000;
+    player.ready = false;
 
-    this.prizePool += reward;
-
-    this.phase = "RESULT";
+    this.prizePool += 1000;
 
     this.addLog(
-      `${target.name} has been eliminated.`
-    );
-
-    this.addLog(
-      `Prize pool increased to ${this.prizePool} CR.`
+      `${player.name} has been eliminated.`
     );
 
     const remaining = [...this.players.values()].filter(
@@ -853,162 +900,143 @@ export class Room {
     );
 
     if (remaining.length <= 1) {
-      this.finishGame();
-      return;
+      this.finishWinner();
     }
-
-    this.nextRound();
   }
 
   nextRound() {
-    setTimeout(() => {
-      const alive = [...this.players.values()].filter(
-        p => p.alive
-      );
-
-      if (alive.length <= 1) {
-        this.finishGame();
-        return;
-      }
-
-      this.round += 1;
-
-      for (const player of alive) {
-        player.votedFor = null;
-        player.votesReceived = 0;
-        player.ready = false;
-      }
-
-      this.votes.clear();
-
-      this.phase = "BREAK";
-
-      this.addLog(`Round ${this.round} begins.`);
-
-      setTimeout(() => {
-        this.phase = "CHALLENGE";
-
-        this.challenge = {
-          name:
-            this.round >= 3
-              ? "THE MIND TRIAL"
-              : "THE VERTICAL MAZE",
-
-          description:
-            "Choose carefully. Every decision changes your position in AFTERLIGHT.",
-
-          active: true
-        };
-
-        this.addLog(
-          `Challenge ${this.round}: ${this.challenge.name}.`
-        );
-
-        this.broadcastState();
-      }, 2500);
-
-      this.broadcastState();
-    }, 2500);
-  }
-
-  finishGame() {
-    const winner = [...this.players.values()].find(
+    const remaining = [...this.players.values()].filter(
       p => p.alive
     );
 
-    if (!winner) {
-      this.phase = "WINNER";
-
-      this.addLog("AFTERLIGHT has ended.");
-
+    if (remaining.length <= 1) {
+      this.finishWinner();
       return;
     }
 
-    this.phase = "WINNER";
+    this.round += 1;
 
-    winner.credits += this.prizePool;
+    this.phase = PHASES.CHALLENGE;
+
+    for (const player of remaining) {
+      player.votedFor = null;
+      player.votesReceived = 0;
+      player.ready = false;
+
+      player.energy = Math.min(
+        100,
+        player.energy + 15
+      );
+
+      player.mission = randomMission();
+      player.missionComplete = false;
+    }
 
     this.addLog(
-      `${winner.name} is the AFTERLIGHT WINNER.`
+      `Round ${this.round} begins.`
     );
 
-    this.addLog(
-      `${winner.name} receives ${this.prizePool} CR.`
+    this.broadcastState();
+  }
+
+  finishWinner() {
+    const remaining = [...this.players.values()].filter(
+      p => p.alive
     );
+
+    this.phase = PHASES.WINNER;
+
+    if (remaining.length === 1) {
+      const winner = remaining[0];
+
+      winner.credits += this.prizePool;
+
+      this.addLog(
+        `${winner.name} wins AFTERLIGHT. Prize: ${this.prizePool} Credits.`
+      );
+    } else {
+      this.addLog(
+        "AFTERLIGHT has ended."
+      );
+    }
+
+    this.broadcastState();
+  }
+
+  removePlayer(id) {
+    const player = this.players.get(id);
+
+    if (player) {
+      this.addLog(
+        `${player.name} disconnected.`
+      );
+    }
+
+    this.sockets.delete(id);
+    this.players.delete(id);
+
+    this.broadcastState();
   }
 
   addLog(message) {
-    this.log.push({
-      text: message,
-      time: Date.now()
-    });
+    this.logs.push(message);
 
-    if (this.log.length > 40) {
-      this.log.shift();
+    if (this.logs.length > 30) {
+      this.logs.shift();
     }
   }
 
-  publicPlayer(player) {
-    return {
-      id: player.id,
-      name: player.name,
-      role: player.role,
+  send(socket, data) {
+    try {
+      socket.send(JSON.stringify(data));
+    } catch {
+      // Ignore disconnected sockets.
+    }
+  }
 
-      x: player.x,
-      y: player.y,
-      z: player.z,
+  broadcastState() {
+    const state = this.publicState();
 
-      credits: player.credits,
-      influence: player.influence,
-      trust: player.trust,
-      energy: player.energy,
+    const message = JSON.stringify({
+      type: "state",
+      room: state
+    });
 
-      alive: player.alive,
-      ready: player.ready,
-
-      protection: player.protection,
-      powers: player.powers,
-
-      missionComplete: player.missionComplete,
-      votesReceived: player.votesReceived
-    };
+    for (const [id, socket] of this.sockets.entries()) {
+      try {
+        socket.send(message);
+      } catch {
+        this.sockets.delete(id);
+      }
+    }
   }
 
   publicState() {
     return {
       phase: this.phase,
+
       round: this.round,
+
       started: this.started,
-
-      challenge: this.challenge,
-
-      voteOpen: this.voteOpen,
 
       prizePool: this.prizePool,
 
-      maxPlayers: MAX_PLAYERS,
-
-      players: [...this.players.values()].map(
-        player => this.publicPlayer(player)
+      competitors: [...this.players.values()].map(
+        player => ({
+          ...player
+        })
       ),
 
-      log: this.log
+      players: [...this.players.values()].map(
+        player => ({
+          ...player
+        })
+      ),
+
+      powers: POWERS,
+
+      logs: [...this.logs]
     };
-  }
-
-  broadcastState() {
-    const message = JSON.stringify({
-      type: "state",
-      room: this.publicState()
-    });
-
-    for (const socket of this.state.getWebSockets()) {
-      try {
-        socket.send(message);
-      } catch {
-        // Ignore closed connections.
-      }
-    }
   }
 }
 
@@ -1016,39 +1044,42 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
 
-    if (url.pathname === "/ws") {
-      const roomId = env.AFTERLIGHT_ROOM.idFromName("main");
+    /*
+     * WebSocket requests go to the Durable Object.
+     */
+    if (
+      url.pathname === "/ws" &&
+      request.headers.get("Upgrade") === "websocket"
+    ) {
+      const id = env.AFTERLIGHT_ROOM.idFromName("main-room");
 
-      const room = env.AFTERLIGHT_ROOM.get(roomId);
+      const room = env.AFTERLIGHT_ROOM.get(id);
 
       return room.fetch(request);
     }
 
+    /*
+     * Simple status endpoint.
+     */
     if (url.pathname === "/api/status") {
-      const roomId = env.AFTERLIGHT_ROOM.idFromName("main");
-
-      const room = env.AFTERLIGHT_ROOM.get(roomId);
-
-      const response = await room.fetch(
-        new Request("https://afterlight.internal/")
+      return new Response(
+        JSON.stringify({
+          game: "AFTERLIGHT",
+          status: "online",
+          version: "1.0",
+          maxPlayers: MAX_PLAYERS
+        }),
+        {
+          headers: {
+            "content-type": "application/json"
+          }
+        }
       );
-
-      return response;
     }
 
-    return new Response(
-      JSON.stringify({
-        game: "AFTERLIGHT",
-        status: "online",
-        version: "core-01",
-        multiplayer: true,
-        maxPlayers: MAX_PLAYERS
-      }),
-      {
-        headers: {
-          "content-type": "application/json"
-        }
-      }
-    );
+    /*
+     * Let Cloudflare Assets serve the game files.
+     */
+    return env.ASSETS.fetch(request);
   }
 };
