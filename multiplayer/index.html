@@ -1,1958 +1,1605 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AFTERLIGHT — Multiplayer</title>
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    >
 
-<style>
-* {
-  box-sizing: border-box;
-}
+    <title>AFTERLIGHT — Multiplayer</title>
 
-html,
-body {
-  margin: 0;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  background: #02070a;
-  color: #e9ffff;
-  font-family: Arial, Helvetica, sans-serif;
-}
+    <style>
+        * {
+            box-sizing: border-box;
+        }
 
-canvas {
-  display: block;
-}
+        html,
+        body {
+            margin: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #02040a;
+            color: #eafcff;
+            font-family: Arial, Helvetica, sans-serif;
+        }
 
-#game {
-  position: fixed;
-  inset: 0;
-}
+        canvas {
+            display: block;
+        }
 
-#hud {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-}
+        /* -----------------------------------------
+           JOIN SCREEN
+        ----------------------------------------- */
 
-.topbar {
-  position: absolute;
-  top: 16px;
-  left: 16px;
-  right: 16px;
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 12px;
-}
+        #joinScreen {
+            position: fixed;
+            inset: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background:
+                radial-gradient(
+                    circle at center,
+                    rgba(0, 150, 190, 0.12),
+                    transparent 45%
+                ),
+                #02040a;
+        }
 
-.logo {
-  font-size: 24px;
-  font-weight: 800;
-  letter-spacing: 5px;
-  color: #9effff;
-  text-shadow: 0 0 18px #00eaff;
-}
+        .joinBox {
+            width: min(430px, 90vw);
+            padding: 38px;
+            text-align: center;
+            border: 1px solid rgba(45, 220, 255, 0.35);
+            background: rgba(5, 12, 20, 0.94);
+            box-shadow:
+                0 0 50px rgba(0, 180, 255, 0.12),
+                inset 0 0 30px rgba(0, 180, 255, 0.04);
+        }
 
-.status {
-  margin-top: 5px;
-  font-size: 11px;
-  color: #74a9ad;
-  letter-spacing: 2px;
-}
+        .logo {
+            font-size: 42px;
+            font-weight: 900;
+            letter-spacing: 8px;
+            color: #50eaff;
+            margin-bottom: 8px;
+        }
 
-.stats {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  justify-content: flex-end;
-}
+        .tagline {
+            color: #7595a2;
+            font-size: 13px;
+            letter-spacing: 2px;
+            margin-bottom: 35px;
+        }
 
-.stat {
-  min-width: 78px;
-  padding: 8px 10px;
-  background: rgba(2, 13, 17, .82);
-  border: 1px solid rgba(0, 238, 255, .3);
-  border-radius: 8px;
-  text-align: center;
-}
+        #nameInput {
+            width: 100%;
+            padding: 15px;
+            background: #08131b;
+            border: 1px solid #194957;
+            color: white;
+            outline: none;
+            font-size: 16px;
+            text-align: center;
+        }
 
-.stat small {
-  display: block;
-  color: #6c9da1;
-  font-size: 9px;
-  letter-spacing: 1px;
-}
+        #nameInput:focus {
+            border-color: #35ddff;
+            box-shadow: 0 0 15px rgba(53, 221, 255, 0.15);
+        }
 
-.stat strong {
-  display: block;
-  margin-top: 3px;
-  color: #bfffff;
-}
+        #joinButton {
+            width: 100%;
+            margin-top: 15px;
+            padding: 15px;
+            border: 0;
+            background: #19cbea;
+            color: #001018;
+            font-weight: bold;
+            cursor: pointer;
+            letter-spacing: 2px;
+        }
 
-.panel {
-  position: absolute;
-  background: rgba(2, 10, 14, .9);
-  border: 1px solid rgba(0, 238, 255, .25);
-  border-radius: 10px;
-  box-shadow: 0 0 30px rgba(0, 200, 255, .08);
-  pointer-events: auto;
-  backdrop-filter: blur(10px);
-}
+        #joinButton:hover {
+            background: #58eaff;
+        }
 
-#phasePanel {
-  top: 95px;
-  left: 16px;
-  width: 270px;
-  padding: 14px;
-}
+        #connectionStatus {
+            margin-top: 18px;
+            font-size: 12px;
+            color: #718b96;
+        }
 
-.phaseTitle {
-  color: #00eaff;
-  font-size: 11px;
-  letter-spacing: 2px;
-}
+        /* -----------------------------------------
+           HUD
+        ----------------------------------------- */
 
-.phaseName {
-  margin-top: 5px;
-  font-size: 22px;
-  font-weight: 800;
-}
+        #hud {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 20;
+        }
 
-.challengeName {
-  margin-top: 8px;
-  color: #a8c9cc;
-  font-size: 12px;
-}
+        .topBar {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            right: 15px;
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+        }
 
-#playersPanel {
-  top: 95px;
-  right: 16px;
-  width: 240px;
-  max-height: 48vh;
-  overflow: auto;
-  padding: 12px;
-}
+        .brand {
+            font-weight: 900;
+            letter-spacing: 4px;
+            color: #4be8ff;
+            font-size: 18px;
+        }
 
-.panelTitle {
-  color: #00eaff;
-  font-size: 10px;
-  letter-spacing: 2px;
-  margin-bottom: 10px;
-}
+        .stats {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
 
-.player {
-  display: flex;
-  justify-content: space-between;
-  gap: 8px;
-  padding: 7px 5px;
-  border-bottom: 1px solid rgba(255,255,255,.06);
-  font-size: 11px;
-}
+        .stat {
+            min-width: 82px;
+            padding: 8px 12px;
+            background: rgba(3, 12, 18, 0.84);
+            border: 1px solid rgba(45, 220, 255, 0.2);
+        }
 
-.player.dead {
-  opacity: .35;
-}
+        .statLabel {
+            display: block;
+            font-size: 9px;
+            color: #75909b;
+            letter-spacing: 1px;
+        }
 
-.playerName {
-  color: #dfffff;
-}
+        .statValue {
+            font-size: 15px;
+            font-weight: bold;
+        }
 
-.playerRole {
-  color: #628c90;
-  font-size: 9px;
-}
+        /* -----------------------------------------
+           LEFT PANEL
+        ----------------------------------------- */
 
-#controls {
-  position: absolute;
-  left: 16px;
-  bottom: 16px;
-  width: 330px;
-  padding: 12px;
-}
+        #leftPanel {
+            position: absolute;
+            left: 15px;
+            top: 85px;
+            width: 220px;
+            max-height: calc(100% - 105px);
+            overflow-y: auto;
+            pointer-events: auto;
+        }
 
-button {
-  appearance: none;
-  border: 1px solid rgba(0,238,255,.35);
-  background: rgba(3, 24, 29, .92);
-  color: #bfffff;
-  border-radius: 7px;
-  padding: 9px 11px;
-  margin: 3px;
-  cursor: pointer;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: .5px;
-}
+        .panel {
+            background: rgba(3, 10, 16, 0.84);
+            border: 1px solid rgba(45, 220, 255, 0.18);
+            padding: 14px;
+            margin-bottom: 10px;
+            backdrop-filter: blur(8px);
+        }
 
-button:hover {
-  background: rgba(0, 190, 210, .2);
-  border-color: #00eaff;
-}
+        .panelTitle {
+            font-size: 11px;
+            color: #4deaff;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
 
-button.primary {
-  background: rgba(0, 205, 220, .18);
-  border-color: #00eaff;
-}
+        .phase {
+            font-size: 18px;
+            font-weight: bold;
+        }
 
-button.danger {
-  border-color: rgba(255,70,100,.6);
-  color: #ff9eaa;
-}
+        .challenge {
+            margin-top: 5px;
+            color: #90aab5;
+            font-size: 12px;
+        }
 
-button:disabled {
-  opacity: .35;
-  cursor: not-allowed;
-}
+        /* -----------------------------------------
+           ACTIONS
+        ----------------------------------------- */
 
-.row {
-  display: flex;
-  flex-wrap: wrap;
-  margin: 3px -3px;
-}
+        #actions {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
+            pointer-events: auto;
+            width: min(700px, 94vw);
+        }
 
-#logPanel {
-  position: absolute;
-  right: 16px;
-  bottom: 16px;
-  width: 330px;
-  max-height: 180px;
-  overflow: auto;
-  padding: 12px;
-}
+        .actionButton {
+            padding: 11px 15px;
+            background: rgba(4, 18, 25, 0.9);
+            color: #c9f7ff;
+            border: 1px solid rgba(45, 220, 255, 0.3);
+            cursor: pointer;
+            font-size: 11px;
+            letter-spacing: 1px;
+        }
 
-.log {
-  font-size: 10px;
-  line-height: 1.5;
-  color: #86aeb1;
-  border-bottom: 1px solid rgba(255,255,255,.04);
-  padding: 4px 0;
-}
+        .actionButton:hover {
+            background: rgba(24, 107, 128, 0.8);
+            border-color: #49eaff;
+        }
 
-#crosshair {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 12px;
-  height: 12px;
-  transform: translate(-50%, -50%);
-}
+        .actionButton.primary {
+            background: #13bcd9;
+            color: #001018;
+            font-weight: bold;
+        }
 
-#crosshair::before,
-#crosshair::after {
-  content: "";
-  position: absolute;
-  background: rgba(180,255,255,.8);
-}
+        /* -----------------------------------------
+           LOG
+        ----------------------------------------- */
 
-#crosshair::before {
-  width: 12px;
-  height: 1px;
-  top: 5px;
-  left: 0;
-}
+        #log {
+            position: absolute;
+            right: 15px;
+            bottom: 20px;
+            width: 270px;
+            max-height: 170px;
+            overflow-y: auto;
+            padding: 12px;
+            background: rgba(3, 10, 16, 0.82);
+            border: 1px solid rgba(45, 220, 255, 0.16);
+            font-size: 11px;
+            color: #7896a1;
+        }
 
-#crosshair::after {
-  width: 1px;
-  height: 12px;
-  top: 0;
-  left: 5px;
-}
+        .logLine {
+            margin-bottom: 6px;
+        }
 
-#join {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(0, 5, 8, .9);
-  pointer-events: auto;
-  z-index: 10;
-}
+        /* -----------------------------------------
+           COMPETITORS
+        ----------------------------------------- */
 
-.joinBox {
-  width: min(420px, calc(100% - 30px));
-  padding: 30px;
-  background: rgba(3, 15, 20, .96);
-  border: 1px solid rgba(0,238,255,.35);
-  border-radius: 14px;
-  text-align: center;
-  box-shadow: 0 0 70px rgba(0,200,255,.1);
-}
+        #playersList {
+            font-size: 11px;
+        }
 
-.joinLogo {
-  font-size: 35px;
-  font-weight: 900;
-  letter-spacing: 7px;
-  color: #a9ffff;
-  text-shadow: 0 0 25px #00eaff;
-}
+        .playerRow {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
 
-.joinSubtitle {
-  margin: 12px 0 25px;
-  color: #719da1;
-  font-size: 11px;
-  letter-spacing: 2px;
-}
+        .alive {
+            color: #54e6a7;
+        }
 
-input {
-  width: 100%;
-  padding: 13px;
-  border-radius: 7px;
-  border: 1px solid rgba(0,238,255,.3);
-  background: #020a0d;
-  color: white;
-  outline: none;
-  margin-bottom: 10px;
-}
+        .dead {
+            color: #e85d75;
+        }
 
-input:focus {
-  border-color: #00eaff;
-}
+        /* -----------------------------------------
+           MOBILE CONTROLS
+        ----------------------------------------- */
 
-#message {
-  margin-top: 10px;
-  color: #719da1;
-  font-size: 10px;
-}
+        #mobileControls {
+            display: none;
+            position: fixed;
+            bottom: 25px;
+            left: 20px;
+            z-index: 50;
+            pointer-events: auto;
+        }
 
-#mobileControls {
-  display: none;
-  position: absolute;
-  bottom: 20px;
-  right: 20px;
-  pointer-events: auto;
-}
+        .mobileGrid {
+            display: grid;
+            grid-template-columns: 52px 52px 52px;
+            grid-template-rows: 52px 52px;
+            gap: 5px;
+        }
 
-.mobileBtn {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  padding: 0;
-  font-size: 16px;
-}
+        .moveButton {
+            border: 1px solid rgba(45, 220, 255, 0.3);
+            background: rgba(3, 15, 22, 0.82);
+            color: #55eaff;
+            font-size: 20px;
+            touch-action: none;
+        }
 
-@media (max-width: 800px) {
-  .stats {
-    max-width: 55%;
-  }
+        #loading {
+            position: fixed;
+            inset: 0;
+            z-index: 90;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background: rgba(2, 4, 10, 0.7);
+            color: #55eaff;
+            letter-spacing: 3px;
+        }
 
-  .stat {
-    min-width: 60px;
-    padding: 6px;
-  }
+        @media (max-width: 800px) {
 
-  #playersPanel {
-    width: 180px;
-  }
+            .logo {
+                font-size: 32px;
+            }
 
-  #phasePanel {
-    width: 210px;
-  }
+            #leftPanel {
+                width: 180px;
+                top: 75px;
+            }
 
-  #logPanel {
-    width: 230px;
-  }
-}
+            #log {
+                width: 190px;
+                max-height: 110px;
+            }
 
-@media (max-width: 600px) {
-  .logo {
-    font-size: 18px;
-  }
+            .stats {
+                max-width: 230px;
+            }
 
-  #playersPanel {
-    display: none;
-  }
+            #mobileControls {
+                display: block;
+            }
 
-  #phasePanel {
-    top: 75px;
-    width: 190px;
-  }
+            #actions {
+                bottom: 20px;
+                left: auto;
+                right: 10px;
+                transform: none;
+                width: 48%;
+            }
 
-  #controls {
-    width: calc(100% - 32px);
-  }
-
-  #logPanel {
-    display: none;
-  }
-
-  #mobileControls {
-    display: block;
-  }
-}
-</style>
+            .actionButton {
+                padding: 9px;
+                font-size: 9px;
+            }
+        }
+    </style>
 </head>
 
 <body>
 
-<div id="game"></div>
+    <!-- =========================================
+         JOIN SCREEN
+    ========================================== -->
 
-<div id="hud">
+    <div id="joinScreen">
 
-  <div class="topbar">
-    <div>
-      <div class="logo">AFTERLIGHT</div>
-      <div class="status" id="connection">CONNECTING</div>
-    </div>
+        <div class="joinBox">
 
-    <div class="stats">
-      <div class="stat">
-        <small>CREDITS</small>
-        <strong id="credits">500</strong>
-      </div>
+            <div class="logo">
+                AFTERLIGHT
+            </div>
 
-      <div class="stat">
-        <small>INFLUENCE</small>
-        <strong id="influence">10</strong>
-      </div>
+            <div class="tagline">
+                THE CHALLENGE IS ONLY HALF THE GAME
+            </div>
 
-      <div class="stat">
-        <small>TRUST</small>
-        <strong id="trust">50</strong>
-      </div>
+            <input
+                id="nameInput"
+                type="text"
+                maxlength="20"
+                placeholder="ENTER YOUR NAME"
+                autocomplete="off"
+            >
 
-      <div class="stat">
-        <small>ENERGY</small>
-        <strong id="energy">100</strong>
-      </div>
+            <button id="joinButton">
+                ENTER AFTERLIGHT
+            </button>
 
-      <div class="stat">
-        <small>PLAYERS</small>
-        <strong id="playerCount">0/16</strong>
-      </div>
-    </div>
-  </div>
+            <div id="connectionStatus">
+                Connecting to AFTERLIGHT...
+            </div>
 
-  <div id="phasePanel" class="panel">
-    <div class="phaseTitle">CURRENT PHASE</div>
-    <div class="phaseName" id="phase">LOBBY</div>
-    <div class="challengeName" id="challenge">
-      Waiting for competitors...
-    </div>
-  </div>
-
-  <div id="playersPanel" class="panel">
-    <div class="panelTitle">COMPETITORS</div>
-    <div id="players"></div>
-  </div>
-
-  <div id="controls" class="panel">
-
-    <div class="panelTitle">GAME ACTIONS</div>
-
-    <div class="row">
-      <button id="readyBtn" class="primary">READY</button>
-      <button id="startBtn" class="primary">START GAME</button>
-    </div>
-
-    <div class="row">
-      <button data-challenge="safe">SAFE</button>
-      <button data-challenge="risk">RISK</button>
-      <button data-challenge="observe">OBSERVE</button>
-    </div>
-
-    <div class="row">
-      <button data-social="talk">TALK</button>
-      <button data-social="accuse">ACCUSE</button>
-      <button data-social="deal">DEAL</button>
-      <button data-social="end">END SOCIAL</button>
-    </div>
-
-    <div class="row">
-      <button id="missionBtn">SECRET MISSION</button>
-      <button id="parallelBtn">PARALLEL WORLD</button>
-      <button id="architectBtn">ARCHITECT</button>
-      <button id="heistBtn">SHADOW PROTOCOL</button>
-      <button id="vacationBtn">VACATION</button>
-    </div>
-
-    <div class="panelTitle" style="margin-top:10px">
-      POWER STORE
-    </div>
-
-    <div class="row" id="powers"></div>
-
-    <div class="panelTitle" style="margin-top:10px">
-      VOTING
-    </div>
-
-    <div class="row" id="voteButtons"></div>
-
-  </div>
-
-  <div id="logPanel" class="panel">
-    <div class="panelTitle">AFTERLIGHT LOG</div>
-    <div id="logs"></div>
-  </div>
-
-  <div id="crosshair"></div>
-
-  <div id="mobileControls">
-    <div>
-      <button class="mobileBtn" data-move="forward">▲</button>
-    </div>
-    <div>
-      <button class="mobileBtn" data-move="left">◀</button>
-      <button class="mobileBtn" data-move="back">▼</button>
-      <button class="mobileBtn" data-move="right">▶</button>
-    </div>
-  </div>
-
-</div>
-
-<div id="join">
-
-  <div class="joinBox">
-
-    <div class="joinLogo">AFTERLIGHT</div>
-
-    <div class="joinSubtitle">
-      THE CHALLENGE IS ONLY HALF THE GAME
-    </div>
-
-    <input
-      id="nameInput"
-      maxlength="20"
-      placeholder="Enter competitor name"
-      value="YOU"
-    >
-
-    <button
-      id="joinBtn"
-      class="primary"
-      style="width:100%; padding:13px"
-    >
-      ENTER AFTERLIGHT
-    </button>
-
-    <div id="message">
-      Connecting to the AFTERLIGHT network...
-    </div>
-
-  </div>
-
-</div>
-
-<script type="module">
-
-import * as THREE from
-  "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js";
-
-/* =========================================================
-   CONFIGURATION
-========================================================= */
-
-const SERVER =
-  "wss://afterlightgame.sajjubhat99.workers.dev/ws";
-
-/* =========================================================
-   THREE.JS WORLD
-========================================================= */
-
-const scene = new THREE.Scene();
-
-scene.background = new THREE.Color(0x02070a);
-
-scene.fog = new THREE.FogExp2(
-  0x02070a,
-  0.035
-);
-
-const camera = new THREE.PerspectiveCamera(
-  70,
-  window.innerWidth / window.innerHeight,
-  0.1,
-  500
-);
-
-camera.position.set(
-  0,
-  2.5,
-  8
-);
-
-const renderer = new THREE.WebGLRenderer({
-  antialias: true
-});
-
-renderer.setPixelRatio(
-  Math.min(window.devicePixelRatio, 2)
-);
-
-renderer.setSize(
-  window.innerWidth,
-  window.innerHeight
-);
-
-renderer.shadowMap.enabled = true;
-
-document
-  .getElementById("game")
-  .appendChild(renderer.domElement);
-
-/* =========================================================
-   LIGHTING
-========================================================= */
-
-const ambient = new THREE.AmbientLight(
-  0x4d777a,
-  1.2
-);
-
-scene.add(ambient);
-
-const coreLight = new THREE.PointLight(
-  0x00eaff,
-  12,
-  35
-);
-
-coreLight.position.set(
-  0,
-  5,
-  0
-);
-
-scene.add(coreLight);
-
-const redLight = new THREE.PointLight(
-  0xff174f,
-  5,
-  20
-);
-
-redLight.position.set(
-  0,
-  3,
-  -18
-);
-
-scene.add(redLight);
-
-/* =========================================================
-   MATERIALS
-========================================================= */
-
-const floorMaterial =
-  new THREE.MeshStandardMaterial({
-    color: 0x071417,
-    metalness: 0.8,
-    roughness: 0.3
-  });
-
-const wallMaterial =
-  new THREE.MeshStandardMaterial({
-    color: 0x0a1c20,
-    metalness: 0.7,
-    roughness: 0.35
-  });
-
-const glassMaterial =
-  new THREE.MeshStandardMaterial({
-    color: 0x07333a,
-    transparent: true,
-    opacity: 0.5,
-    metalness: 0.8,
-    roughness: 0.1
-  });
-
-const cyanMaterial =
-  new THREE.MeshStandardMaterial({
-    color: 0x00eaff,
-    emissive: 0x00aabb,
-    emissiveIntensity: 3,
-    metalness: 0.5,
-    roughness: 0.2
-  });
-
-/* =========================================================
-   FLOOR
-========================================================= */
-
-const floor = new THREE.Mesh(
-  new THREE.BoxGeometry(
-    52,
-    0.5,
-    52
-  ),
-  floorMaterial
-);
-
-floor.position.y = -0.25;
-
-floor.receiveShadow = true;
-
-scene.add(floor);
-
-/* =========================================================
-   GRID
-========================================================= */
-
-const grid = new THREE.GridHelper(
-  50,
-  50,
-  0x0b5960,
-  0x06272b
-);
-
-grid.position.y = 0.02;
-
-scene.add(grid);
-
-/* =========================================================
-   WALLS
-========================================================= */
-
-function createWall(
-  x,
-  y,
-  z,
-  width,
-  height,
-  depth
-) {
-
-  const wall = new THREE.Mesh(
-    new THREE.BoxGeometry(
-      width,
-      height,
-      depth
-    ),
-    wallMaterial
-  );
-
-  wall.position.set(
-    x,
-    y,
-    z
-  );
-
-  wall.castShadow = true;
-  wall.receiveShadow = true;
-
-  scene.add(wall);
-
-  return wall;
-}
-
-createWall(
-  0,
-  5,
-  -25,
-  52,
-  10,
-  1
-);
-
-createWall(
-  0,
-  5,
-  25,
-  52,
-  10,
-  1
-);
-
-createWall(
-  -25,
-  5,
-  0,
-  1,
-  10,
-  52
-);
-
-createWall(
-  25,
-  5,
-  0,
-  1,
-  10,
-  52
-);
-
-/* =========================================================
-   ARCHITECTURE
-========================================================= */
-
-function createColumn(x, z) {
-
-  const column = new THREE.Mesh(
-    new THREE.BoxGeometry(
-      1.2,
-      8,
-      1.2
-    ),
-    wallMaterial
-  );
-
-  column.position.set(
-    x,
-    4,
-    z
-  );
-
-  scene.add(column);
-
-  const light = new THREE.PointLight(
-    0x00eaff,
-    2,
-    8
-  );
-
-  light.position.set(
-    x,
-    6,
-    z
-  );
-
-  scene.add(light);
-}
-
-for (let x = -18; x <= 18; x += 9) {
-
-  createColumn(
-    x,
-    -18
-  );
-
-  createColumn(
-    x,
-    18
-  );
-}
-
-/* =========================================================
-   AFTERLIGHT CORE
-========================================================= */
-
-const coreGroup =
-  new THREE.Group();
-
-scene.add(coreGroup);
-
-const core = new THREE.Mesh(
-  new THREE.IcosahedronGeometry(
-    2.2,
-    2
-  ),
-  cyanMaterial
-);
-
-core.position.y = 3;
-
-coreGroup.add(core);
-
-for (let i = 0; i < 3; i++) {
-
-  const ring = new THREE.Mesh(
-    new THREE.TorusGeometry(
-      3.2 + i * 1.1,
-      0.08,
-      16,
-      80
-    ),
-    cyanMaterial
-  );
-
-  ring.position.y = 3;
-
-  ring.rotation.x =
-    Math.PI / 2 +
-    i * 0.5;
-
-  coreGroup.add(ring);
-}
-
-/* =========================================================
-   PLAYER SYSTEM
-========================================================= */
-
-const players = new Map();
-
-let myId = null;
-
-let myPlayer = null;
-
-const playerMeshes =
-  new Map();
-
-function createPlayerMesh(
-  color = 0x00eaff
-) {
-
-  const group =
-    new THREE.Group();
-
-  const body = new THREE.Mesh(
-    new THREE.CapsuleGeometry(
-      0.45,
-      1.1,
-      8,
-      16
-    ),
-    new THREE.MeshStandardMaterial({
-      color,
-      emissive: color,
-      emissiveIntensity: 0.3,
-      metalness: 0.4,
-      roughness: 0.4
-    })
-  );
-
-  body.position.y = 1;
-
-  body.castShadow = true;
-
-  group.add(body);
-
-  return group;
-}
-
-function updatePlayerMesh(
-  data
-) {
-
-  let mesh =
-    playerMeshes.get(data.id);
-
-  if (!mesh) {
-
-    const color =
-      data.id === myId
-        ? 0x00eaff
-        : 0xff3f91;
-
-    mesh =
-      createPlayerMesh(color);
-
-    scene.add(mesh);
-
-    playerMeshes.set(
-      data.id,
-      mesh
-    );
-  }
-
-  mesh.position.set(
-    data.x,
-    data.y - 1,
-    data.z
-  );
-
-  if (!data.alive) {
-    mesh.visible = false;
-  } else {
-    mesh.visible = true;
-  }
-}
-
-/* =========================================================
-   CAMERA / MOVEMENT
-========================================================= */
-
-const keys = {};
-
-let yaw = 0;
-let pitch = 0;
-
-const speed = 0.13;
-
-window.addEventListener(
-  "keydown",
-  event => {
-    keys[event.code] = true;
-  }
-);
-
-window.addEventListener(
-  "keyup",
-  event => {
-    keys[event.code] = false;
-  }
-);
-
-renderer.domElement.addEventListener(
-  "click",
-  () => {
-
-    if (
-      document.pointerLockElement !==
-      renderer.domElement
-    ) {
-
-      renderer.domElement.requestPointerLock();
-    }
-  }
-);
-
-document.addEventListener(
-  "mousemove",
-  event => {
-
-    if (
-      document.pointerLockElement !==
-      renderer.domElement
-    ) {
-      return;
-    }
-
-    yaw -= event.movementX * 0.002;
-
-    pitch -= event.movementY * 0.002;
-
-    pitch = Math.max(
-      -1.2,
-      Math.min(
-        1.2,
-        pitch
-      )
-    );
-  }
-);
-
-function updateMovement() {
-
-  if (!myPlayer) {
-    return;
-  }
-
-  let dx = 0;
-  let dz = 0;
-
-  if (
-    keys["KeyW"] ||
-    keys["ArrowUp"]
-  ) {
-    dz -= 1;
-  }
-
-  if (
-    keys["KeyS"] ||
-    keys["ArrowDown"]
-  ) {
-    dz += 1;
-  }
-
-  if (
-    keys["KeyA"] ||
-    keys["ArrowLeft"]
-  ) {
-    dx -= 1;
-  }
-
-  if (
-    keys["KeyD"] ||
-    keys["ArrowRight"]
-  ) {
-    dx += 1;
-  }
-
-  if (
-    dx === 0 &&
-    dz === 0
-  ) {
-    return;
-  }
-
-  const length =
-    Math.sqrt(
-      dx * dx +
-      dz * dz
-    );
-
-  dx /= length;
-  dz /= length;
-
-  const sin =
-    Math.sin(yaw);
-
-  const cos =
-    Math.cos(yaw);
-
-  const worldX =
-    dx * cos -
-    dz * sin;
-
-  const worldZ =
-    dx * sin +
-    dz * cos;
-
-  myPlayer.x +=
-    worldX * speed;
-
-  myPlayer.z +=
-    worldZ * speed;
-
-  myPlayer.x =
-    Math.max(
-      -22,
-      Math.min(
-        22,
-        myPlayer.x
-      )
-    );
-
-  myPlayer.z =
-    Math.max(
-      -22,
-      Math.min(
-        22,
-        myPlayer.z
-      )
-    );
-
-  send({
-    type: "move",
-    x: myPlayer.x,
-    y: myPlayer.y,
-    z: myPlayer.z
-  });
-}
-
-function updateCamera() {
-
-  if (!myPlayer) {
-    return;
-  }
-
-  const target =
-    new THREE.Vector3(
-      myPlayer.x,
-      myPlayer.y + 1.3,
-      myPlayer.z
-    );
-
-  camera.position.lerp(
-    target,
-    0.15
-  );
-
-  camera.rotation.order =
-    "YXZ";
-
-  camera.rotation.y =
-    yaw;
-
-  camera.rotation.x =
-    pitch;
-}
-
-/* =========================================================
-   WEBSOCKET
-========================================================= */
-
-let socket = null;
-
-function connect() {
-
-  socket =
-    new WebSocket(SERVER);
-
-  socket.addEventListener(
-    "open",
-    () => {
-
-      document
-        .getElementById(
-          "connection"
-        )
-        .textContent =
-        "CONNECTED";
-
-      document
-        .getElementById(
-          "message"
-        )
-        .textContent =
-        "Connected. Enter your competitor identity.";
-
-    }
-  );
-
-  socket.addEventListener(
-    "message",
-    event => {
-
-      let message;
-
-      try {
-        message =
-          JSON.parse(
-            event.data
-          );
-      } catch {
-        return;
-      }
-
-      if (
-        message.type ===
-        "welcome"
-      ) {
-
-        myId =
-          message.id;
-
-        myPlayer =
-          message.player;
-
-        updateRoom(
-          message.room
-        );
-
-        document
-          .getElementById(
-            "message"
-          )
-          .textContent =
-          "Connection established.";
-      }
-
-      if (
-        message.type ===
-        "state"
-      ) {
-
-        updateRoom(
-          message.room
-        );
-      }
-
-    }
-  );
-
-  socket.addEventListener(
-    "close",
-    () => {
-
-      document
-        .getElementById(
-          "connection"
-        )
-        .textContent =
-        "DISCONNECTED";
-    }
-  );
-
-  socket.addEventListener(
-    "error",
-    () => {
-
-      document
-        .getElementById(
-          "connection"
-        )
-        .textContent =
-        "CONNECTION ERROR";
-    }
-  );
-}
-
-function send(message) {
-
-  if (
-    socket &&
-    socket.readyState ===
-    WebSocket.OPEN
-  ) {
-
-    socket.send(
-      JSON.stringify(
-        message
-      )
-    );
-  }
-}
-
-/* =========================================================
-   ROOM STATE
-========================================================= */
-
-function updateRoom(room) {
-
-  if (!room) {
-    return;
-  }
-
-  document
-    .getElementById(
-      "phase"
-    )
-    .textContent =
-    room.phase;
-
-  document
-    .getElementById(
-      "playerCount"
-    )
-    .textContent =
-    `${room.players.length}/16`;
-
-  if (
-    room.challenge
-  ) {
-
-    document
-      .getElementById(
-        "challenge"
-      )
-      .textContent =
-      room.challenge.name;
-  } else {
-
-    document
-      .getElementById(
-        "challenge"
-      )
-      .textContent =
-      "No active challenge";
-  }
-
-  room.players.forEach(
-    player => {
-
-      players.set(
-        player.id,
-        player
-      );
-
-      updatePlayerMesh(
-        player
-      );
-
-      if (
-        player.id === myId
-      ) {
-
-        myPlayer =
-          player;
-
-        document
-          .getElementById(
-            "credits"
-          )
-          .textContent =
-          player.credits;
-
-        document
-          .getElementById(
-            "influence"
-          )
-          .textContent =
-          player.influence;
-
-        document
-          .getElementById(
-            "trust"
-          )
-          .textContent =
-          player.trust;
-
-        document
-          .getElementById(
-            "energy"
-          )
-          .textContent =
-          player.energy;
-      }
-    }
-  );
-
-  renderPlayers(
-    room.players
-  );
-
-  renderVotes(
-    room.players,
-    room.phase
-  );
-
-  renderLogs(
-    room.log
-  );
-}
-
-/* =========================================================
-   UI
-========================================================= */
-
-function renderPlayers(
-  list
-) {
-
-  const container =
-    document.getElementById(
-      "players"
-    );
-
-  container.innerHTML = "";
-
-  list.forEach(
-    player => {
-
-      const row =
-        document.createElement(
-          "div"
-        );
-
-      row.className =
-        "player" +
-        (
-          player.alive
-            ? ""
-            : " dead"
-        );
-
-      row.innerHTML = `
-        <div>
-          <div class="playerName">
-            ${escapeHTML(player.name)}
-          </div>
-          <div class="playerRole">
-            ${escapeHTML(player.role)}
-          </div>
         </div>
-        <div>
-          ${player.alive ? "ALIVE" : "OUT"}
+
+    </div>
+
+    <!-- =========================================
+         LOADING
+    ========================================== -->
+
+    <div id="loading">
+        INITIALIZING AFTERLIGHT...
+    </div>
+
+    <!-- =========================================
+         HUD
+    ========================================== -->
+
+    <div id="hud">
+
+        <div class="topBar">
+
+            <div class="brand">
+                AFTERLIGHT
+            </div>
+
+            <div class="stats">
+
+                <div class="stat">
+                    <span class="statLabel">CREDITS</span>
+                    <span id="credits" class="statValue">500</span>
+                </div>
+
+                <div class="stat">
+                    <span class="statLabel">INFLUENCE</span>
+                    <span id="influence" class="statValue">10</span>
+                </div>
+
+                <div class="stat">
+                    <span class="statLabel">TRUST</span>
+                    <span id="trust" class="statValue">50</span>
+                </div>
+
+                <div class="stat">
+                    <span class="statLabel">ENERGY</span>
+                    <span id="energy" class="statValue">100</span>
+                </div>
+
+                <div class="stat">
+                    <span class="statLabel">PLAYERS</span>
+                    <span id="playerCount" class="statValue">0</span>
+                </div>
+
+            </div>
+
         </div>
-      `;
-
-      container.appendChild(
-        row
-      );
-    }
-  );
-}
-
-function renderVotes(
-  list,
-  phase
-) {
-
-  const container =
-    document.getElementById(
-      "voteButtons"
-    );
-
-  container.innerHTML = "";
-
-  if (
-    phase !== "VOTING"
-  ) {
-    return;
-  }
-
-  list.forEach(
-    player => {
-
-      if (
-        !player.alive ||
-        player.id === myId
-      ) {
-        return;
-      }
-
-      const button =
-        document.createElement(
-          "button"
-        );
-
-      button.textContent =
-        `VOTE ${player.name}`;
-
-      button.addEventListener(
-        "click",
-        () => {
-
-          send({
-            type: "vote",
-            targetId:
-              player.id
-          });
-
-        }
-      );
-
-      container.appendChild(
-        button
-      );
-    }
-  );
-}
-
-function renderLogs(
-  log
-) {
-
-  const container =
-    document.getElementById(
-      "logs"
-    );
-
-  container.innerHTML = "";
-
-  const items =
-    Array.isArray(log)
-      ? log.slice(-12)
-      : [];
-
-  items.forEach(
-    item => {
-
-      const row =
-        document.createElement(
-          "div"
-        );
-
-      row.className =
-        "log";
-
-      row.textContent =
-        typeof item ===
-        "string"
-          ? item
-          : item.text;
-
-      container.appendChild(
-        row
-      );
-    }
-  );
-
-  container.scrollTop =
-    container.scrollHeight;
-}
-
-function escapeHTML(
-  value
-) {
-
-  return String(value)
-    .replaceAll(
-      "&",
-      "&amp;"
-    )
-    .replaceAll(
-      "<",
-      "&lt;"
-    )
-    .replaceAll(
-      ">",
-      "&gt;"
-    )
-    .replaceAll(
-      '"',
-      "&quot;"
-    );
-}
-
-/* =========================================================
-   BUTTONS
-========================================================= */
-
-document
-  .getElementById(
-    "joinBtn"
-  )
-  .addEventListener(
-    "click",
-    () => {
-
-      const name =
-        document
-          .getElementById(
-            "nameInput"
-          )
-          .value
-          .trim() ||
-        "YOU";
-
-      send({
-        type: "join",
-        name
-      });
-
-      document
-        .getElementById(
-          "join"
-        )
-        .style.display =
-        "none";
-
-    }
-  );
-
-document
-  .getElementById(
-    "readyBtn"
-  )
-  .addEventListener(
-    "click",
-    () => {
-
-      send({
-        type: "ready",
-        ready: true
-      });
-
-    }
-  );
-
-document
-  .getElementById(
-    "startBtn"
-  )
-  .addEventListener(
-    "click",
-    () => {
-
-      send({
-        type: "start"
-      });
-
-    }
-  );
-
-document
-  .querySelectorAll(
-    "[data-challenge]"
-  )
-  .forEach(
-    button => {
-
-      button.addEventListener(
-        "click",
-        () => {
-
-          send({
-            type: "challenge",
-            choice:
-              button.dataset
-                .challenge
-          });
-
-        }
-      );
-    }
-  );
-
-document
-  .querySelectorAll(
-    "[data-social]"
-  )
-  .forEach(
-    button => {
-
-      button.addEventListener(
-        "click",
-        () => {
-
-          send({
-            type: "social",
-            action:
-              button.dataset
-                .social
-          });
-
-        }
-      );
-    }
-  );
-
-document
-  .getElementById(
-    "missionBtn"
-  )
-  .addEventListener(
-    "click",
-    () => {
-
-      send({
-        type: "mission"
-      });
-
-    }
-  );
-
-document
-  .getElementById(
-    "parallelBtn"
-  )
-  .addEventListener(
-    "click",
-    () => {
-
-      send({
-        type: "parallel"
-      });
-
-    }
-  );
-
-document
-  .getElementById(
-    "architectBtn"
-  )
-  .addEventListener(
-    "click",
-    () => {
-
-      send({
-        type: "architect"
-      });
-
-    }
-  );
-
-document
-  .getElementById(
-    "heistBtn"
-  )
-  .addEventListener(
-    "click",
-    () => {
-
-      send({
-        type: "heist"
-      });
-
-    }
-  );
-
-document
-  .getElementById(
-    "vacationBtn"
-  )
-  .addEventListener(
-    "click",
-    () => {
-
-      send({
-        type: "vacation"
-      });
-
-    }
-  );
-
-/* =========================================================
-   POWER STORE
-========================================================= */
-
-const powers = [
-  ["Power Ring", 150],
-  ["Pulse Watch", 180],
-  ["Gravity Shoes", 200],
-  ["Spectra Visor", 220],
-  ["Phase Jacket", 250],
-  ["Signal Band", 120],
-  ["Influence Chip", 300],
-  ["Shadow Pack", 170],
-  ["Oracle Lens", 260],
-  ["Shield Band", 240]
-];
-
-const powerContainer =
-  document.getElementById(
-    "powers"
-  );
-
-powers.forEach(
-  power => {
-
-    const button =
-      document.createElement(
-        "button"
-      );
-
-    button.textContent =
-      `${power[0]} ${power[1]}`;
-
-    button.addEventListener(
-      "click",
-      () => {
-
-        send({
-          type: "buyPower",
-          power: power[0]
-        });
-
-      }
-    );
-
-    powerContainer.appendChild(
-      button
-    );
-  }
-);
-
-/* =========================================================
-   MOBILE MOVEMENT
-========================================================= */
-
-document
-  .querySelectorAll(
-    "[data-move]"
-  )
-  .forEach(
-    button => {
-
-      button.addEventListener(
-        "click",
-        () => {
-
-          const direction =
-            button.dataset
-              .move;
-
-          if (!myPlayer) {
-            return;
-          }
-
-          const amount =
-            1;
-
-          if (
-            direction ===
-            "forward"
-          ) {
-            myPlayer.z -= amount;
-          }
-
-          if (
-            direction ===
-            "back"
-          ) {
-            myPlayer.z += amount;
-          }
-
-          if (
-            direction ===
-            "left"
-          ) {
-            myPlayer.x -= amount;
-          }
-
-          if (
-            direction ===
-            "right"
-          ) {
-            myPlayer.x += amount;
-          }
-
-          myPlayer.x =
-            Math.max(
-              -22,
-              Math.min(
-                22,
-                myPlayer.x
-              )
+
+        <!-- LEFT -->
+
+        <div id="leftPanel">
+
+            <div class="panel">
+
+                <div class="panelTitle">
+                    CURRENT PHASE
+                </div>
+
+                <div id="phase" class="phase">
+                    LOBBY
+                </div>
+
+                <div id="challenge" class="challenge">
+                    Awaiting competitors
+                </div>
+
+            </div>
+
+            <div class="panel">
+
+                <div class="panelTitle">
+                    COMPETITORS
+                </div>
+
+                <div id="playersList"></div>
+
+            </div>
+
+        </div>
+
+        <!-- ACTIONS -->
+
+        <div id="actions">
+
+            <button
+                class="actionButton primary"
+                data-action="ready"
+            >
+                READY
+            </button>
+
+            <button
+                class="actionButton"
+                data-action="challenge"
+            >
+                CHALLENGE
+            </button>
+
+            <button
+                class="actionButton"
+                data-action="social"
+            >
+                SOCIAL
+            </button>
+
+            <button
+                class="actionButton"
+                data-action="mission"
+            >
+                SECRET MISSION
+            </button>
+
+            <button
+                class="actionButton"
+                data-action="parallel"
+            >
+                PARALLEL WORLD
+            </button>
+
+            <button
+                class="actionButton"
+                data-action="architect"
+            >
+                INVESTIGATE
+            </button>
+
+            <button
+                class="actionButton"
+                data-action="heist"
+            >
+                HEIST
+            </button>
+
+            <button
+                class="actionButton"
+                data-action="vacation"
+            >
+                VACATION
+            </button>
+
+            <button
+                class="actionButton"
+                data-action="power"
+            >
+                POWER STORE
+            </button>
+
+        </div>
+
+        <!-- LOG -->
+
+        <div id="log"></div>
+
+    </div>
+
+    <!-- =========================================
+         MOBILE CONTROLS
+    ========================================== -->
+
+    <div id="mobileControls">
+
+        <div class="mobileGrid">
+
+            <button class="moveButton" data-move="forward">
+                ▲
+            </button>
+
+            <button class="moveButton" data-move="left">
+                ◀
+            </button>
+
+            <button class="moveButton" data-move="right">
+                ▶
+            </button>
+
+            <button class="moveButton" data-move="back">
+                ▼
+            </button>
+
+        </div>
+
+    </div>
+
+    <!-- =========================================
+         GAME
+    ========================================== -->
+
+    <script type="module">
+
+        import * as THREE
+            from "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js";
+
+        import { AfterlightWorld }
+            from "./world.js";
+
+        // -----------------------------------------
+        // CONFIG
+        // -----------------------------------------
+
+        const WS_URL =
+            "wss://afterlightgame.sajjubhat99.workers.dev/ws";
+
+        // -----------------------------------------
+        // THREE.JS
+        // -----------------------------------------
+
+        const scene =
+            new THREE.Scene();
+
+        scene.background =
+            new THREE.Color(0x02040a);
+
+        const camera =
+            new THREE.PerspectiveCamera(
+                70,
+                window.innerWidth /
+                window.innerHeight,
+                0.1,
+                200
             );
 
-          myPlayer.z =
-            Math.max(
-              -22,
-              Math.min(
-                22,
-                myPlayer.z
-              )
+        camera.position.set(
+            0,
+            5,
+            12
+        );
+
+        const renderer =
+            new THREE.WebGLRenderer({
+                antialias: true,
+                powerPreference: "high-performance"
+            });
+
+        renderer.setPixelRatio(
+            Math.min(window.devicePixelRatio, 1.5)
+        );
+
+        renderer.setSize(
+            window.innerWidth,
+            window.innerHeight
+        );
+
+        renderer.outputColorSpace =
+            THREE.SRGBColorSpace;
+
+        document.body.appendChild(
+            renderer.domElement
+        );
+
+        // -----------------------------------------
+        // WORLD
+        // -----------------------------------------
+
+        const world =
+            new AfterlightWorld(scene);
+
+        // -----------------------------------------
+        // STATE
+        // -----------------------------------------
+
+        let socket = null;
+        let myId = null;
+        let myName = "";
+        let roomState = null;
+
+        const playerMeshes =
+            new Map();
+
+        const keys = {};
+
+        let joined = false;
+
+        let lastTime =
+            performance.now();
+
+        let sendTimer = 0;
+
+        // -----------------------------------------
+        // DOM
+        // -----------------------------------------
+
+        const joinScreen =
+            document.getElementById(
+                "joinScreen"
             );
 
-          send({
-            type: "move",
-            x: myPlayer.x,
-            y: myPlayer.y,
-            z: myPlayer.z
-          });
+        const joinButton =
+            document.getElementById(
+                "joinButton"
+            );
 
+        const nameInput =
+            document.getElementById(
+                "nameInput"
+            );
+
+        const connectionStatus =
+            document.getElementById(
+                "connectionStatus"
+            );
+
+        const phaseElement =
+            document.getElementById(
+                "phase"
+            );
+
+        const challengeElement =
+            document.getElementById(
+                "challenge"
+            );
+
+        const playerCount =
+            document.getElementById(
+                "playerCount"
+            );
+
+        const playersList =
+            document.getElementById(
+                "playersList"
+            );
+
+        const logElement =
+            document.getElementById(
+                "log"
+            );
+
+        // -----------------------------------------
+        // LOG
+        // -----------------------------------------
+
+        function log(message) {
+
+            const row =
+                document.createElement("div");
+
+            row.className =
+                "logLine";
+
+            row.textContent =
+                message;
+
+            logElement.prepend(row);
+
+            while (
+                logElement.children.length > 20
+            ) {
+                logElement.removeChild(
+                    logElement.lastChild
+                );
+            }
         }
-      );
-    }
-  );
 
-/* =========================================================
-   ANIMATION
-========================================================= */
+        // -----------------------------------------
+        // CONNECT
+        // -----------------------------------------
 
-const clock =
-  new THREE.Clock();
+        function connect() {
 
-function animate() {
+            connectionStatus.textContent =
+                "Connecting...";
 
-  requestAnimationFrame(
-    animate
-  );
+            socket =
+                new WebSocket(WS_URL);
 
-  const elapsed =
-    clock.getElapsedTime();
+            socket.addEventListener(
+                "open",
+                () => {
 
-  core.rotation.y =
-    elapsed * 0.35;
+                    connectionStatus.textContent =
+                        "CONNECTED";
 
-  core.rotation.x =
-    Math.sin(elapsed * 0.7) *
-    0.2;
+                    log(
+                        "Connected to AFTERLIGHT."
+                    );
 
-  coreGroup.children
-    .forEach(
-      (object, index) => {
+                    socket.send(
+                        JSON.stringify({
+                            type: "join",
+                            name: myName
+                        })
+                    );
+                }
+            );
 
-        if (
-          object !== core
+            socket.addEventListener(
+                "message",
+                event => {
+
+                    try {
+
+                        const message =
+                            JSON.parse(
+                                event.data
+                            );
+
+                        handleServerMessage(
+                            message
+                        );
+
+                    } catch (error) {
+
+                        console.error(
+                            error
+                        );
+                    }
+                }
+            );
+
+            socket.addEventListener(
+                "close",
+                () => {
+
+                    connectionStatus.textContent =
+                        "DISCONNECTED";
+
+                    log(
+                        "Connection lost."
+                    );
+                }
+            );
+
+            socket.addEventListener(
+                "error",
+                () => {
+
+                    connectionStatus.textContent =
+                        "CONNECTION ERROR";
+
+                }
+            );
+        }
+
+        // -----------------------------------------
+        // SERVER MESSAGES
+        // -----------------------------------------
+
+        function handleServerMessage(
+            message
         ) {
 
-          object.rotation.z =
-            elapsed *
-            (0.25 +
-              index *
-              0.1);
+            if (
+                message.type ===
+                "welcome"
+            ) {
+
+                myId =
+                    message.id;
+
+                roomState =
+                    message;
+
+                joined = true;
+
+                joinScreen.style.display =
+                    "none";
+
+                document.getElementById(
+                    "loading"
+                ).style.display =
+                    "none";
+
+                log(
+                    "Welcome to AFTERLIGHT."
+                );
+
+                updatePlayers(
+                    message.players || []
+                );
+
+                return;
+            }
+
+            if (
+                message.type ===
+                "state"
+            ) {
+
+                roomState =
+                    message;
+
+                if (
+                    message.players
+                ) {
+                    updatePlayers(
+                        message.players
+                    );
+                }
+
+                updateUI(
+                    message
+                );
+
+                return;
+            }
+
+            if (
+                message.type ===
+                "players"
+            ) {
+
+                updatePlayers(
+                    message.players || []
+                );
+
+                return;
+            }
+
+            if (
+                message.type ===
+                "log"
+            ) {
+
+                log(
+                    message.message || ""
+                );
+
+                return;
+            }
         }
 
-      }
-    );
+        // -----------------------------------------
+        // PLAYERS
+        // -----------------------------------------
 
-  updateMovement();
+        function updatePlayers(
+            players
+        ) {
 
-  updateCamera();
+            playerCount.textContent =
+                players.length;
 
-  renderer.render(
-    scene,
-    camera
-  );
-}
+            playersList.innerHTML = "";
 
-/* =========================================================
-   RESIZE
-========================================================= */
+            const activeIds =
+                new Set();
 
-window.addEventListener(
-  "resize",
-  () => {
+            for (
+                const player
+                of players
+            ) {
 
-    camera.aspect =
-      window.innerWidth /
-      window.innerHeight;
+                activeIds.add(
+                    player.id
+                );
 
-    camera.updateProjectionMatrix();
+                const row =
+                    document.createElement(
+                        "div"
+                    );
 
-    renderer.setSize(
-      window.innerWidth,
-      window.innerHeight
-    );
+                row.className =
+                    "playerRow";
 
-  }
-);
+                const name =
+                    document.createElement(
+                        "span"
+                    );
 
-/* =========================================================
-   START
-========================================================= */
+                name.textContent =
+                    player.name ||
+                    "Player";
 
-connect();
+                const status =
+                    document.createElement(
+                        "span"
+                    );
 
-animate();
+                status.textContent =
+                    player.alive === false
+                        ? "OUT"
+                        : "IN";
 
-</script>
+                status.className =
+                    player.alive === false
+                        ? "dead"
+                        : "alive";
+
+                row.appendChild(name);
+                row.appendChild(status);
+
+                playersList.appendChild(
+                    row
+                );
+
+                updatePlayerMesh(
+                    player
+                );
+            }
+
+            for (
+                const [
+                    id,
+                    mesh
+                ]
+                of playerMeshes
+            ) {
+
+                if (
+                    !activeIds.has(id)
+                ) {
+
+                    scene.remove(mesh);
+
+                    playerMeshes.delete(id);
+                }
+            }
+        }
+
+        // -----------------------------------------
+        // PLAYER MESH
+        // -----------------------------------------
+
+        function updatePlayerMesh(
+            player
+        ) {
+
+            let mesh =
+                playerMeshes.get(
+                    player.id
+                );
+
+            if (!mesh) {
+
+                mesh =
+                    createPlayerMesh(
+                        player
+                    );
+
+                playerMeshes.set(
+                    player.id,
+                    mesh
+                );
+
+                scene.add(mesh);
+            }
+
+            mesh.position.set(
+                Number(player.x) || 0,
+                Number(player.y) || 1,
+                Number(player.z) || 0
+            );
+
+            if (
+                player.id === myId
+            ) {
+
+                mesh.material.color.set(
+                    0x55eaff
+                );
+
+            } else {
+
+                mesh.material.color.set(
+                    0xff4fa3
+                );
+            }
+        }
+
+        function createPlayerMesh(
+            player
+        ) {
+
+            const group =
+                new THREE.Group();
+
+            const body =
+                new THREE.Mesh(
+                    new THREE.CapsuleGeometry(
+                        0.45,
+                        1.2,
+                        8,
+                        16
+                    ),
+                    new THREE.MeshStandardMaterial({
+                        color: 0xff4fa3,
+                        metalness: 0.25,
+                        roughness: 0.45,
+                        emissive: 0x220011,
+                        emissiveIntensity: 0.6
+                    })
+                );
+
+            group.add(body);
+
+            const light =
+                new THREE.PointLight(
+                    0xff3f9d,
+                    1.5,
+                    5
+                );
+
+            light.position.y =
+                0.7;
+
+            group.add(light);
+
+            return group;
+        }
+
+        // -----------------------------------------
+        // UI
+        // -----------------------------------------
+
+        function updateUI(
+            state
+        ) {
+
+            phaseElement.textContent =
+                state.phase ||
+                "LOBBY";
+
+            challengeElement.textContent =
+                state.challenge ||
+                "Awaiting challenge";
+
+            if (
+                state.players
+            ) {
+
+                const me =
+                    state.players.find(
+                        p =>
+                            p.id === myId
+                    );
+
+                if (me) {
+
+                    document.getElementById(
+                        "credits"
+                    ).textContent =
+                        me.credits ?? 500;
+
+                    document.getElementById(
+                        "influence"
+                    ).textContent =
+                        me.influence ?? 10;
+
+                    document.getElementById(
+                        "trust"
+                    ).textContent =
+                        me.trust ?? 50;
+
+                    document.getElementById(
+                        "energy"
+                    ).textContent =
+                        me.energy ?? 100;
+                }
+            }
+        }
+
+        // -----------------------------------------
+        // SEND
+        // -----------------------------------------
+
+        function send(
+            data
+        ) {
+
+            if (
+                socket &&
+                socket.readyState ===
+                WebSocket.OPEN
+            ) {
+
+                socket.send(
+                    JSON.stringify(data)
+                );
+            }
+        }
+
+        // -----------------------------------------
+        // ACTIONS
+        // -----------------------------------------
+
+        function action(
+            type
+        ) {
+
+            switch (type) {
+
+                case "ready":
+
+                    send({
+                        type: "ready"
+                    });
+
+                    log(
+                        "Ready status sent."
+                    );
+
+                    break;
+
+                case "challenge":
+
+                    send({
+                        type: "challenge",
+                        action: "observe"
+                    });
+
+                    break;
+
+                case "social":
+
+                    send({
+                        type: "social",
+                        action: "talk"
+                    });
+
+                    break;
+
+                case "mission":
+
+                    send({
+                        type: "mission"
+                    });
+
+                    break;
+
+                case "parallel":
+
+                    send({
+                        type: "parallel"
+                    });
+
+                    break;
+
+                case "architect":
+
+                    send({
+                        type: "architect"
+                    });
+
+                    break;
+
+                case "heist":
+
+                    send({
+                        type: "heist"
+                    });
+
+                    break;
+
+                case "vacation":
+
+                    send({
+                        type: "vacation"
+                    });
+
+                    break;
+
+                case "power":
+
+                    send({
+                        type: "buyPower",
+                        power: "Shield Band"
+                    });
+
+                    break;
+            }
+        }
+
+        document
+            .querySelectorAll(
+                ".actionButton"
+            )
+            .forEach(button => {
+
+                button.addEventListener(
+                    "click",
+                    () => {
+
+                        action(
+                            button.dataset.action
+                        );
+                    }
+                );
+            });
+
+        // -----------------------------------------
+        // JOIN
+        // -----------------------------------------
+
+        joinButton.addEventListener(
+            "click",
+            () => {
+
+                const name =
+                    nameInput.value
+                        .trim();
+
+                if (!name) {
+
+                    nameInput.focus();
+
+                    return;
+                }
+
+                myName =
+                    name;
+
+                document.getElementById(
+                    "loading"
+                ).style.display =
+                    "flex";
+
+                connect();
+            }
+        );
+
+        nameInput.addEventListener(
+            "keydown",
+            event => {
+
+                if (
+                    event.key ===
+                    "Enter"
+                ) {
+
+                    joinButton.click();
+                }
+            }
+        );
+
+        // -----------------------------------------
+        // KEYBOARD MOVEMENT
+        // -----------------------------------------
+
+        window.addEventListener(
+            "keydown",
+            event => {
+
+                keys[
+                    event.key.toLowerCase()
+                ] = true;
+            }
+        );
+
+        window.addEventListener(
+            "keyup",
+            event => {
+
+                keys[
+                    event.key.toLowerCase()
+                ] = false;
+            }
+        );
+
+        // -----------------------------------------
+        // MOBILE MOVEMENT
+        // -----------------------------------------
+
+        document
+            .querySelectorAll(
+                ".moveButton"
+            )
+            .forEach(button => {
+
+                const move =
+                    button.dataset.move;
+
+                button.addEventListener(
+                    "pointerdown",
+                    () => {
+
+                        keys[move] = true;
+                    }
+                );
+
+                button.addEventListener(
+                    "pointerup",
+                    () => {
+
+                        keys[move] = false;
+                    }
+                );
+
+                button.addEventListener(
+                    "pointercancel",
+                    () => {
+
+                        keys[move] = false;
+                    }
+                );
+            });
+
+        // -----------------------------------------
+        // LOCAL MOVEMENT
+        // -----------------------------------------
+
+        function updateMovement(
+            delta
+        ) {
+
+            if (!myId) return;
+
+            const mesh =
+                playerMeshes.get(
+                    myId
+                );
+
+            if (!mesh) return;
+
+            const speed =
+                7 * delta;
+
+            let moved = false;
+
+            if (
+                keys.w ||
+                keys.arrowup ||
+                keys.forward
+            ) {
+
+                mesh.position.z -= speed;
+
+                moved = true;
+            }
+
+            if (
+                keys.s ||
+                keys.arrowdown ||
+                keys.back
+            ) {
+
+                mesh.position.z += speed;
+
+                moved = true;
+            }
+
+            if (
+                keys.a ||
+                keys.arrowleft ||
+                keys.left
+            ) {
+
+                mesh.position.x -= speed;
+
+                moved = true;
+            }
+
+            if (
+                keys.d ||
+                keys.arrowright ||
+                keys.right
+            ) {
+
+                mesh.position.x += speed;
+
+                moved = true;
+            }
+
+            mesh.position.x =
+                THREE.MathUtils.clamp(
+                    mesh.position.x,
+                    -30,
+                    30
+                );
+
+            mesh.position.z =
+                THREE.MathUtils.clamp(
+                    mesh.position.z,
+                    -30,
+                    30
+                );
+
+            if (moved) {
+
+                sendTimer += delta;
+
+                if (
+                    sendTimer >
+                    0.08
+                ) {
+
+                    sendTimer = 0;
+
+                    send({
+                        type: "move",
+                        x: mesh.position.x,
+                        y: mesh.position.y,
+                        z: mesh.position.z
+                    });
+                }
+            }
+        }
+
+        // -----------------------------------------
+        // CAMERA
+        // -----------------------------------------
+
+        function updateCamera() {
+
+            if (!myId) return;
+
+            const mesh =
+                playerMeshes.get(
+                    myId
+                );
+
+            if (!mesh) return;
+
+            const target =
+                new THREE.Vector3(
+                    mesh.position.x,
+                    mesh.position.y + 1.2,
+                    mesh.position.z
+                );
+
+            const desired =
+                new THREE.Vector3(
+                    mesh.position.x,
+                    mesh.position.y + 6,
+                    mesh.position.z + 9
+                );
+
+            camera.position.lerp(
+                desired,
+                0.08
+            );
+
+            camera.lookAt(
+                target
+            );
+        }
+
+        // -----------------------------------------
+        // RESIZE
+        // -----------------------------------------
+
+        window.addEventListener(
+            "resize",
+            () => {
+
+                camera.aspect =
+                    window.innerWidth /
+                    window.innerHeight;
+
+                camera.updateProjectionMatrix();
+
+                renderer.setSize(
+                    window.innerWidth,
+                    window.innerHeight
+                );
+            }
+        );
+
+        // -----------------------------------------
+        // GAME LOOP
+        // -----------------------------------------
+
+        function animate(
+            now
+        ) {
+
+            requestAnimationFrame(
+                animate
+            );
+
+            const delta =
+                Math.min(
+                    (now - lastTime) /
+                    1000,
+                    0.05
+                );
+
+            lastTime = now;
+
+            updateMovement(
+                delta
+            );
+
+            updateCamera();
+
+            world.update(
+                delta
+            );
+
+            renderer.render(
+                scene,
+                camera
+            );
+        }
+
+        requestAnimationFrame(
+            animate
+        );
+
+    </script>
 
 </body>
 </html>
