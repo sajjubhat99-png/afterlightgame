@@ -1,130 +1,577 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AFTERLIGHT — Multiplayer</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AFTERLIGHT — Multiplayer</title>
 
-  <style>
-    html, body {
-      margin: 0;
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-      background: #05070a;
-      color: white;
-      font-family: Arial, sans-serif;
-    }
+<style>
+* {
+  box-sizing: border-box;
+}
 
-    #hud {
-      position: fixed;
-      top: 18px;
-      left: 18px;
-      z-index: 10;
-      background: rgba(5, 10, 15, 0.75);
-      border: 1px solid rgba(0, 220, 255, 0.35);
-      border-radius: 12px;
-      padding: 14px 18px;
-      backdrop-filter: blur(8px);
-    }
+html,
+body {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #02070a;
+  color: #e9ffff;
+  font-family: Arial, Helvetica, sans-serif;
+}
 
-    #hud h1 {
-      margin: 0 0 6px;
-      font-size: 22px;
-      letter-spacing: 3px;
-    }
+canvas {
+  display: block;
+}
 
-    #status {
-      font-size: 13px;
-      color: #7eefff;
-    }
+#game {
+  position: fixed;
+  inset: 0;
+}
 
-    #players {
-      margin-top: 8px;
-      font-size: 12px;
-      color: #b8cbd4;
-    }
+#hud {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+}
 
-    #crosshair {
-      position: fixed;
-      left: 50%;
-      top: 50%;
-      width: 8px;
-      height: 8px;
-      margin-left: -4px;
-      margin-top: -4px;
-      border: 1px solid rgba(255,255,255,0.7);
-      border-radius: 50%;
-      z-index: 5;
-      pointer-events: none;
-    }
+.topbar {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  right: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
 
-    #help {
-      position: fixed;
-      bottom: 18px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 10;
-      padding: 10px 16px;
-      border-radius: 10px;
-      background: rgba(5, 10, 15, 0.72);
-      color: #b8cbd4;
-      font-size: 13px;
-      text-align: center;
-    }
-  </style>
+.logo {
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: 5px;
+  color: #9effff;
+  text-shadow: 0 0 18px #00eaff;
+}
+
+.status {
+  margin-top: 5px;
+  font-size: 11px;
+  color: #74a9ad;
+  letter-spacing: 2px;
+}
+
+.stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.stat {
+  min-width: 78px;
+  padding: 8px 10px;
+  background: rgba(2, 13, 17, .82);
+  border: 1px solid rgba(0, 238, 255, .3);
+  border-radius: 8px;
+  text-align: center;
+}
+
+.stat small {
+  display: block;
+  color: #6c9da1;
+  font-size: 9px;
+  letter-spacing: 1px;
+}
+
+.stat strong {
+  display: block;
+  margin-top: 3px;
+  color: #bfffff;
+}
+
+.panel {
+  position: absolute;
+  background: rgba(2, 10, 14, .9);
+  border: 1px solid rgba(0, 238, 255, .25);
+  border-radius: 10px;
+  box-shadow: 0 0 30px rgba(0, 200, 255, .08);
+  pointer-events: auto;
+  backdrop-filter: blur(10px);
+}
+
+#phasePanel {
+  top: 95px;
+  left: 16px;
+  width: 270px;
+  padding: 14px;
+}
+
+.phaseTitle {
+  color: #00eaff;
+  font-size: 11px;
+  letter-spacing: 2px;
+}
+
+.phaseName {
+  margin-top: 5px;
+  font-size: 22px;
+  font-weight: 800;
+}
+
+.challengeName {
+  margin-top: 8px;
+  color: #a8c9cc;
+  font-size: 12px;
+}
+
+#playersPanel {
+  top: 95px;
+  right: 16px;
+  width: 240px;
+  max-height: 48vh;
+  overflow: auto;
+  padding: 12px;
+}
+
+.panelTitle {
+  color: #00eaff;
+  font-size: 10px;
+  letter-spacing: 2px;
+  margin-bottom: 10px;
+}
+
+.player {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 7px 5px;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+  font-size: 11px;
+}
+
+.player.dead {
+  opacity: .35;
+}
+
+.playerName {
+  color: #dfffff;
+}
+
+.playerRole {
+  color: #628c90;
+  font-size: 9px;
+}
+
+#controls {
+  position: absolute;
+  left: 16px;
+  bottom: 16px;
+  width: 330px;
+  padding: 12px;
+}
+
+button {
+  appearance: none;
+  border: 1px solid rgba(0,238,255,.35);
+  background: rgba(3, 24, 29, .92);
+  color: #bfffff;
+  border-radius: 7px;
+  padding: 9px 11px;
+  margin: 3px;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .5px;
+}
+
+button:hover {
+  background: rgba(0, 190, 210, .2);
+  border-color: #00eaff;
+}
+
+button.primary {
+  background: rgba(0, 205, 220, .18);
+  border-color: #00eaff;
+}
+
+button.danger {
+  border-color: rgba(255,70,100,.6);
+  color: #ff9eaa;
+}
+
+button:disabled {
+  opacity: .35;
+  cursor: not-allowed;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 3px -3px;
+}
+
+#logPanel {
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+  width: 330px;
+  max-height: 180px;
+  overflow: auto;
+  padding: 12px;
+}
+
+.log {
+  font-size: 10px;
+  line-height: 1.5;
+  color: #86aeb1;
+  border-bottom: 1px solid rgba(255,255,255,.04);
+  padding: 4px 0;
+}
+
+#crosshair {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 12px;
+  height: 12px;
+  transform: translate(-50%, -50%);
+}
+
+#crosshair::before,
+#crosshair::after {
+  content: "";
+  position: absolute;
+  background: rgba(180,255,255,.8);
+}
+
+#crosshair::before {
+  width: 12px;
+  height: 1px;
+  top: 5px;
+  left: 0;
+}
+
+#crosshair::after {
+  width: 1px;
+  height: 12px;
+  top: 0;
+  left: 5px;
+}
+
+#join {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 5, 8, .9);
+  pointer-events: auto;
+  z-index: 10;
+}
+
+.joinBox {
+  width: min(420px, calc(100% - 30px));
+  padding: 30px;
+  background: rgba(3, 15, 20, .96);
+  border: 1px solid rgba(0,238,255,.35);
+  border-radius: 14px;
+  text-align: center;
+  box-shadow: 0 0 70px rgba(0,200,255,.1);
+}
+
+.joinLogo {
+  font-size: 35px;
+  font-weight: 900;
+  letter-spacing: 7px;
+  color: #a9ffff;
+  text-shadow: 0 0 25px #00eaff;
+}
+
+.joinSubtitle {
+  margin: 12px 0 25px;
+  color: #719da1;
+  font-size: 11px;
+  letter-spacing: 2px;
+}
+
+input {
+  width: 100%;
+  padding: 13px;
+  border-radius: 7px;
+  border: 1px solid rgba(0,238,255,.3);
+  background: #020a0d;
+  color: white;
+  outline: none;
+  margin-bottom: 10px;
+}
+
+input:focus {
+  border-color: #00eaff;
+}
+
+#message {
+  margin-top: 10px;
+  color: #719da1;
+  font-size: 10px;
+}
+
+#mobileControls {
+  display: none;
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  pointer-events: auto;
+}
+
+.mobileBtn {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  padding: 0;
+  font-size: 16px;
+}
+
+@media (max-width: 800px) {
+  .stats {
+    max-width: 55%;
+  }
+
+  .stat {
+    min-width: 60px;
+    padding: 6px;
+  }
+
+  #playersPanel {
+    width: 180px;
+  }
+
+  #phasePanel {
+    width: 210px;
+  }
+
+  #logPanel {
+    width: 230px;
+  }
+}
+
+@media (max-width: 600px) {
+  .logo {
+    font-size: 18px;
+  }
+
+  #playersPanel {
+    display: none;
+  }
+
+  #phasePanel {
+    top: 75px;
+    width: 190px;
+  }
+
+  #controls {
+    width: calc(100% - 32px);
+  }
+
+  #logPanel {
+    display: none;
+  }
+
+  #mobileControls {
+    display: block;
+  }
+}
+</style>
 </head>
 
 <body>
 
+<div id="game"></div>
+
 <div id="hud">
-  <h1>AFTERLIGHT</h1>
-  <div id="status">Connecting...</div>
-  <div id="players">Players: 0</div>
+
+  <div class="topbar">
+    <div>
+      <div class="logo">AFTERLIGHT</div>
+      <div class="status" id="connection">CONNECTING</div>
+    </div>
+
+    <div class="stats">
+      <div class="stat">
+        <small>CREDITS</small>
+        <strong id="credits">500</strong>
+      </div>
+
+      <div class="stat">
+        <small>INFLUENCE</small>
+        <strong id="influence">10</strong>
+      </div>
+
+      <div class="stat">
+        <small>TRUST</small>
+        <strong id="trust">50</strong>
+      </div>
+
+      <div class="stat">
+        <small>ENERGY</small>
+        <strong id="energy">100</strong>
+      </div>
+
+      <div class="stat">
+        <small>PLAYERS</small>
+        <strong id="playerCount">0/16</strong>
+      </div>
+    </div>
+  </div>
+
+  <div id="phasePanel" class="panel">
+    <div class="phaseTitle">CURRENT PHASE</div>
+    <div class="phaseName" id="phase">LOBBY</div>
+    <div class="challengeName" id="challenge">
+      Waiting for competitors...
+    </div>
+  </div>
+
+  <div id="playersPanel" class="panel">
+    <div class="panelTitle">COMPETITORS</div>
+    <div id="players"></div>
+  </div>
+
+  <div id="controls" class="panel">
+
+    <div class="panelTitle">GAME ACTIONS</div>
+
+    <div class="row">
+      <button id="readyBtn" class="primary">READY</button>
+      <button id="startBtn" class="primary">START GAME</button>
+    </div>
+
+    <div class="row">
+      <button data-challenge="safe">SAFE</button>
+      <button data-challenge="risk">RISK</button>
+      <button data-challenge="observe">OBSERVE</button>
+    </div>
+
+    <div class="row">
+      <button data-social="talk">TALK</button>
+      <button data-social="accuse">ACCUSE</button>
+      <button data-social="deal">DEAL</button>
+      <button data-social="end">END SOCIAL</button>
+    </div>
+
+    <div class="row">
+      <button id="missionBtn">SECRET MISSION</button>
+      <button id="parallelBtn">PARALLEL WORLD</button>
+      <button id="architectBtn">ARCHITECT</button>
+      <button id="heistBtn">SHADOW PROTOCOL</button>
+      <button id="vacationBtn">VACATION</button>
+    </div>
+
+    <div class="panelTitle" style="margin-top:10px">
+      POWER STORE
+    </div>
+
+    <div class="row" id="powers"></div>
+
+    <div class="panelTitle" style="margin-top:10px">
+      VOTING
+    </div>
+
+    <div class="row" id="voteButtons"></div>
+
+  </div>
+
+  <div id="logPanel" class="panel">
+    <div class="panelTitle">AFTERLIGHT LOG</div>
+    <div id="logs"></div>
+  </div>
+
+  <div id="crosshair"></div>
+
+  <div id="mobileControls">
+    <div>
+      <button class="mobileBtn" data-move="forward">▲</button>
+    </div>
+    <div>
+      <button class="mobileBtn" data-move="left">◀</button>
+      <button class="mobileBtn" data-move="back">▼</button>
+      <button class="mobileBtn" data-move="right">▶</button>
+    </div>
+  </div>
+
 </div>
 
-<div id="crosshair"></div>
+<div id="join">
 
-<div id="help">
-  WASD = Move · Mouse = Look · Click = Lock Camera
+  <div class="joinBox">
+
+    <div class="joinLogo">AFTERLIGHT</div>
+
+    <div class="joinSubtitle">
+      THE CHALLENGE IS ONLY HALF THE GAME
+    </div>
+
+    <input
+      id="nameInput"
+      maxlength="20"
+      placeholder="Enter competitor name"
+      value="YOU"
+    >
+
+    <button
+      id="joinBtn"
+      class="primary"
+      style="width:100%; padding:13px"
+    >
+      ENTER AFTERLIGHT
+    </button>
+
+    <div id="message">
+      Connecting to the AFTERLIGHT network...
+    </div>
+
+  </div>
+
 </div>
 
 <script type="module">
 
 import * as THREE from
-"https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js";
+  "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js";
 
+/* =========================================================
+   CONFIGURATION
+========================================================= */
 
-/* =========================
-   SCENE
-========================= */
+const SERVER =
+  "wss://afterlightgame.sajjubhat99.workers.dev/ws";
+
+/* =========================================================
+   THREE.JS WORLD
+========================================================= */
 
 const scene = new THREE.Scene();
 
-scene.background = new THREE.Color(0x05070a);
+scene.background = new THREE.Color(0x02070a);
 
-scene.fog = new THREE.Fog(
-  0x05070a,
-  20,
-  70
+scene.fog = new THREE.FogExp2(
+  0x02070a,
+  0.035
 );
-
-
-/* =========================
-   CAMERA
-========================= */
 
 const camera = new THREE.PerspectiveCamera(
   70,
   window.innerWidth / window.innerHeight,
   0.1,
-  200
+  500
 );
 
-
-/* =========================
-   RENDERER
-========================= */
+camera.position.set(
+  0,
+  2.5,
+  8
+);
 
 const renderer = new THREE.WebGLRenderer({
   antialias: true
@@ -139,100 +586,142 @@ renderer.setSize(
   window.innerHeight
 );
 
-document.body.appendChild(
-  renderer.domElement
-);
+renderer.shadowMap.enabled = true;
 
+document
+  .getElementById("game")
+  .appendChild(renderer.domElement);
 
-/* =========================
+/* =========================================================
    LIGHTING
-========================= */
+========================================================= */
 
 const ambient = new THREE.AmbientLight(
-  0x668899,
-  1.4
+  0x4d777a,
+  1.2
 );
 
 scene.add(ambient);
 
-
-const mainLight = new THREE.PointLight(
-  0x00d9ff,
-  7,
-  40
+const coreLight = new THREE.PointLight(
+  0x00eaff,
+  12,
+  35
 );
 
-mainLight.position.set(
+coreLight.position.set(
   0,
-  6,
+  5,
   0
 );
 
-scene.add(mainLight);
+scene.add(coreLight);
 
+const redLight = new THREE.PointLight(
+  0xff174f,
+  5,
+  20
+);
 
-/* =========================
-   FLOOR
-========================= */
+redLight.position.set(
+  0,
+  3,
+  -18
+);
 
-const floorGeometry =
-  new THREE.PlaneGeometry(
-    50,
-    50
-  );
+scene.add(redLight);
+
+/* =========================================================
+   MATERIALS
+========================================================= */
 
 const floorMaterial =
   new THREE.MeshStandardMaterial({
-    color: 0x101820,
+    color: 0x071417,
+    metalness: 0.8,
+    roughness: 0.3
+  });
+
+const wallMaterial =
+  new THREE.MeshStandardMaterial({
+    color: 0x0a1c20,
     metalness: 0.7,
     roughness: 0.35
   });
 
-const floor =
-  new THREE.Mesh(
-    floorGeometry,
-    floorMaterial
-  );
+const glassMaterial =
+  new THREE.MeshStandardMaterial({
+    color: 0x07333a,
+    transparent: true,
+    opacity: 0.5,
+    metalness: 0.8,
+    roughness: 0.1
+  });
 
-floor.rotation.x =
-  -Math.PI / 2;
+const cyanMaterial =
+  new THREE.MeshStandardMaterial({
+    color: 0x00eaff,
+    emissive: 0x00aabb,
+    emissiveIntensity: 3,
+    metalness: 0.5,
+    roughness: 0.2
+  });
+
+/* =========================================================
+   FLOOR
+========================================================= */
+
+const floor = new THREE.Mesh(
+  new THREE.BoxGeometry(
+    52,
+    0.5,
+    52
+  ),
+  floorMaterial
+);
+
+floor.position.y = -0.25;
+
+floor.receiveShadow = true;
 
 scene.add(floor);
 
+/* =========================================================
+   GRID
+========================================================= */
 
-/* =========================
+const grid = new THREE.GridHelper(
+  50,
+  50,
+  0x0b5960,
+  0x06272b
+);
+
+grid.position.y = 0.02;
+
+scene.add(grid);
+
+/* =========================================================
    WALLS
-========================= */
-
-const wallMaterial =
-  new THREE.MeshStandardMaterial({
-    color: 0x0b151d,
-    metalness: 0.7,
-    roughness: 0.3
-  });
-
+========================================================= */
 
 function createWall(
   x,
   y,
   z,
-  sx,
-  sy,
-  sz
+  width,
+  height,
+  depth
 ) {
 
-  const geometry =
+  const wall = new THREE.Mesh(
     new THREE.BoxGeometry(
-      sx,
-      sy,
-      sz
-    );
-
-  const wall =
-    new THREE.Mesh(
-      geometry,
-      wallMaterial
-    );
+      width,
+      height,
+      depth
+    ),
+    wallMaterial
+  );
 
   wall.position.set(
     x,
@@ -240,15 +729,19 @@ function createWall(
     z
   );
 
+  wall.castShadow = true;
+  wall.receiveShadow = true;
+
   scene.add(wall);
+
+  return wall;
 }
 
-
 createWall(
   0,
   5,
   -25,
-  50,
+  52,
   10,
   1
 );
@@ -257,7 +750,7 @@ createWall(
   0,
   5,
   25,
-  50,
+  52,
   10,
   1
 );
@@ -268,7 +761,7 @@ createWall(
   0,
   1,
   10,
-  50
+  52
 );
 
 createWall(
@@ -277,221 +770,383 @@ createWall(
   0,
   1,
   10,
-  50
+  52
 );
 
+/* =========================================================
+   ARCHITECTURE
+========================================================= */
 
-/* =========================
+function createColumn(x, z) {
+
+  const column = new THREE.Mesh(
+    new THREE.BoxGeometry(
+      1.2,
+      8,
+      1.2
+    ),
+    wallMaterial
+  );
+
+  column.position.set(
+    x,
+    4,
+    z
+  );
+
+  scene.add(column);
+
+  const light = new THREE.PointLight(
+    0x00eaff,
+    2,
+    8
+  );
+
+  light.position.set(
+    x,
+    6,
+    z
+  );
+
+  scene.add(light);
+}
+
+for (let x = -18; x <= 18; x += 9) {
+
+  createColumn(
+    x,
+    -18
+  );
+
+  createColumn(
+    x,
+    18
+  );
+}
+
+/* =========================================================
    AFTERLIGHT CORE
-========================= */
+========================================================= */
 
-const coreGeometry =
-  new THREE.CylinderGeometry(
-    3,
-    3,
-    7,
-    64
-  );
+const coreGroup =
+  new THREE.Group();
 
-const coreMaterial =
-  new THREE.MeshStandardMaterial({
-    color: 0x061b24,
-    emissive: 0x00d9ff,
-    emissiveIntensity: 2.2,
-    metalness: 0.8,
-    roughness: 0.2
-  });
+scene.add(coreGroup);
 
-const core =
-  new THREE.Mesh(
-    coreGeometry,
-    coreMaterial
-  );
+const core = new THREE.Mesh(
+  new THREE.IcosahedronGeometry(
+    2.2,
+    2
+  ),
+  cyanMaterial
+);
 
-core.position.y = 3.5;
+core.position.y = 3;
 
-scene.add(core);
-
-
-/* =========================
-   CORE RINGS
-========================= */
+coreGroup.add(core);
 
 for (let i = 0; i < 3; i++) {
 
-  const ringGeometry =
+  const ring = new THREE.Mesh(
     new THREE.TorusGeometry(
-      4 + i * 0.8,
+      3.2 + i * 1.1,
       0.08,
       16,
-      100
-    );
+      80
+    ),
+    cyanMaterial
+  );
 
-  const ringMaterial =
-    new THREE.MeshBasicMaterial({
-      color: 0x00eaff
-    });
-
-  const ring =
-    new THREE.Mesh(
-      ringGeometry,
-      ringMaterial
-    );
-
-  ring.position.y =
-    1.5 + i * 2;
+  ring.position.y = 3;
 
   ring.rotation.x =
-    Math.PI / 2;
+    Math.PI / 2 +
+    i * 0.5;
 
-  scene.add(ring);
+  coreGroup.add(ring);
 }
 
+/* =========================================================
+   PLAYER SYSTEM
+========================================================= */
 
-/* =========================
-   LOCAL PLAYER
-========================= */
-
-const playerGeometry =
-  new THREE.CapsuleGeometry(
-    0.45,
-    1,
-    8,
-    16
-  );
-
-const playerMaterial =
-  new THREE.MeshStandardMaterial({
-    color: 0x00d9ff,
-    emissive: 0x003344,
-    metalness: 0.5,
-    roughness: 0.35
-  });
-
-const player =
-  new THREE.Mesh(
-    playerGeometry,
-    playerMaterial
-  );
-
-player.position.set(
-  0,
-  1,
-  8
-);
-
-scene.add(player);
-
-
-/* =========================
-   OTHER PLAYERS
-========================= */
-
-const otherPlayers =
-  new Map();
-
-
-function createOtherPlayer(data) {
-
-  if (otherPlayers.has(data.id)) {
-    return otherPlayers.get(data.id);
-  }
-
-  const geometry =
-    new THREE.CapsuleGeometry(
-      0.45,
-      1,
-      8,
-      16
-    );
-
-  const material =
-    new THREE.MeshStandardMaterial({
-      color: 0xff4fd8,
-      emissive: 0x330022,
-      metalness: 0.4,
-      roughness: 0.4
-    });
-
-  const mesh =
-    new THREE.Mesh(
-      geometry,
-      material
-    );
-
-  mesh.position.set(
-    data.x || 0,
-    data.y || 1,
-    data.z || 0
-  );
-
-  scene.add(mesh);
-
-  otherPlayers.set(
-    data.id,
-    mesh
-  );
-
-  return mesh;
-}
-
-
-function updatePlayers(list) {
-
-  const activeIds =
-    new Set();
-
-  for (const data of list) {
-
-    activeIds.add(data.id);
-
-    if (data.id === myId) {
-      continue;
-    }
-
-    const mesh =
-      createOtherPlayer(data);
-
-    mesh.position.set(
-      data.x,
-      data.y,
-      data.z
-    );
-  }
-
-  for (
-    const [id, mesh]
-    of otherPlayers
-  ) {
-
-    if (!activeIds.has(id)) {
-
-      scene.remove(mesh);
-
-      otherPlayers.delete(id);
-    }
-  }
-
-  document.getElementById(
-    "players"
-  ).textContent =
-    "Players: " + list.length;
-}
-
-
-/* =========================
-   MULTIPLAYER
-========================= */
-
-let socket = null;
+const players = new Map();
 
 let myId = null;
 
-const SERVER =
-  "wss://afterlightgame.sajjubhat99.workers.dev/ws";
+let myPlayer = null;
 
+const playerMeshes =
+  new Map();
 
-function connectMultiplayer() {
+function createPlayerMesh(
+  color = 0x00eaff
+) {
+
+  const group =
+    new THREE.Group();
+
+  const body = new THREE.Mesh(
+    new THREE.CapsuleGeometry(
+      0.45,
+      1.1,
+      8,
+      16
+    ),
+    new THREE.MeshStandardMaterial({
+      color,
+      emissive: color,
+      emissiveIntensity: 0.3,
+      metalness: 0.4,
+      roughness: 0.4
+    })
+  );
+
+  body.position.y = 1;
+
+  body.castShadow = true;
+
+  group.add(body);
+
+  return group;
+}
+
+function updatePlayerMesh(
+  data
+) {
+
+  let mesh =
+    playerMeshes.get(data.id);
+
+  if (!mesh) {
+
+    const color =
+      data.id === myId
+        ? 0x00eaff
+        : 0xff3f91;
+
+    mesh =
+      createPlayerMesh(color);
+
+    scene.add(mesh);
+
+    playerMeshes.set(
+      data.id,
+      mesh
+    );
+  }
+
+  mesh.position.set(
+    data.x,
+    data.y - 1,
+    data.z
+  );
+
+  if (!data.alive) {
+    mesh.visible = false;
+  } else {
+    mesh.visible = true;
+  }
+}
+
+/* =========================================================
+   CAMERA / MOVEMENT
+========================================================= */
+
+const keys = {};
+
+let yaw = 0;
+let pitch = 0;
+
+const speed = 0.13;
+
+window.addEventListener(
+  "keydown",
+  event => {
+    keys[event.code] = true;
+  }
+);
+
+window.addEventListener(
+  "keyup",
+  event => {
+    keys[event.code] = false;
+  }
+);
+
+renderer.domElement.addEventListener(
+  "click",
+  () => {
+
+    if (
+      document.pointerLockElement !==
+      renderer.domElement
+    ) {
+
+      renderer.domElement.requestPointerLock();
+    }
+  }
+);
+
+document.addEventListener(
+  "mousemove",
+  event => {
+
+    if (
+      document.pointerLockElement !==
+      renderer.domElement
+    ) {
+      return;
+    }
+
+    yaw -= event.movementX * 0.002;
+
+    pitch -= event.movementY * 0.002;
+
+    pitch = Math.max(
+      -1.2,
+      Math.min(
+        1.2,
+        pitch
+      )
+    );
+  }
+);
+
+function updateMovement() {
+
+  if (!myPlayer) {
+    return;
+  }
+
+  let dx = 0;
+  let dz = 0;
+
+  if (
+    keys["KeyW"] ||
+    keys["ArrowUp"]
+  ) {
+    dz -= 1;
+  }
+
+  if (
+    keys["KeyS"] ||
+    keys["ArrowDown"]
+  ) {
+    dz += 1;
+  }
+
+  if (
+    keys["KeyA"] ||
+    keys["ArrowLeft"]
+  ) {
+    dx -= 1;
+  }
+
+  if (
+    keys["KeyD"] ||
+    keys["ArrowRight"]
+  ) {
+    dx += 1;
+  }
+
+  if (
+    dx === 0 &&
+    dz === 0
+  ) {
+    return;
+  }
+
+  const length =
+    Math.sqrt(
+      dx * dx +
+      dz * dz
+    );
+
+  dx /= length;
+  dz /= length;
+
+  const sin =
+    Math.sin(yaw);
+
+  const cos =
+    Math.cos(yaw);
+
+  const worldX =
+    dx * cos -
+    dz * sin;
+
+  const worldZ =
+    dx * sin +
+    dz * cos;
+
+  myPlayer.x +=
+    worldX * speed;
+
+  myPlayer.z +=
+    worldZ * speed;
+
+  myPlayer.x =
+    Math.max(
+      -22,
+      Math.min(
+        22,
+        myPlayer.x
+      )
+    );
+
+  myPlayer.z =
+    Math.max(
+      -22,
+      Math.min(
+        22,
+        myPlayer.z
+      )
+    );
+
+  send({
+    type: "move",
+    x: myPlayer.x,
+    y: myPlayer.y,
+    z: myPlayer.z
+  });
+}
+
+function updateCamera() {
+
+  if (!myPlayer) {
+    return;
+  }
+
+  const target =
+    new THREE.Vector3(
+      myPlayer.x,
+      myPlayer.y + 1.3,
+      myPlayer.z
+    );
+
+  camera.position.lerp(
+    target,
+    0.15
+  );
+
+  camera.rotation.order =
+    "YXZ";
+
+  camera.rotation.y =
+    yaw;
+
+  camera.rotation.x =
+    pitch;
+}
+
+/* =========================================================
+   WEBSOCKET
+========================================================= */
+
+let socket = null;
+
+function connect() {
 
   socket =
     new WebSocket(SERVER);
@@ -500,184 +1155,728 @@ function connectMultiplayer() {
     "open",
     () => {
 
-      document.getElementById(
-        "status"
-      ).textContent =
-        "● Multiplayer connected";
+      document
+        .getElementById(
+          "connection"
+        )
+        .textContent =
+        "CONNECTED";
 
-      socket.send(
-        JSON.stringify({
-          type: "join",
-          name: "YOU"
-        })
-      );
+      document
+        .getElementById(
+          "message"
+        )
+        .textContent =
+        "Connected. Enter your competitor identity.";
+
     }
   );
-
 
   socket.addEventListener(
     "message",
     event => {
 
-      try {
+      let message;
 
-        const message =
+      try {
+        message =
           JSON.parse(
             event.data
           );
+      } catch {
+        return;
+      }
 
-        if (
-          message.type ===
-          "welcome"
-        ) {
+      if (
+        message.type ===
+        "welcome"
+      ) {
 
-          myId =
-            message.id;
+        myId =
+          message.id;
 
-          updatePlayers(
-            message.players
-          );
-        }
+        myPlayer =
+          message.player;
 
-        if (
-          message.type ===
-          "players"
-        ) {
+        updateRoom(
+          message.room
+        );
 
-          updatePlayers(
-            message.players
-          );
-        }
+        document
+          .getElementById(
+            "message"
+          )
+          .textContent =
+          "Connection established.";
+      }
 
-      } catch (error) {
+      if (
+        message.type ===
+        "state"
+      ) {
 
-        console.error(
-          "Server message error:",
-          error
+        updateRoom(
+          message.room
         );
       }
+
     }
   );
-
 
   socket.addEventListener(
     "close",
     () => {
 
-      document.getElementById(
-        "status"
-      ).textContent =
-        "○ Multiplayer disconnected";
-
+      document
+        .getElementById(
+          "connection"
+        )
+        .textContent =
+        "DISCONNECTED";
     }
   );
-
 
   socket.addEventListener(
     "error",
     () => {
 
-      document.getElementById(
-        "status"
-      ).textContent =
-        "⚠ Multiplayer connection error";
-
+      document
+        .getElementById(
+          "connection"
+        )
+        .textContent =
+        "CONNECTION ERROR";
     }
   );
 }
 
+function send(message) {
 
-connectMultiplayer();
+  if (
+    socket &&
+    socket.readyState ===
+    WebSocket.OPEN
+  ) {
 
-
-/* =========================
-   MOVEMENT
-========================= */
-
-const keys = {};
-
-window.addEventListener(
-  "keydown",
-  event => {
-
-    keys[event.code] = true;
+    socket.send(
+      JSON.stringify(
+        message
+      )
+    );
   }
-);
+}
 
+/* =========================================================
+   ROOM STATE
+========================================================= */
 
-window.addEventListener(
-  "keyup",
-  event => {
+function updateRoom(room) {
 
-    keys[event.code] = false;
+  if (!room) {
+    return;
   }
-);
 
+  document
+    .getElementById(
+      "phase"
+    )
+    .textContent =
+    room.phase;
 
-/* =========================
-   MOUSE LOOK
-========================= */
+  document
+    .getElementById(
+      "playerCount"
+    )
+    .textContent =
+    `${room.players.length}/16`;
 
-let yaw = 0;
+  if (
+    room.challenge
+  ) {
 
-let pitch = -0.15;
+    document
+      .getElementById(
+        "challenge"
+      )
+      .textContent =
+      room.challenge.name;
+  } else {
 
-document.body.addEventListener(
-  "click",
-  () => {
-
-    if (
-      document.pointerLockElement !==
-      document.body
-    ) {
-
-      document.body.requestPointerLock();
-
-    }
-
+    document
+      .getElementById(
+        "challenge"
+      )
+      .textContent =
+      "No active challenge";
   }
-);
 
+  room.players.forEach(
+    player => {
 
-document.addEventListener(
-  "mousemove",
-  event => {
-
-    if (
-      document.pointerLockElement !==
-      document.body
-    ) {
-      return;
-    }
-
-    yaw -=
-      event.movementX * 0.002;
-
-    pitch -=
-      event.movementY * 0.002;
-
-    pitch =
-      Math.max(
-        -1.2,
-        Math.min(
-          0.7,
-          pitch
-        )
+      players.set(
+        player.id,
+        player
       );
 
+      updatePlayerMesh(
+        player
+      );
+
+      if (
+        player.id === myId
+      ) {
+
+        myPlayer =
+          player;
+
+        document
+          .getElementById(
+            "credits"
+          )
+          .textContent =
+          player.credits;
+
+        document
+          .getElementById(
+            "influence"
+          )
+          .textContent =
+          player.influence;
+
+        document
+          .getElementById(
+            "trust"
+          )
+          .textContent =
+          player.trust;
+
+        document
+          .getElementById(
+            "energy"
+          )
+          .textContent =
+          player.energy;
+      }
+    }
+  );
+
+  renderPlayers(
+    room.players
+  );
+
+  renderVotes(
+    room.players,
+    room.phase
+  );
+
+  renderLogs(
+    room.log
+  );
+}
+
+/* =========================================================
+   UI
+========================================================= */
+
+function renderPlayers(
+  list
+) {
+
+  const container =
+    document.getElementById(
+      "players"
+    );
+
+  container.innerHTML = "";
+
+  list.forEach(
+    player => {
+
+      const row =
+        document.createElement(
+          "div"
+        );
+
+      row.className =
+        "player" +
+        (
+          player.alive
+            ? ""
+            : " dead"
+        );
+
+      row.innerHTML = `
+        <div>
+          <div class="playerName">
+            ${escapeHTML(player.name)}
+          </div>
+          <div class="playerRole">
+            ${escapeHTML(player.role)}
+          </div>
+        </div>
+        <div>
+          ${player.alive ? "ALIVE" : "OUT"}
+        </div>
+      `;
+
+      container.appendChild(
+        row
+      );
+    }
+  );
+}
+
+function renderVotes(
+  list,
+  phase
+) {
+
+  const container =
+    document.getElementById(
+      "voteButtons"
+    );
+
+  container.innerHTML = "";
+
+  if (
+    phase !== "VOTING"
+  ) {
+    return;
+  }
+
+  list.forEach(
+    player => {
+
+      if (
+        !player.alive ||
+        player.id === myId
+      ) {
+        return;
+      }
+
+      const button =
+        document.createElement(
+          "button"
+        );
+
+      button.textContent =
+        `VOTE ${player.name}`;
+
+      button.addEventListener(
+        "click",
+        () => {
+
+          send({
+            type: "vote",
+            targetId:
+              player.id
+          });
+
+        }
+      );
+
+      container.appendChild(
+        button
+      );
+    }
+  );
+}
+
+function renderLogs(
+  log
+) {
+
+  const container =
+    document.getElementById(
+      "logs"
+    );
+
+  container.innerHTML = "";
+
+  const items =
+    Array.isArray(log)
+      ? log.slice(-12)
+      : [];
+
+  items.forEach(
+    item => {
+
+      const row =
+        document.createElement(
+          "div"
+        );
+
+      row.className =
+        "log";
+
+      row.textContent =
+        typeof item ===
+        "string"
+          ? item
+          : item.text;
+
+      container.appendChild(
+        row
+      );
+    }
+  );
+
+  container.scrollTop =
+    container.scrollHeight;
+}
+
+function escapeHTML(
+  value
+) {
+
+  return String(value)
+    .replaceAll(
+      "&",
+      "&amp;"
+    )
+    .replaceAll(
+      "<",
+      "&lt;"
+    )
+    .replaceAll(
+      ">",
+      "&gt;"
+    )
+    .replaceAll(
+      '"',
+      "&quot;"
+    );
+}
+
+/* =========================================================
+   BUTTONS
+========================================================= */
+
+document
+  .getElementById(
+    "joinBtn"
+  )
+  .addEventListener(
+    "click",
+    () => {
+
+      const name =
+        document
+          .getElementById(
+            "nameInput"
+          )
+          .value
+          .trim() ||
+        "YOU";
+
+      send({
+        type: "join",
+        name
+      });
+
+      document
+        .getElementById(
+          "join"
+        )
+        .style.display =
+        "none";
+
+    }
+  );
+
+document
+  .getElementById(
+    "readyBtn"
+  )
+  .addEventListener(
+    "click",
+    () => {
+
+      send({
+        type: "ready",
+        ready: true
+      });
+
+    }
+  );
+
+document
+  .getElementById(
+    "startBtn"
+  )
+  .addEventListener(
+    "click",
+    () => {
+
+      send({
+        type: "start"
+      });
+
+    }
+  );
+
+document
+  .querySelectorAll(
+    "[data-challenge]"
+  )
+  .forEach(
+    button => {
+
+      button.addEventListener(
+        "click",
+        () => {
+
+          send({
+            type: "challenge",
+            choice:
+              button.dataset
+                .challenge
+          });
+
+        }
+      );
+    }
+  );
+
+document
+  .querySelectorAll(
+    "[data-social]"
+  )
+  .forEach(
+    button => {
+
+      button.addEventListener(
+        "click",
+        () => {
+
+          send({
+            type: "social",
+            action:
+              button.dataset
+                .social
+          });
+
+        }
+      );
+    }
+  );
+
+document
+  .getElementById(
+    "missionBtn"
+  )
+  .addEventListener(
+    "click",
+    () => {
+
+      send({
+        type: "mission"
+      });
+
+    }
+  );
+
+document
+  .getElementById(
+    "parallelBtn"
+  )
+  .addEventListener(
+    "click",
+    () => {
+
+      send({
+        type: "parallel"
+      });
+
+    }
+  );
+
+document
+  .getElementById(
+    "architectBtn"
+  )
+  .addEventListener(
+    "click",
+    () => {
+
+      send({
+        type: "architect"
+      });
+
+    }
+  );
+
+document
+  .getElementById(
+    "heistBtn"
+  )
+  .addEventListener(
+    "click",
+    () => {
+
+      send({
+        type: "heist"
+      });
+
+    }
+  );
+
+document
+  .getElementById(
+    "vacationBtn"
+  )
+  .addEventListener(
+    "click",
+    () => {
+
+      send({
+        type: "vacation"
+      });
+
+    }
+  );
+
+/* =========================================================
+   POWER STORE
+========================================================= */
+
+const powers = [
+  ["Power Ring", 150],
+  ["Pulse Watch", 180],
+  ["Gravity Shoes", 200],
+  ["Spectra Visor", 220],
+  ["Phase Jacket", 250],
+  ["Signal Band", 120],
+  ["Influence Chip", 300],
+  ["Shadow Pack", 170],
+  ["Oracle Lens", 260],
+  ["Shield Band", 240]
+];
+
+const powerContainer =
+  document.getElementById(
+    "powers"
+  );
+
+powers.forEach(
+  power => {
+
+    const button =
+      document.createElement(
+        "button"
+      );
+
+    button.textContent =
+      `${power[0]} ${power[1]}`;
+
+    button.addEventListener(
+      "click",
+      () => {
+
+        send({
+          type: "buyPower",
+          power: power[0]
+        });
+
+      }
+    );
+
+    powerContainer.appendChild(
+      button
+    );
   }
 );
 
+/* =========================================================
+   MOBILE MOVEMENT
+========================================================= */
 
-/* =========================
-   GAME LOOP
-========================= */
+document
+  .querySelectorAll(
+    "[data-move]"
+  )
+  .forEach(
+    button => {
+
+      button.addEventListener(
+        "click",
+        () => {
+
+          const direction =
+            button.dataset
+              .move;
+
+          if (!myPlayer) {
+            return;
+          }
+
+          const amount =
+            1;
+
+          if (
+            direction ===
+            "forward"
+          ) {
+            myPlayer.z -= amount;
+          }
+
+          if (
+            direction ===
+            "back"
+          ) {
+            myPlayer.z += amount;
+          }
+
+          if (
+            direction ===
+            "left"
+          ) {
+            myPlayer.x -= amount;
+          }
+
+          if (
+            direction ===
+            "right"
+          ) {
+            myPlayer.x += amount;
+          }
+
+          myPlayer.x =
+            Math.max(
+              -22,
+              Math.min(
+                22,
+                myPlayer.x
+              )
+            );
+
+          myPlayer.z =
+            Math.max(
+              -22,
+              Math.min(
+                22,
+                myPlayer.z
+              )
+            );
+
+          send({
+            type: "move",
+            x: myPlayer.x,
+            y: myPlayer.y,
+            z: myPlayer.z
+          });
+
+        }
+      );
+    }
+  );
+
+/* =========================================================
+   ANIMATION
+========================================================= */
 
 const clock =
   new THREE.Clock();
-
-let networkTimer = 0;
-
 
 function animate() {
 
@@ -685,156 +1884,37 @@ function animate() {
     animate
   );
 
-  const delta =
-    Math.min(
-      clock.getDelta(),
-      0.05
+  const elapsed =
+    clock.getElapsedTime();
+
+  core.rotation.y =
+    elapsed * 0.35;
+
+  core.rotation.x =
+    Math.sin(elapsed * 0.7) *
+    0.2;
+
+  coreGroup.children
+    .forEach(
+      (object, index) => {
+
+        if (
+          object !== core
+        ) {
+
+          object.rotation.z =
+            elapsed *
+            (0.25 +
+              index *
+              0.1);
+        }
+
+      }
     );
 
+  updateMovement();
 
-  /* Movement */
-
-  const speed =
-    5 * delta;
-
-  const forward =
-    new THREE.Vector3(
-      -Math.sin(yaw),
-      0,
-      -Math.cos(yaw)
-    );
-
-  const right =
-    new THREE.Vector3(
-      Math.cos(yaw),
-      0,
-      -Math.sin(yaw)
-    );
-
-
-  if (keys["KeyW"]) {
-
-    player.position.addScaledVector(
-      forward,
-      speed
-    );
-
-  }
-
-  if (keys["KeyS"]) {
-
-    player.position.addScaledVector(
-      forward,
-      -speed
-    );
-
-  }
-
-  if (keys["KeyA"]) {
-
-    player.position.addScaledVector(
-      right,
-      -speed
-    );
-
-  }
-
-  if (keys["KeyD"]) {
-
-    player.position.addScaledVector(
-      right,
-      speed
-    );
-
-  }
-
-
-  /* Keep inside facility */
-
-  player.position.x =
-    Math.max(
-      -22,
-      Math.min(
-        22,
-        player.position.x
-      )
-    );
-
-  player.position.z =
-    Math.max(
-      -22,
-      Math.min(
-        22,
-        player.position.z
-      )
-    );
-
-
-  /* Send position */
-
-  networkTimer += delta;
-
-  if (
-    networkTimer >= 0.05 &&
-    socket &&
-    socket.readyState ===
-      WebSocket.OPEN
-  ) {
-
-    networkTimer = 0;
-
-    socket.send(
-      JSON.stringify({
-        type: "move",
-        x: player.position.x,
-        y: player.position.y,
-        z: player.position.z
-      })
-    );
-  }
-
-
-  /* Camera */
-
-  const cameraDistance =
-    7;
-
-  const cameraHeight =
-    3.5;
-
-  camera.position.x =
-    player.position.x -
-    Math.sin(yaw) *
-    cameraDistance;
-
-  camera.position.y =
-    player.position.y +
-    cameraHeight +
-    Math.sin(pitch) * 2;
-
-  camera.position.z =
-    player.position.z -
-    Math.cos(yaw) *
-    cameraDistance;
-
-
-  const lookTarget =
-    new THREE.Vector3(
-      player.position.x,
-      player.position.y + 1,
-      player.position.z
-    );
-
-  camera.lookAt(
-    lookTarget
-  );
-
-
-  /* Core animation */
-
-  core.rotation.y +=
-    delta * 0.4;
-
+  updateCamera();
 
   renderer.render(
     scene,
@@ -842,13 +1922,9 @@ function animate() {
   );
 }
 
-
-animate();
-
-
-/* =========================
+/* =========================================================
    RESIZE
-========================= */
+========================================================= */
 
 window.addEventListener(
   "resize",
@@ -867,6 +1943,14 @@ window.addEventListener(
 
   }
 );
+
+/* =========================================================
+   START
+========================================================= */
+
+connect();
+
+animate();
 
 </script>
 
