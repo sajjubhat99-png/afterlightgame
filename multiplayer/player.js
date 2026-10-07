@@ -1,14 +1,7 @@
 import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js";
 
 export class AfterlightPlayer {
-
-  constructor(
-    id,
-    name = "Player",
-    role = "Competitor",
-    isLocal = false
-  ) {
-
+  constructor(id, name = "Player", role = "Competitor", isLocal = false) {
     this.id = id;
     this.name = name || "Player";
     this.role = role || "Competitor";
@@ -17,489 +10,895 @@ export class AfterlightPlayer {
     this.position = new THREE.Vector3(0, 0, 0);
     this.targetPosition = new THREE.Vector3(0, 0, 0);
 
-    this.alive = true;
-
     this.group = new THREE.Group();
-    this.group.position.copy(this.position);
+    this.group.name = `player_${this.id}`;
 
-    this.body = null;
-    this.energyCore = null;
-    this.ring = null;
-    this.nameplate = null;
+    this.body = new THREE.Group();
+    this.group.add(this.body);
+
+    this.parts = {};
+    this.walkTime = Math.random() * Math.PI * 2;
+    this.lastPosition = this.position.clone();
+
+    this.style = this.getCharacterStyle();
 
     this.buildCharacter();
     this.buildNameplate();
   }
 
+  getCharacterStyle() {
+    const styles = [
+      {
+        gender: "male",
+        skin: 0xc98b6b,
+        hair: 0x161616,
+        suit: 0x263b52,
+        accent: 0x29d9ff,
+        shoes: 0x11151b,
+        hairStyle: "short"
+      },
+      {
+        gender: "female",
+        skin: 0xd99a78,
+        hair: 0x21150f,
+        suit: 0x402f55,
+        accent: 0xff58d0,
+        shoes: 0x141018,
+        hairStyle: "long"
+      },
+      {
+        gender: "male",
+        skin: 0x9b6549,
+        hair: 0x090909,
+        suit: 0x193d39,
+        accent: 0x46ffd4,
+        shoes: 0x101514,
+        hairStyle: "fade"
+      },
+      {
+        gender: "female",
+        skin: 0xb87955,
+        hair: 0x321d16,
+        suit: 0x473b24,
+        accent: 0xffc857,
+        shoes: 0x17140e,
+        hairStyle: "ponytail"
+      },
+      {
+        gender: "male",
+        skin: 0xe0aa86,
+        hair: 0x3b2416,
+        suit: 0x29334b,
+        accent: 0x7895ff,
+        shoes: 0x11131b,
+        hairStyle: "medium"
+      },
+      {
+        gender: "female",
+        skin: 0x75462f,
+        hair: 0x120c0b,
+        suit: 0x452f32,
+        accent: 0xff6f91,
+        shoes: 0x160e10,
+        hairStyle: "bob"
+      },
+      {
+        gender: "male",
+        skin: 0x6e432e,
+        hair: 0x21130d,
+        suit: 0x283d29,
+        accent: 0x7dff67,
+        shoes: 0x101510,
+        hairStyle: "curly"
+      },
+      {
+        gender: "female",
+        skin: 0xe0a982,
+        hair: 0x56331d,
+        suit: 0x303b54,
+        accent: 0x68a7ff,
+        shoes: 0x10141b,
+        hairStyle: "long"
+      }
+    ];
 
-  /* =========================================
-     CHARACTER
-     ========================================= */
+    let hash = 0;
 
-  buildCharacter() {
+    for (let i = 0; i < this.id.length; i++) {
+      hash = ((hash << 5) - hash) + this.id.charCodeAt(i);
+      hash |= 0;
+    }
 
-    const roleColors = {
+    return styles[Math.abs(hash) % styles.length];
+  }
 
-      Champion: 0xffcc33,
-      Strategist: 0x00e5ff,
-      Leader: 0xff5577,
-      "Social Player": 0xff66cc,
-      Ghost: 0x8888ff,
-      Cipher: 0x66ffcc,
-      Observer: 0xbb88ff,
-      Tracker: 0xff8844,
-      Competitor: 0x00e5ff
+  material(color, roughness = 0.65, metalness = 0.05) {
+    return new THREE.MeshStandardMaterial({
+      color,
+      roughness,
+      metalness
+    });
+  }
 
-    };
-
-    const color =
-      roleColors[this.role] || 0x00e5ff;
-
-
-    const bodyMaterial =
-      new THREE.MeshStandardMaterial({
-
-        color,
-        metalness: 0.75,
-        roughness: 0.28,
-        emissive: color,
-        emissiveIntensity: 0.08
-
-      });
-
-
-    const darkMaterial =
-      new THREE.MeshStandardMaterial({
-
-        color: 0x101820,
-        metalness: 0.8,
-        roughness: 0.25
-
-      });
-
-
-    /* BODY */
-
-    const bodyGeometry =
-      new THREE.CapsuleGeometry(
-        0.55,
-        1.25,
-        8,
-        16
-      );
-
-    this.body =
-      new THREE.Mesh(
-        bodyGeometry,
-        bodyMaterial
-      );
-
-    this.body.position.y = 1.15;
-
-    this.group.add(this.body);
-
-
-    /* CHEST */
-
-    const chestGeometry =
-      new THREE.BoxGeometry(
-        0.85,
-        0.75,
-        0.38
-      );
-
-    const chest =
-      new THREE.Mesh(
-        chestGeometry,
-        darkMaterial
-      );
-
-    chest.position.set(
-      0,
-      1.35,
-      0.38
+  createBox(name, size, color, position) {
+    const geometry = new THREE.BoxGeometry(
+      size.x,
+      size.y,
+      size.z
     );
 
-    this.group.add(chest);
+    const mesh = new THREE.Mesh(
+      geometry,
+      this.material(color)
+    );
 
+    mesh.name = name;
+    mesh.position.copy(position);
 
-    /* HEAD */
+    this.body.add(mesh);
 
-    const headGeometry =
+    return mesh;
+  }
+
+  createSphere(name, radius, color, position, scale = null) {
+    const geometry = new THREE.SphereGeometry(
+      radius,
+      16,
+      12
+    );
+
+    const mesh = new THREE.Mesh(
+      geometry,
+      this.material(color)
+    );
+
+    mesh.name = name;
+    mesh.position.copy(position);
+
+    if (scale) {
+      mesh.scale.copy(scale);
+    }
+
+    this.body.add(mesh);
+
+    return mesh;
+  }
+
+  buildCharacter() {
+    const s = this.style;
+
+    const skin = this.material(s.skin, 0.8, 0);
+    const hair = this.material(s.hair, 0.5, 0);
+    const suit = this.material(s.suit, 0.62, 0.1);
+    const accent = this.material(s.accent, 0.35, 0.25);
+    const shoes = this.material(s.shoes, 0.5, 0.15);
+
+    /*
+      BODY
+    */
+
+    const torsoGeometry = new THREE.CapsuleGeometry(
+      s.gender === "female" ? 0.43 : 0.46,
+      0.85,
+      6,
+      12
+    );
+
+    const torso = new THREE.Mesh(
+      torsoGeometry,
+      suit
+    );
+
+    torso.position.y = 1.25;
+    torso.scale.z = 0.72;
+
+    this.body.add(torso);
+    this.parts.torso = torso;
+
+    /*
+      NECK
+    */
+
+    const neck = new THREE.Mesh(
+      new THREE.CylinderGeometry(
+        0.13,
+        0.15,
+        0.22,
+        12
+      ),
+      skin
+    );
+
+    neck.position.y = 1.84;
+
+    this.body.add(neck);
+
+    /*
+      HEAD
+    */
+
+    const head = new THREE.Mesh(
       new THREE.SphereGeometry(
-        0.43,
+        0.36,
         20,
         16
-      );
+      ),
+      skin
+    );
 
-    const head =
-      new THREE.Mesh(
-        headGeometry,
-        darkMaterial
-      );
+    head.position.y = 2.17;
+    head.scale.set(
+      0.92,
+      1.08,
+      0.92
+    );
 
-    head.position.y = 2.15;
+    this.body.add(head);
+    this.parts.head = head;
 
-    this.group.add(head);
+    /*
+      EARS
+    */
 
+    const earGeometry = new THREE.SphereGeometry(
+      0.075,
+      10,
+      8
+    );
 
-    /* VISOR */
+    const leftEar = new THREE.Mesh(
+      earGeometry,
+      skin
+    );
 
-    const visorGeometry =
-      new THREE.BoxGeometry(
-        0.58,
-        0.18,
-        0.48
-      );
+    const rightEar = new THREE.Mesh(
+      earGeometry,
+      skin
+    );
 
-    const visorMaterial =
-      new THREE.MeshStandardMaterial({
+    leftEar.position.set(
+      -0.345,
+      2.18,
+      0
+    );
 
-        color,
-        emissive: color,
-        emissiveIntensity: 0.8,
-        metalness: 0.3,
-        roughness: 0.15
+    rightEar.position.set(
+      0.345,
+      2.18,
+      0
+    );
 
-      });
+    this.body.add(leftEar);
+    this.body.add(rightEar);
 
-    const visor =
-      new THREE.Mesh(
-        visorGeometry,
-        visorMaterial
-      );
+    /*
+      EYES
+    */
 
-    visor.position.set(
+    const eyeMaterial = new THREE.MeshStandardMaterial({
+      color: 0x111111,
+      roughness: 0.3
+    });
+
+    const eyeGeometry = new THREE.SphereGeometry(
+      0.045,
+      8,
+      8
+    );
+
+    const leftEye = new THREE.Mesh(
+      eyeGeometry,
+      eyeMaterial
+    );
+
+    const rightEye = new THREE.Mesh(
+      eyeGeometry,
+      eyeMaterial
+    );
+
+    leftEye.position.set(
+      -0.125,
+      2.22,
+      0.335
+    );
+
+    rightEye.position.set(
+      0.125,
+      2.22,
+      0.335
+    );
+
+    this.body.add(leftEye);
+    this.body.add(rightEye);
+
+    /*
+      NOSE
+    */
+
+    const nose = new THREE.Mesh(
+      new THREE.ConeGeometry(
+        0.045,
+        0.12,
+        8
+      ),
+      skin
+    );
+
+    nose.rotation.x = Math.PI / 2;
+
+    nose.position.set(
       0,
-      2.16,
+      2.13,
       0.36
     );
 
-    this.group.add(visor);
+    this.body.add(nose);
 
+    /*
+      MOUTH
+    */
 
-    /* SHOULDERS */
+    const mouth = new THREE.Mesh(
+      new THREE.BoxGeometry(
+        0.13,
+        0.025,
+        0.025
+      ),
+      this.material(0x592d35, 0.8, 0)
+    );
 
-    const shoulderGeometry =
+    mouth.position.set(
+      0,
+      2.03,
+      0.345
+    );
+
+    this.body.add(mouth);
+
+    /*
+      HAIR
+    */
+
+    this.createHair();
+
+    /*
+      SHOULDERS
+    */
+
+    const shoulderGeometry = new THREE.SphereGeometry(
+      0.22,
+      12,
+      10
+    );
+
+    const leftShoulder = new THREE.Mesh(
+      shoulderGeometry,
+      suit
+    );
+
+    const rightShoulder = new THREE.Mesh(
+      shoulderGeometry,
+      suit
+    );
+
+    leftShoulder.position.set(
+      -0.5,
+      1.55,
+      0
+    );
+
+    rightShoulder.position.set(
+      0.5,
+      1.55,
+      0
+    );
+
+    this.body.add(leftShoulder);
+    this.body.add(rightShoulder);
+
+    /*
+      ARMS
+    */
+
+    const armGeometry = new THREE.CapsuleGeometry(
+      0.115,
+      0.63,
+      5,
+      8
+    );
+
+    const leftArm = new THREE.Mesh(
+      armGeometry,
+      suit
+    );
+
+    const rightArm = new THREE.Mesh(
+      armGeometry,
+      suit
+    );
+
+    leftArm.position.set(
+      -0.56,
+      1.2,
+      0
+    );
+
+    rightArm.position.set(
+      0.56,
+      1.2,
+      0
+    );
+
+    this.body.add(leftArm);
+    this.body.add(rightArm);
+
+    this.parts.leftArm = leftArm;
+    this.parts.rightArm = rightArm;
+
+    /*
+      HANDS
+    */
+
+    const handGeometry = new THREE.SphereGeometry(
+      0.12,
+      12,
+      8
+    );
+
+    const leftHand = new THREE.Mesh(
+      handGeometry,
+      skin
+    );
+
+    const rightHand = new THREE.Mesh(
+      handGeometry,
+      skin
+    );
+
+    leftHand.position.set(
+      -0.56,
+      0.79,
+      0
+    );
+
+    rightHand.position.set(
+      0.56,
+      0.79,
+      0
+    );
+
+    this.body.add(leftHand);
+    this.body.add(rightHand);
+
+    /*
+      WAIST
+    */
+
+    const waist = new THREE.Mesh(
+      new THREE.CylinderGeometry(
+        0.35,
+        0.4,
+        0.22,
+        12
+      ),
+      suit
+    );
+
+    waist.position.y = 0.78;
+
+    this.body.add(waist);
+
+    /*
+      LEGS
+    */
+
+    const legGeometry = new THREE.CapsuleGeometry(
+      0.15,
+      0.72,
+      5,
+      8
+    );
+
+    const leftLeg = new THREE.Mesh(
+      legGeometry,
+      suit
+    );
+
+    const rightLeg = new THREE.Mesh(
+      legGeometry,
+      suit
+    );
+
+    leftLeg.position.set(
+      -0.21,
+      0.35,
+      0
+    );
+
+    rightLeg.position.set(
+      0.21,
+      0.35,
+      0
+    );
+
+    this.body.add(leftLeg);
+    this.body.add(rightLeg);
+
+    this.parts.leftLeg = leftLeg;
+    this.parts.rightLeg = rightLeg;
+
+    /*
+      SHOES
+    */
+
+    const shoeGeometry = new THREE.BoxGeometry(
+      0.28,
+      0.16,
+      0.48
+    );
+
+    const leftShoe = new THREE.Mesh(
+      shoeGeometry,
+      shoes
+    );
+
+    const rightShoe = new THREE.Mesh(
+      shoeGeometry,
+      shoes
+    );
+
+    leftShoe.position.set(
+      -0.21,
+      -0.04,
+      0.08
+    );
+
+    rightShoe.position.set(
+      0.21,
+      -0.04,
+      0.08
+    );
+
+    this.body.add(leftShoe);
+    this.body.add(rightShoe);
+
+    /*
+      FUTURISTIC CHEST PANEL
+    */
+
+    const chestPanel = new THREE.Mesh(
+      new THREE.BoxGeometry(
+        0.28,
+        0.36,
+        0.035
+      ),
+      accent
+    );
+
+    chestPanel.position.set(
+      0,
+      1.36,
+      0.34
+    );
+
+    this.body.add(chestPanel);
+
+    /*
+      WAIST LIGHT
+    */
+
+    const belt = new THREE.Mesh(
+      new THREE.BoxGeometry(
+        0.68,
+        0.06,
+        0.42
+      ),
+      accent
+    );
+
+    belt.position.y = 0.83;
+
+    this.body.add(belt);
+
+    /*
+      SHOULDER LIGHTS
+    */
+
+    const shoulderLightGeometry =
       new THREE.SphereGeometry(
-        0.23,
-        12,
+        0.055,
+        10,
         8
       );
 
-
-    const leftShoulder =
-      new THREE.Mesh(
-        shoulderGeometry,
-        bodyMaterial
-      );
-
-    leftShoulder.position.set(
-      -0.67,
-      1.45,
-      0
-    );
-
-    this.group.add(leftShoulder);
-
-
-    const rightShoulder =
-      new THREE.Mesh(
-        shoulderGeometry,
-        bodyMaterial
-      );
-
-    rightShoulder.position.set(
-      0.67,
-      1.45,
-      0
-    );
-
-    this.group.add(rightShoulder);
-
-
-    /* ARMS */
-
-    const armGeometry =
-      new THREE.CapsuleGeometry(
-        0.16,
-        0.65,
-        6,
-        10
-      );
-
-
-    const leftArm =
-      new THREE.Mesh(
-        armGeometry,
-        darkMaterial
-      );
-
-    leftArm.position.set(
-      -0.67,
-      0.95,
-      0
-    );
-
-    leftArm.rotation.z = -0.08;
-
-    this.group.add(leftArm);
-
-
-    const rightArm =
-      new THREE.Mesh(
-        armGeometry,
-        darkMaterial
-      );
-
-    rightArm.position.set(
-      0.67,
-      0.95,
-      0
-    );
-
-    rightArm.rotation.z = 0.08;
-
-    this.group.add(rightArm);
-
-
-    /* LEGS */
-
-    const legGeometry =
-      new THREE.CapsuleGeometry(
-        0.18,
-        0.7,
-        6,
-        10
-      );
-
-
-    const leftLeg =
-      new THREE.Mesh(
-        legGeometry,
-        darkMaterial
-      );
-
-    leftLeg.position.set(
-      -0.28,
-      0.15,
-      0
-    );
-
-    this.group.add(leftLeg);
-
-
-    const rightLeg =
-      new THREE.Mesh(
-        legGeometry,
-        darkMaterial
-      );
-
-    rightLeg.position.set(
-      0.28,
-      0.15,
-      0
-    );
-
-    this.group.add(rightLeg);
-
-
-    /* ENERGY CORE */
-
-    const coreGeometry =
-      new THREE.SphereGeometry(
-        0.13,
-        16,
-        16
-      );
-
-    const coreMaterial =
-      new THREE.MeshBasicMaterial({
-        color
+    const lightMaterial =
+      new THREE.MeshStandardMaterial({
+        color: s.accent,
+        emissive: s.accent,
+        emissiveIntensity: 2
       });
 
-    this.energyCore =
-      new THREE.Mesh(
-        coreGeometry,
-        coreMaterial
-      );
-
-    this.energyCore.position.set(
-      0,
-      1.35,
-      0.61
+    const leftLight = new THREE.Mesh(
+      shoulderLightGeometry,
+      lightMaterial
     );
 
-    this.group.add(
-      this.energyCore
+    const rightLight = new THREE.Mesh(
+      shoulderLightGeometry,
+      lightMaterial
     );
 
-
-    /* GROUND RING */
-
-    const ringGeometry =
-      new THREE.RingGeometry(
-        0.7,
-        0.78,
-        40
-      );
-
-    const ringMaterial =
-      new THREE.MeshBasicMaterial({
-
-        color,
-        transparent: true,
-        opacity: this.isLocal
-          ? 0.8
-          : 0.35,
-
-        side: THREE.DoubleSide,
-        depthWrite: false
-
-      });
-
-
-    this.ring =
-      new THREE.Mesh(
-        ringGeometry,
-        ringMaterial
-      );
-
-    this.ring.rotation.x =
-      -Math.PI / 2;
-
-    this.ring.position.y =
-      0.03;
-
-    this.group.add(
-      this.ring
+    leftLight.position.set(
+      -0.52,
+      1.58,
+      0.16
     );
 
+    rightLight.position.set(
+      0.52,
+      1.58,
+      0.16
+    );
 
-    /* LOCAL PLAYER GLOW */
+    this.body.add(leftLight);
+    this.body.add(rightLight);
+
+    /*
+      LOCAL PLAYER GLOW
+    */
 
     if (this.isLocal) {
-
-      const glowGeometry =
-        new THREE.SphereGeometry(
-          1.05,
-          24,
-          16
-        );
-
-      const glowMaterial =
+      const ring = new THREE.Mesh(
+        new THREE.RingGeometry(
+          0.58,
+          0.64,
+          32
+        ),
         new THREE.MeshBasicMaterial({
-
-          color,
+          color: s.accent,
           transparent: true,
-          opacity: 0.07,
-          depthWrite: false
+          opacity: 0.75,
+          side: THREE.DoubleSide
+        })
+      );
 
-        });
+      ring.rotation.x = -Math.PI / 2;
+      ring.position.y = 0.03;
 
-      const glow =
-        new THREE.Mesh(
-          glowGeometry,
-          glowMaterial
+      this.group.add(ring);
+      this.parts.localRing = ring;
+    }
+
+    /*
+      PLAYER SHADOW
+    */
+
+    const shadow = new THREE.Mesh(
+      new THREE.CircleGeometry(
+        0.48,
+        24
+      ),
+      new THREE.MeshBasicMaterial({
+        color: 0x000000,
+        transparent: true,
+        opacity: 0.35,
+        depthWrite: false
+      })
+    );
+
+    shadow.rotation.x = -Math.PI / 2;
+    shadow.position.y = 0.02;
+
+    this.group.add(shadow);
+  }
+
+  createHair() {
+    const s = this.style;
+
+    const hairMaterial = this.material(
+      s.hair,
+      0.5,
+      0
+    );
+
+    if (s.hairStyle === "short") {
+      const hair = new THREE.Mesh(
+        new THREE.SphereGeometry(
+          0.37,
+          16,
+          10,
+          0,
+          Math.PI * 2,
+          0,
+          Math.PI * 0.48
+        ),
+        hairMaterial
+      );
+
+      hair.position.y = 2.32;
+      hair.scale.z = 0.95;
+
+      this.body.add(hair);
+    }
+
+    else if (s.hairStyle === "fade") {
+      const top = new THREE.Mesh(
+        new THREE.SphereGeometry(
+          0.34,
+          16,
+          10,
+          0,
+          Math.PI * 2,
+          0,
+          Math.PI * 0.42
+        ),
+        hairMaterial
+      );
+
+      top.position.y = 2.34;
+
+      this.body.add(top);
+    }
+
+    else if (s.hairStyle === "medium") {
+      const hair = new THREE.Mesh(
+        new THREE.SphereGeometry(
+          0.39,
+          16,
+          12
+        ),
+        hairMaterial
+      );
+
+      hair.position.y = 2.3;
+      hair.scale.set(
+        1,
+        0.9,
+        0.95
+      );
+
+      this.body.add(hair);
+    }
+
+    else if (s.hairStyle === "long") {
+      const top = new THREE.Mesh(
+        new THREE.SphereGeometry(
+          0.38,
+          16,
+          12
+        ),
+        hairMaterial
+      );
+
+      top.position.y = 2.3;
+
+      this.body.add(top);
+
+      const leftHair = new THREE.Mesh(
+        new THREE.CapsuleGeometry(
+          0.12,
+          0.52,
+          6,
+          8
+        ),
+        hairMaterial
+      );
+
+      const rightHair = leftHair.clone();
+
+      leftHair.position.set(
+        -0.32,
+        2.05,
+        -0.02
+      );
+
+      rightHair.position.set(
+        0.32,
+        2.05,
+        -0.02
+      );
+
+      this.body.add(leftHair);
+      this.body.add(rightHair);
+    }
+
+    else if (s.hairStyle === "ponytail") {
+      const top = new THREE.Mesh(
+        new THREE.SphereGeometry(
+          0.38,
+          16,
+          12
+        ),
+        hairMaterial
+      );
+
+      top.position.y = 2.3;
+
+      this.body.add(top);
+
+      const pony = new THREE.Mesh(
+        new THREE.CapsuleGeometry(
+          0.13,
+          0.55,
+          6,
+          8
+        ),
+        hairMaterial
+      );
+
+      pony.position.set(
+        0,
+        2.05,
+        -0.28
+      );
+
+      pony.rotation.x = -0.35;
+
+      this.body.add(pony);
+    }
+
+    else if (s.hairStyle === "bob") {
+      const hair = new THREE.Mesh(
+        new THREE.SphereGeometry(
+          0.4,
+          16,
+          12
+        ),
+        hairMaterial
+      );
+
+      hair.position.y = 2.28;
+      hair.scale.y = 0.95;
+
+      this.body.add(hair);
+    }
+
+    else if (s.hairStyle === "curly") {
+      const main = new THREE.Mesh(
+        new THREE.SphereGeometry(
+          0.39,
+          16,
+          12
+        ),
+        hairMaterial
+      );
+
+      main.position.y = 2.31;
+
+      this.body.add(main);
+
+      for (let i = 0; i < 7; i++) {
+        const curl = new THREE.Mesh(
+          new THREE.SphereGeometry(
+            0.12,
+            10,
+            8
+          ),
+          hairMaterial
         );
 
-      glow.position.y =
-        1.2;
+        const angle =
+          (i / 7) * Math.PI * 2;
 
-      this.group.add(glow);
+        curl.position.set(
+          Math.cos(angle) * 0.3,
+          2.29 + Math.sin(i) * 0.04,
+          Math.sin(angle) * 0.25
+        );
+
+        this.body.add(curl);
+      }
     }
   }
 
-
-  /* =========================================
-     NAMEPLATE
-     ========================================= */
-
   buildNameplate() {
-
     const canvas =
-      document.createElement(
-        "canvas"
-      );
+      document.createElement("canvas");
 
-    canvas.width = 1024;
-    canvas.height = 256;
+    canvas.width = 512;
+    canvas.height = 128;
 
-    const ctx =
-      canvas.getContext("2d");
-
-    this.drawNameplate(
-      ctx,
-      canvas
-    );
-
-    const texture =
-      new THREE.CanvasTexture(
-        canvas
-      );
-
-    texture.minFilter =
-      THREE.LinearFilter;
-
-    texture.magFilter =
-      THREE.LinearFilter;
-
-    texture.generateMipmaps =
-      false;
-
-
-    const material =
-      new THREE.SpriteMaterial({
-
-        map: texture,
-        transparent: true,
-
-        depthTest: false,
-        depthWrite: false,
-
-        sizeAttenuation: true
-
-      });
-
-
-    this.nameplate =
-      new THREE.Sprite(
-        material
-      );
-
-
-    this.nameplate.position.set(
-      0,
-      3.35,
-      0
-    );
-
-
-    this.nameplate.scale.set(
-      4.8,
-      1.2,
-      1
-    );
-
-
-    this.nameplate.renderOrder =
-      9999;
-
-
-    this.group.add(
-      this.nameplate
-    );
-  }
-
-
-  /* =========================================
-     DRAW NAMEPLATE
-     ========================================= */
-
-  drawNameplate(
-    ctx,
-    canvas
-  ) {
+    const ctx = canvas.getContext("2d");
 
     ctx.clearRect(
       0,
@@ -508,76 +907,125 @@ export class AfterlightPlayer {
       canvas.height
     );
 
+    /*
+      BACKGROUND
+    */
 
     ctx.fillStyle =
-      "rgba(5,12,20,0.92)";
-
+      "rgba(5,12,20,0.86)";
 
     this.roundRect(
       ctx,
-      20,
-      25,
-      984,
-      206,
-      45
+      8,
+      8,
+      496,
+      112,
+      18
     );
 
     ctx.fill();
 
+    /*
+      BORDER
+    */
 
     ctx.strokeStyle =
-      "#00e5ff";
+      this.isLocal
+        ? "#35e8ff"
+        : "#587080";
 
-    ctx.lineWidth = 6;
-
+    ctx.lineWidth = 4;
 
     this.roundRect(
       ctx,
-      20,
-      25,
-      984,
-      206,
-      45
+      8,
+      8,
+      496,
+      112,
+      18
     );
 
     ctx.stroke();
 
+    /*
+      NAME
+    */
 
-    ctx.textAlign =
-      "center";
-
-    ctx.textBaseline =
-      "middle";
-
+    ctx.textAlign = "center";
 
     ctx.font =
-      "bold 72px Arial";
+      "bold 32px Arial";
 
     ctx.fillStyle =
       "#ffffff";
 
-
     ctx.fillText(
       this.name,
-      512,
-      105
+      256,
+      52
     );
 
+    /*
+      ROLE
+    */
 
     ctx.font =
-      "bold 40px Arial";
+      "20px Arial";
 
     ctx.fillStyle =
-      "#00e5ff";
-
+      this.isLocal
+        ? "#35e8ff"
+        : "#a9c5d4";
 
     ctx.fillText(
       this.role,
-      512,
-      175
+      256,
+      84
     );
-  }
 
+    /*
+      LOCAL LABEL
+    */
+
+    if (this.isLocal) {
+      ctx.font =
+        "bold 16px Arial";
+
+      ctx.fillStyle =
+        "#ffffff";
+
+      ctx.fillText(
+        "YOU",
+        256,
+        106
+      );
+    }
+
+    const texture =
+      new THREE.CanvasTexture(canvas);
+
+    texture.needsUpdate = true;
+
+    const material =
+      new THREE.SpriteMaterial({
+        map: texture,
+        transparent: true,
+        depthTest: false
+      });
+
+    this.nameplate =
+      new THREE.Sprite(material);
+
+    this.nameplate.scale.set(
+      2.4,
+      0.6,
+      1
+    );
+
+    this.nameplate.position.y = 3.05;
+
+    this.group.add(this.nameplate);
+  }
 
   roundRect(
     ctx,
@@ -587,7 +1035,6 @@ export class AfterlightPlayer {
     height,
     radius
   ) {
-
     ctx.beginPath();
 
     ctx.moveTo(
@@ -646,279 +1093,225 @@ export class AfterlightPlayer {
     ctx.closePath();
   }
 
-
-  /* =========================================
-     SERVER UPDATE
-     ========================================= */
-
   updateFromServer(data) {
-
-    if (!data) {
-      return;
-    }
-
-
-    if (data.name) {
-      this.name =
-        data.name;
-    }
-
-
-    if (data.role) {
-      this.role =
-        data.role;
-    }
-
+    if (!data) return;
 
     if (
       typeof data.x === "number" &&
       typeof data.y === "number" &&
       typeof data.z === "number"
     ) {
-
       this.targetPosition.set(
         data.x,
         data.y,
         data.z
       );
 
+      if (this.isLocal) {
+        this.position.set(
+          data.x,
+          data.y,
+          data.z
+        );
+
+        this.group.position.copy(
+          this.position
+        );
+      }
     }
 
+    if (data.name) {
+      this.name = data.name;
+    }
 
-    this.alive =
-      data.alive !== false;
-
-
-    this.refreshNameplate();
-
-    this.nameplate.visible =
-      true;
-
-    this.nameplate.renderOrder =
-      9999;
+    if (data.role) {
+      this.role = data.role;
+    }
   }
-
-
-  /* =========================================
-     REFRESH NAMEPLATE
-     ========================================= */
-
-  refreshNameplate() {
-
-    if (!this.nameplate) {
-      return;
-    }
-
-
-    const canvas =
-      document.createElement(
-        "canvas"
-      );
-
-    canvas.width = 1024;
-    canvas.height = 256;
-
-
-    const ctx =
-      canvas.getContext("2d");
-
-
-    this.drawNameplate(
-      ctx,
-      canvas
-    );
-
-
-    const oldTexture =
-      this.nameplate.material.map;
-
-
-    const newTexture =
-      new THREE.CanvasTexture(
-        canvas
-      );
-
-
-    newTexture.minFilter =
-      THREE.LinearFilter;
-
-    newTexture.magFilter =
-      THREE.LinearFilter;
-
-    newTexture.generateMipmaps =
-      false;
-
-
-    this.nameplate.material.map =
-      newTexture;
-
-    this.nameplate.material.needsUpdate =
-      true;
-
-
-    if (oldTexture) {
-      oldTexture.dispose();
-    }
-
-
-    this.nameplate.visible =
-      true;
-
-    this.nameplate.renderOrder =
-      9999;
-  }
-
-
-  /* =========================================
-     SET POSITION
-     ========================================= */
 
   setLocalPosition(
     x,
     y,
     z
   ) {
-
     this.position.set(
       x,
       y,
       z
     );
 
-
     this.targetPosition.copy(
       this.position
     );
-
 
     this.group.position.copy(
       this.position
     );
   }
 
+  update(delta = 0.016) {
+    /*
+      Remote player interpolation
+    */
 
-  /* =========================================
-     UPDATE
-     ========================================= */
-
-  update(delta) {
-
-    this.group.position.lerp(
-      this.targetPosition,
-      Math.min(
-        delta * 8,
-        1
-      )
-    );
-
-
-    if (this.energyCore) {
-
-      this.energyCore.rotation.y +=
-        delta * 3;
-
-
-      this.energyCore.position.y =
-        1.35 +
-        Math.sin(
-          performance.now() * 0.004
-        ) * 0.035;
-    }
-
-
-    if (this.ring) {
-
-      this.ring.rotation.z +=
-        delta * 0.5;
-    }
-
-
-    if (this.nameplate) {
-
-      this.nameplate.visible =
-        true;
-
-      this.nameplate.renderOrder =
-        9999;
-    }
-
-
-    if (!this.alive) {
-
-      this.group.traverse(
-        object => {
-
-          if (
-            object.material &&
-            object.material.transparent !==
-              undefined
-          ) {
-
-            object.material.transparent =
-              true;
-
-            if (
-              object !==
-              this.nameplate
-            ) {
-
-              object.material.opacity =
-                0.25;
-            }
-          }
-        }
+    if (!this.isLocal) {
+      this.position.lerp(
+        this.targetPosition,
+        Math.min(
+          1,
+          delta * 10
+        )
       );
 
+      this.group.position.copy(
+        this.position
+      );
+    }
 
-      if (this.nameplate) {
+    /*
+      Detect movement
+    */
 
-        this.nameplate.visible =
-          true;
+    const movement =
+      this.position.distanceTo(
+        this.lastPosition
+      );
 
-        this.nameplate.material.opacity =
-          0.65;
+    const moving =
+      movement > 0.001;
+
+    /*
+      Walking animation
+    */
+
+    if (moving) {
+      this.walkTime +=
+        delta * 10;
+
+      const swing =
+        Math.sin(
+          this.walkTime
+        ) * 0.45;
+
+      if (this.parts.leftArm) {
+        this.parts.leftArm.rotation.x =
+          swing;
+      }
+
+      if (this.parts.rightArm) {
+        this.parts.rightArm.rotation.x =
+          -swing;
+      }
+
+      if (this.parts.leftLeg) {
+        this.parts.leftLeg.rotation.x =
+          -swing;
+      }
+
+      if (this.parts.rightLeg) {
+        this.parts.rightLeg.rotation.x =
+          swing;
+      }
+
+      this.body.position.y =
+        Math.abs(
+          Math.sin(
+            this.walkTime * 2
+          )
+        ) * 0.025;
+    }
+
+    /*
+      Idle animation
+    */
+
+    else {
+      this.walkTime +=
+        delta * 1.5;
+
+      const idle =
+        Math.sin(
+          this.walkTime
+        ) * 0.012;
+
+      this.body.position.y =
+        idle;
+
+      if (this.parts.leftArm) {
+        this.parts.leftArm.rotation.x *= 0.9;
+      }
+
+      if (this.parts.rightArm) {
+        this.parts.rightArm.rotation.x *= 0.9;
+      }
+
+      if (this.parts.leftLeg) {
+        this.parts.leftLeg.rotation.x *= 0.9;
+      }
+
+      if (this.parts.rightLeg) {
+        this.parts.rightLeg.rotation.x *= 0.9;
       }
     }
-  }
 
+    /*
+      Local player ring animation
+    */
 
-  /* =========================================
-     REMOVE
-     ========================================= */
+    if (this.parts.localRing) {
+      this.parts.localRing.rotation.z +=
+        delta * 0.8;
 
-  remove() {
+      const pulse =
+        1 +
+        Math.sin(
+          performance.now() * 0.004
+        ) * 0.04;
 
-    if (
-      this.group.parent
-    ) {
-
-      this.group.parent.remove(
-        this.group
+      this.parts.localRing.scale.set(
+        pulse,
+        pulse,
+        pulse
       );
     }
 
+    this.lastPosition.copy(
+      this.position
+    );
+  }
 
+  remove() {
     this.group.traverse(
       object => {
-
         if (object.geometry) {
           object.geometry.dispose();
         }
 
-
-        if (object.material) {
-
+        if (
+          object.material
+        ) {
           if (
-            object.material.map
+            Array.isArray(
+              object.material
+            )
           ) {
-
-            object.material.map.dispose();
+            object.material.forEach(
+              material =>
+                material.dispose()
+            );
+          } else {
+            object.material.dispose();
           }
-
-
-          object.material.dispose();
         }
       }
     );
+
+    if (
+      this.group.parent
+    ) {
+      this.group.parent.remove(
+        this.group
+      );
+    }
   }
 }
