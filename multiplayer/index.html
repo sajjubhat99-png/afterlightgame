@@ -1,75 +1,92 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AFTERLIGHT 3D</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AFTERLIGHT — Multiplayer</title>
 
-<style>
-html,body{
-    margin:0;
-    width:100%;
-    height:100%;
-    overflow:hidden;
-    background:#05070b;
-    font-family:Arial,sans-serif;
-}
+  <style>
+    html, body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #05070a;
+      color: white;
+      font-family: Arial, sans-serif;
+    }
 
-#game{
-    width:100%;
-    height:100%;
-}
+    #hud {
+      position: fixed;
+      top: 18px;
+      left: 18px;
+      z-index: 10;
+      background: rgba(5, 10, 15, 0.75);
+      border: 1px solid rgba(0, 220, 255, 0.35);
+      border-radius: 12px;
+      padding: 14px 18px;
+      backdrop-filter: blur(8px);
+    }
 
-#hud{
-    position:absolute;
-    top:20px;
-    left:20px;
-    z-index:10;
-    color:white;
-    background:rgba(5,10,18,.75);
-    border:1px solid rgba(0,220,255,.35);
-    border-radius:12px;
-    padding:15px 18px;
-    backdrop-filter:blur(8px);
-}
+    #hud h1 {
+      margin: 0 0 6px;
+      font-size: 22px;
+      letter-spacing: 3px;
+    }
 
-#hud h1{
-    margin:0 0 5px;
-    font-size:20px;
-    letter-spacing:3px;
-}
+    #status {
+      font-size: 13px;
+      color: #7eefff;
+    }
 
-#status{
-    color:#8deaff;
-    font-size:13px;
-}
+    #players {
+      margin-top: 8px;
+      font-size: 12px;
+      color: #b8cbd4;
+    }
 
-#instructions{
-    position:absolute;
-    bottom:20px;
-    left:50%;
-    transform:translateX(-50%);
-    color:#aaa;
-    background:rgba(0,0,0,.65);
-    padding:10px 16px;
-    border-radius:8px;
-    font-size:13px;
-    text-align:center;
-}
-</style>
+    #crosshair {
+      position: fixed;
+      left: 50%;
+      top: 50%;
+      width: 8px;
+      height: 8px;
+      margin-left: -4px;
+      margin-top: -4px;
+      border: 1px solid rgba(255,255,255,0.7);
+      border-radius: 50%;
+      z-index: 5;
+      pointer-events: none;
+    }
+
+    #help {
+      position: fixed;
+      bottom: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10;
+      padding: 10px 16px;
+      border-radius: 10px;
+      background: rgba(5, 10, 15, 0.72);
+      color: #b8cbd4;
+      font-size: 13px;
+      text-align: center;
+    }
+  </style>
 </head>
 
 <body>
 
-<div id="game"></div>
-
 <div id="hud">
-    <h1>AFTERLIGHT</h1>
-    <div id="status">3D Multiplayer Foundation</div>
+  <h1>AFTERLIGHT</h1>
+  <div id="status">Connecting...</div>
+  <div id="players">Players: 0</div>
 </div>
 
-<div id="instructions">
-    WASD = Move &nbsp; | &nbsp; Mouse = Look &nbsp; | &nbsp; Click game to control camera
+<div id="crosshair"></div>
+
+<div id="help">
+  WASD = Move · Mouse = Look · Click = Lock Camera
 </div>
 
 <script type="module">
@@ -77,400 +94,778 @@ html,body{
 import * as THREE from
 "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js";
 
+
+/* =========================
+   SCENE
+========================= */
+
 const scene = new THREE.Scene();
 
-scene.background = new THREE.Color(0x05070b);
+scene.background = new THREE.Color(0x05070a);
+
+scene.fog = new THREE.Fog(
+  0x05070a,
+  20,
+  70
+);
+
+
+/* =========================
+   CAMERA
+========================= */
 
 const camera = new THREE.PerspectiveCamera(
-    70,
-    window.innerWidth / window.innerHeight,
-    0.1,
-    1000
+  70,
+  window.innerWidth / window.innerHeight,
+  0.1,
+  200
 );
+
+
+/* =========================
+   RENDERER
+========================= */
 
 const renderer = new THREE.WebGLRenderer({
-    antialias:true
+  antialias: true
 });
 
-renderer.setSize(
-    window.innerWidth,
-    window.innerHeight
-);
-
 renderer.setPixelRatio(
-    Math.min(window.devicePixelRatio,1.5)
+  Math.min(window.devicePixelRatio, 2)
 );
 
-document
-.getElementById("game")
-.appendChild(renderer.domElement);
+renderer.setSize(
+  window.innerWidth,
+  window.innerHeight
+);
+
+document.body.appendChild(
+  renderer.domElement
+);
 
 
-// LIGHTING
+/* =========================
+   LIGHTING
+========================= */
 
 const ambient = new THREE.AmbientLight(
-    0x668899,
-    1.5
+  0x668899,
+  1.4
 );
 
 scene.add(ambient);
 
-const light = new THREE.PointLight(
-    0x00ccff,
-    20,
-    40
+
+const mainLight = new THREE.PointLight(
+  0x00d9ff,
+  7,
+  40
 );
 
-light.position.set(0,8,0);
+mainLight.position.set(
+  0,
+  6,
+  0
+);
 
-scene.add(light);
+scene.add(mainLight);
 
 
-// FLOOR
+/* =========================
+   FLOOR
+========================= */
+
+const floorGeometry =
+  new THREE.PlaneGeometry(
+    50,
+    50
+  );
+
+const floorMaterial =
+  new THREE.MeshStandardMaterial({
+    color: 0x101820,
+    metalness: 0.7,
+    roughness: 0.35
+  });
 
 const floor =
-    new THREE.Mesh(
-        new THREE.PlaneGeometry(40,40),
-        new THREE.MeshStandardMaterial({
-            color:0x111820,
-            metalness:.7,
-            roughness:.35
-        })
-    );
+  new THREE.Mesh(
+    floorGeometry,
+    floorMaterial
+  );
 
-floor.rotation.x = -Math.PI / 2;
+floor.rotation.x =
+  -Math.PI / 2;
 
 scene.add(floor);
 
 
-// AFTERLIGHT CORE
+/* =========================
+   WALLS
+========================= */
 
-const core =
-    new THREE.Mesh(
-        new THREE.CylinderGeometry(
-            1.5,
-            1.5,
-            5,
-            32
-        ),
-        new THREE.MeshStandardMaterial({
-            color:0x07151c,
-            emissive:0x00aacc,
-            emissiveIntensity:2,
-            metalness:.8,
-            roughness:.2
-        })
+const wallMaterial =
+  new THREE.MeshStandardMaterial({
+    color: 0x0b151d,
+    metalness: 0.7,
+    roughness: 0.3
+  });
+
+
+function createWall(
+  x,
+  y,
+  z,
+  sx,
+  sy,
+  sz
+) {
+
+  const geometry =
+    new THREE.BoxGeometry(
+      sx,
+      sy,
+      sz
     );
 
-core.position.y = 2.5;
+  const wall =
+    new THREE.Mesh(
+      geometry,
+      wallMaterial
+    );
+
+  wall.position.set(
+    x,
+    y,
+    z
+  );
+
+  scene.add(wall);
+}
+
+
+createWall(
+  0,
+  5,
+  -25,
+  50,
+  10,
+  1
+);
+
+createWall(
+  0,
+  5,
+  25,
+  50,
+  10,
+  1
+);
+
+createWall(
+  -25,
+  5,
+  0,
+  1,
+  10,
+  50
+);
+
+createWall(
+  25,
+  5,
+  0,
+  1,
+  10,
+  50
+);
+
+
+/* =========================
+   AFTERLIGHT CORE
+========================= */
+
+const coreGeometry =
+  new THREE.CylinderGeometry(
+    3,
+    3,
+    7,
+    64
+  );
+
+const coreMaterial =
+  new THREE.MeshStandardMaterial({
+    color: 0x061b24,
+    emissive: 0x00d9ff,
+    emissiveIntensity: 2.2,
+    metalness: 0.8,
+    roughness: 0.2
+  });
+
+const core =
+  new THREE.Mesh(
+    coreGeometry,
+    coreMaterial
+  );
+
+core.position.y = 3.5;
 
 scene.add(core);
 
 
-// RINGS
+/* =========================
+   CORE RINGS
+========================= */
 
-for(let i=0;i<3;i++){
+for (let i = 0; i < 3; i++) {
 
-    const ring =
-        new THREE.Mesh(
-            new THREE.TorusGeometry(
-                2 + i*.7,
-                .04,
-                12,
-                64
-            ),
-            new THREE.MeshBasicMaterial({
-                color:0x00d9ff
-            })
-        );
-
-    ring.rotation.x = Math.PI / 2;
-    ring.position.y = 1 + i*1.5;
-
-    scene.add(ring);
-}
-
-
-// WALLS
-
-function wall(x,z,w,d){
-
-    const object =
-        new THREE.Mesh(
-            new THREE.BoxGeometry(
-                w,
-                5,
-                d
-            ),
-            new THREE.MeshStandardMaterial({
-                color:0x0a1018,
-                metalness:.6,
-                roughness:.4
-            })
-        );
-
-    object.position.set(
-        x,
-        2.5,
-        z
+  const ringGeometry =
+    new THREE.TorusGeometry(
+      4 + i * 0.8,
+      0.08,
+      16,
+      100
     );
 
-    scene.add(object);
+  const ringMaterial =
+    new THREE.MeshBasicMaterial({
+      color: 0x00eaff
+    });
+
+  const ring =
+    new THREE.Mesh(
+      ringGeometry,
+      ringMaterial
+    );
+
+  ring.position.y =
+    1.5 + i * 2;
+
+  ring.rotation.x =
+    Math.PI / 2;
+
+  scene.add(ring);
 }
 
-wall(0,-20,40,1);
-wall(0,20,40,1);
-wall(-20,0,1,40);
-wall(20,0,1,40);
 
+/* =========================
+   LOCAL PLAYER
+========================= */
 
-// PLAYER
+const playerGeometry =
+  new THREE.CapsuleGeometry(
+    0.45,
+    1,
+    8,
+    16
+  );
+
+const playerMaterial =
+  new THREE.MeshStandardMaterial({
+    color: 0x00d9ff,
+    emissive: 0x003344,
+    metalness: 0.5,
+    roughness: 0.35
+  });
 
 const player =
-    new THREE.Mesh(
-        new THREE.CapsuleGeometry(
-            .45,
-            1.2,
-            8,
-            16
-        ),
-        new THREE.MeshStandardMaterial({
-            color:0xeeeeee,
-            emissive:0x003344,
-            emissiveIntensity:.5
-        })
-    );
+  new THREE.Mesh(
+    playerGeometry,
+    playerMaterial
+  );
 
 player.position.set(
-    0,
-    1.1,
-    7
+  0,
+  1,
+  8
 );
 
 scene.add(player);
 
 
-// CAMERA
+/* =========================
+   OTHER PLAYERS
+========================= */
 
-let yaw = 0;
-let pitch = 0;
-
-const cameraDistance = 7;
-const cameraHeight = 3.2;
-
-let mouseLocked = false;
+const otherPlayers =
+  new Map();
 
 
-// MOUSE LOOK
+function createOtherPlayer(data) {
 
-renderer.domElement.addEventListener(
-    "click",
+  if (otherPlayers.has(data.id)) {
+    return otherPlayers.get(data.id);
+  }
+
+  const geometry =
+    new THREE.CapsuleGeometry(
+      0.45,
+      1,
+      8,
+      16
+    );
+
+  const material =
+    new THREE.MeshStandardMaterial({
+      color: 0xff4fd8,
+      emissive: 0x330022,
+      metalness: 0.4,
+      roughness: 0.4
+    });
+
+  const mesh =
+    new THREE.Mesh(
+      geometry,
+      material
+    );
+
+  mesh.position.set(
+    data.x || 0,
+    data.y || 1,
+    data.z || 0
+  );
+
+  scene.add(mesh);
+
+  otherPlayers.set(
+    data.id,
+    mesh
+  );
+
+  return mesh;
+}
+
+
+function updatePlayers(list) {
+
+  const activeIds =
+    new Set();
+
+  for (const data of list) {
+
+    activeIds.add(data.id);
+
+    if (data.id === myId) {
+      continue;
+    }
+
+    const mesh =
+      createOtherPlayer(data);
+
+    mesh.position.set(
+      data.x,
+      data.y,
+      data.z
+    );
+  }
+
+  for (
+    const [id, mesh]
+    of otherPlayers
+  ) {
+
+    if (!activeIds.has(id)) {
+
+      scene.remove(mesh);
+
+      otherPlayers.delete(id);
+    }
+  }
+
+  document.getElementById(
+    "players"
+  ).textContent =
+    "Players: " + list.length;
+}
+
+
+/* =========================
+   MULTIPLAYER
+========================= */
+
+let socket = null;
+
+let myId = null;
+
+const SERVER =
+  "wss://afterlightgame.sajjubhat99.workers.dev/ws";
+
+
+function connectMultiplayer() {
+
+  socket =
+    new WebSocket(SERVER);
+
+  socket.addEventListener(
+    "open",
     () => {
 
-        renderer.domElement.requestPointerLock();
+      document.getElementById(
+        "status"
+      ).textContent =
+        "● Multiplayer connected";
 
+      socket.send(
+        JSON.stringify({
+          type: "join",
+          name: "YOU"
+        })
+      );
     }
-);
+  );
 
-document.addEventListener(
-    "pointerlockchange",
-    () => {
 
-        mouseLocked =
-            document.pointerLockElement === renderer.domElement;
-
-    }
-);
-
-document.addEventListener(
-    "mousemove",
+  socket.addEventListener(
+    "message",
     event => {
 
-        if(!mouseLocked)
-            return;
+      try {
 
-        yaw -= event.movementX * 0.002;
-        pitch -= event.movementY * 0.002;
+        const message =
+          JSON.parse(
+            event.data
+          );
 
-        pitch =
-            THREE.MathUtils.clamp(
-                pitch,
-                -0.8,
-                0.8
-            );
+        if (
+          message.type ===
+          "welcome"
+        ) {
+
+          myId =
+            message.id;
+
+          updatePlayers(
+            message.players
+          );
+        }
+
+        if (
+          message.type ===
+          "players"
+        ) {
+
+          updatePlayers(
+            message.players
+          );
+        }
+
+      } catch (error) {
+
+        console.error(
+          "Server message error:",
+          error
+        );
+      }
+    }
+  );
+
+
+  socket.addEventListener(
+    "close",
+    () => {
+
+      document.getElementById(
+        "status"
+      ).textContent =
+        "○ Multiplayer disconnected";
 
     }
-);
+  );
 
 
-// KEYBOARD
+  socket.addEventListener(
+    "error",
+    () => {
+
+      document.getElementById(
+        "status"
+      ).textContent =
+        "⚠ Multiplayer connection error";
+
+    }
+  );
+}
+
+
+connectMultiplayer();
+
+
+/* =========================
+   MOVEMENT
+========================= */
 
 const keys = {};
 
 window.addEventListener(
-    "keydown",
-    event => {
+  "keydown",
+  event => {
 
-        keys[event.key.toLowerCase()] = true;
-
-    }
+    keys[event.code] = true;
+  }
 );
+
 
 window.addEventListener(
-    "keyup",
-    event => {
+  "keyup",
+  event => {
 
-        keys[event.key.toLowerCase()] = false;
-
-    }
+    keys[event.code] = false;
+  }
 );
 
 
-// MOVEMENT
+/* =========================
+   MOUSE LOOK
+========================= */
 
-function updatePlayer(){
+let yaw = 0;
 
-    const speed = 0.12;
+let pitch = -0.15;
 
-    const forward =
-        new THREE.Vector3(
-            -Math.sin(yaw),
-            0,
-            -Math.cos(yaw)
-        );
+document.body.addEventListener(
+  "click",
+  () => {
 
-    const right =
-        new THREE.Vector3(
-            Math.cos(yaw),
-            0,
-            -Math.sin(yaw)
-        );
+    if (
+      document.pointerLockElement !==
+      document.body
+    ) {
 
-    if(keys["w"]){
-
-        player.position.add(
-            forward.clone().multiplyScalar(speed)
-        );
+      document.body.requestPointerLock();
 
     }
 
-    if(keys["s"]){
+  }
+);
 
-        player.position.add(
-            forward.clone().multiplyScalar(-speed)
-        );
 
+document.addEventListener(
+  "mousemove",
+  event => {
+
+    if (
+      document.pointerLockElement !==
+      document.body
+    ) {
+      return;
     }
 
-    if(keys["a"]){
+    yaw -=
+      event.movementX * 0.002;
 
-        player.position.add(
-            right.clone().multiplyScalar(-speed)
-        );
+    pitch -=
+      event.movementY * 0.002;
 
-    }
+    pitch =
+      Math.max(
+        -1.2,
+        Math.min(
+          0.7,
+          pitch
+        )
+      );
 
-    if(keys["d"]){
+  }
+);
 
-        player.position.add(
-            right.clone().multiplyScalar(speed)
-        );
 
-    }
+/* =========================
+   GAME LOOP
+========================= */
 
-    player.position.x =
-        THREE.MathUtils.clamp(
-            player.position.x,
-            -18,
-            18
-        );
+const clock =
+  new THREE.Clock();
 
-    player.position.z =
-        THREE.MathUtils.clamp(
-            player.position.z,
-            -18,
-            18
-        );
+let networkTimer = 0;
 
-    player.rotation.y = yaw;
 
-    updateCamera();
+function animate() {
 
+  requestAnimationFrame(
+    animate
+  );
+
+  const delta =
+    Math.min(
+      clock.getDelta(),
+      0.05
+    );
+
+
+  /* Movement */
+
+  const speed =
+    5 * delta;
+
+  const forward =
+    new THREE.Vector3(
+      -Math.sin(yaw),
+      0,
+      -Math.cos(yaw)
+    );
+
+  const right =
+    new THREE.Vector3(
+      Math.cos(yaw),
+      0,
+      -Math.sin(yaw)
+    );
+
+
+  if (keys["KeyW"]) {
+
+    player.position.addScaledVector(
+      forward,
+      speed
+    );
+
+  }
+
+  if (keys["KeyS"]) {
+
+    player.position.addScaledVector(
+      forward,
+      -speed
+    );
+
+  }
+
+  if (keys["KeyA"]) {
+
+    player.position.addScaledVector(
+      right,
+      -speed
+    );
+
+  }
+
+  if (keys["KeyD"]) {
+
+    player.position.addScaledVector(
+      right,
+      speed
+    );
+
+  }
+
+
+  /* Keep inside facility */
+
+  player.position.x =
+    Math.max(
+      -22,
+      Math.min(
+        22,
+        player.position.x
+      )
+    );
+
+  player.position.z =
+    Math.max(
+      -22,
+      Math.min(
+        22,
+        player.position.z
+      )
+    );
+
+
+  /* Send position */
+
+  networkTimer += delta;
+
+  if (
+    networkTimer >= 0.05 &&
+    socket &&
+    socket.readyState ===
+      WebSocket.OPEN
+  ) {
+
+    networkTimer = 0;
+
+    socket.send(
+      JSON.stringify({
+        type: "move",
+        x: player.position.x,
+        y: player.position.y,
+        z: player.position.z
+      })
+    );
+  }
+
+
+  /* Camera */
+
+  const cameraDistance =
+    7;
+
+  const cameraHeight =
+    3.5;
+
+  camera.position.x =
+    player.position.x -
+    Math.sin(yaw) *
+    cameraDistance;
+
+  camera.position.y =
+    player.position.y +
+    cameraHeight +
+    Math.sin(pitch) * 2;
+
+  camera.position.z =
+    player.position.z -
+    Math.cos(yaw) *
+    cameraDistance;
+
+
+  const lookTarget =
+    new THREE.Vector3(
+      player.position.x,
+      player.position.y + 1,
+      player.position.z
+    );
+
+  camera.lookAt(
+    lookTarget
+  );
+
+
+  /* Core animation */
+
+  core.rotation.y +=
+    delta * 0.4;
+
+
+  renderer.render(
+    scene,
+    camera
+  );
 }
 
-
-// CAMERA FOLLOW
-
-function updateCamera(){
-
-    const offsetX =
-        Math.sin(yaw) * cameraDistance;
-
-    const offsetZ =
-        Math.cos(yaw) * cameraDistance;
-
-    camera.position.set(
-        player.position.x + offsetX,
-        player.position.y + cameraHeight +
-        pitch * 2,
-        player.position.z + offsetZ
-    );
-
-    const lookTarget =
-        new THREE.Vector3(
-            player.position.x,
-            player.position.y + 1.2 +
-            pitch * 2,
-            player.position.z
-        );
-
-    camera.lookAt(
-        lookTarget
-    );
-
-}
-
-
-// ANIMATION
-
-function animate(){
-
-    requestAnimationFrame(
-        animate
-    );
-
-    core.rotation.y += 0.005;
-
-    updatePlayer();
-
-    renderer.render(
-        scene,
-        camera
-    );
-
-}
 
 animate();
 
 
-// RESIZE
+/* =========================
+   RESIZE
+========================= */
 
 window.addEventListener(
-    "resize",
-    () => {
+  "resize",
+  () => {
 
-        camera.aspect =
-            window.innerWidth /
-            window.innerHeight;
+    camera.aspect =
+      window.innerWidth /
+      window.innerHeight;
 
-        camera.updateProjectionMatrix();
+    camera.updateProjectionMatrix();
 
-        renderer.setSize(
-            window.innerWidth,
-            window.innerHeight
-        );
+    renderer.setSize(
+      window.innerWidth,
+      window.innerHeight
+    );
 
-    }
+  }
 );
 
 </script>
