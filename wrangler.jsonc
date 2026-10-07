@@ -1,0 +1,22 @@
+{
+  "name": "afterlightgame",
+  "main": "worker.js",
+  "compatibility_date": "2026-10-07",
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "AFTERLIGHT_ROOM",
+        "class_name": "Room"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": ["Room"]
+    }
+  ],
+  "assets": {
+    "directory": "./"
+  }
+}
