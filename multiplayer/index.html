@@ -23,10 +23,7 @@
       overflow: hidden;
       background: #02050a;
       color: #dffaff;
-      font-family:
-        Arial,
-        Helvetica,
-        sans-serif;
+      font-family: Arial, Helvetica, sans-serif;
     }
 
     #game {
@@ -44,7 +41,6 @@
       position: fixed;
       inset: 0;
       z-index: 50;
-
       display: flex;
       align-items: center;
       justify-content: center;
@@ -61,23 +57,12 @@
       width: min(520px, 92vw);
       padding: 38px;
 
-      border: 1px solid rgba(
-        72,
-        222,
-        255,
-        0.3
-      );
+      border: 1px solid rgba(72, 222, 255, 0.3);
 
-      background:
-        rgba(4, 12, 20, 0.92);
+      background: rgba(4, 12, 20, 0.92);
 
       box-shadow:
-        0 0 80px rgba(
-          25,
-          230,
-          255,
-          0.12
-        );
+        0 0 80px rgba(25, 230, 255, 0.12);
 
       backdrop-filter: blur(15px);
     }
@@ -121,12 +106,7 @@
     }
 
     button {
-      border: 1px solid rgba(
-        80,
-        230,
-        255,
-        0.35
-      );
+      border: 1px solid rgba(80, 230, 255, 0.35);
 
       background:
         linear-gradient(
@@ -183,22 +163,12 @@
       background:
         rgba(4, 12, 19, 0.78);
 
-      border: 1px solid rgba(
-        81,
-        218,
-        255,
-        0.2
-      );
+      border: 1px solid rgba(81, 218, 255, 0.2);
 
       backdrop-filter: blur(10px);
 
       box-shadow:
-        0 8px 30px rgba(
-          0,
-          0,
-          0,
-          0.3
-        );
+        0 8px 30px rgba(0, 0, 0, 0.3);
     }
 
     #stats {
@@ -217,12 +187,7 @@
       padding: 6px 0;
 
       border-bottom:
-        1px solid rgba(
-          255,
-          255,
-          255,
-          0.04
-        );
+        1px solid rgba(255, 255, 255, 0.04);
 
       font-size: 13px;
     }
@@ -236,11 +201,9 @@
       left: 50%;
       top: 18px;
 
-      transform:
-        translateX(-50%);
+      transform: translateX(-50%);
 
-      padding:
-        11px 22px;
+      padding: 11px 22px;
 
       letter-spacing: 3px;
       font-size: 12px;
@@ -266,12 +229,7 @@
       padding: 8px 5px;
 
       border-bottom:
-        1px solid rgba(
-          255,
-          255,
-          255,
-          0.05
-        );
+        1px solid rgba(255, 255, 255, 0.05);
 
       font-size: 12px;
 
@@ -280,12 +238,7 @@
 
     .player:hover {
       background:
-        rgba(
-          25,
-          230,
-          255,
-          0.08
-        );
+        rgba(25, 230, 255, 0.08);
     }
 
     .dead {
@@ -340,25 +293,14 @@
 
       opacity: 0;
 
-      padding:
-        12px 22px;
+      padding: 12px 22px;
 
       background:
-        rgba(
-          3,
-          15,
-          22,
-          0.94
-        );
+        rgba(3, 15, 22, 0.94);
 
       border:
         1px solid
-        rgba(
-          25,
-          230,
-          255,
-          0.4
-        );
+        rgba(25, 230, 255, 0.4);
 
       color: #dffaff;
 
@@ -402,12 +344,7 @@
       border-radius: 50%;
 
       background:
-        rgba(
-          8,
-          24,
-          32,
-          0.85
-        );
+        rgba(8, 24, 32, 0.85);
     }
 
     #challenge {
@@ -431,28 +368,16 @@
       top: 70px;
       left: 50%;
 
-      transform:
-        translateX(-50%);
+      transform: translateX(-50%);
 
-      padding:
-        14px 28px;
+      padding: 14px 28px;
 
       background:
-        rgba(
-          3,
-          12,
-          18,
-          0.88
-        );
+        rgba(3, 12, 18, 0.88);
 
       border:
         1px solid
-        rgba(
-          25,
-          230,
-          255,
-          0.45
-        );
+        rgba(25, 230, 255, 0.45);
 
       letter-spacing: 3px;
     }
@@ -463,8 +388,7 @@
       top: 130px;
       left: 50%;
 
-      transform:
-        translateX(-50%);
+      transform: translateX(-50%);
 
       color: #70edff;
     }
@@ -712,8 +636,20 @@ import { AfterlightWorld } from
 import { AfterlightPlayer } from
   "./player.js";
 
+/*
+ * NEW:
+ * Futuristic AFTERLIGHT Tower
+ *
+ * This is an additive environment module.
+ * It does not replace the existing World or Player system.
+ */
+import { AfterlightTower } from
+  "./environment/afterlight-tower.js";
+
+
 const SERVER_URL =
   "wss://afterlightgame.sajjubhat99.workers.dev/ws";
+
 
 const container =
   document.getElementById("game");
@@ -727,15 +663,28 @@ const nameInput =
 const joinButton =
   document.getElementById("joinButton");
 
+
+/* THREE.JS SCENE */
+
 const scene =
   new THREE.Scene();
+
+scene.background =
+  new THREE.Color(0x02050a);
+
+scene.fog =
+  new THREE.FogExp2(
+    0x02050a,
+    0.012
+  );
+
 
 const camera =
   new THREE.PerspectiveCamera(
     65,
     innerWidth / innerHeight,
     0.1,
-    250
+    300
   );
 
 camera.position.set(
@@ -744,11 +693,13 @@ camera.position.set(
   14
 );
 
+
 const renderer =
   new THREE.WebGLRenderer({
     antialias: true,
     powerPreference: "high-performance"
   });
+
 
 renderer.setPixelRatio(
   Math.min(
@@ -757,22 +708,44 @@ renderer.setPixelRatio(
   )
 );
 
+
 renderer.setSize(
   innerWidth,
   innerHeight
 );
+
 
 renderer.shadowMap.enabled = true;
 
 renderer.shadowMap.type =
   THREE.PCFSoftShadowMap;
 
+
+renderer.outputColorSpace =
+  THREE.SRGBColorSpace;
+
+
 container.appendChild(
   renderer.domElement
 );
 
+
+/* EXISTING WORLD */
+
 const world =
   new AfterlightWorld(scene);
+
+
+/*
+ * NEW AFTERLIGHT TOWER
+ *
+ * The tower is added ON TOP of the existing world.
+ */
+const afterlightTower =
+  new AfterlightTower(scene);
+
+
+/* MULTIPLAYER STATE */
 
 let socket = null;
 
@@ -789,6 +762,9 @@ const keys = {};
 const clock =
   new THREE.Clock();
 
+
+/* TOAST */
+
 function showToast(message) {
 
   const toast =
@@ -804,17 +780,23 @@ function showToast(message) {
   );
 
   setTimeout(() => {
+
     toast.classList.remove(
       "show"
     );
+
   }, 2200);
 }
+
+
+/* SOCKET SEND */
 
 function send(message) {
 
   if (
     !socket ||
-    socket.readyState !== WebSocket.OPEN
+    socket.readyState !==
+      WebSocket.OPEN
   ) {
     return;
   }
@@ -824,12 +806,16 @@ function send(message) {
   );
 }
 
+
+/* CONNECT */
+
 function connect() {
 
   socket =
     new WebSocket(
       SERVER_URL
     );
+
 
   socket.onopen = () => {
 
@@ -846,21 +832,29 @@ function connect() {
     });
   };
 
-  socket.onmessage = event => {
 
-    let message;
+  socket.onmessage =
+    event => {
 
-    try {
-      message =
-        JSON.parse(
-          event.data
-        );
-    } catch {
-      return;
-    }
+      let message;
 
-    handleMessage(message);
-  };
+      try {
+
+        message =
+          JSON.parse(
+            event.data
+          );
+
+      } catch {
+
+        return;
+      }
+
+      handleMessage(
+        message
+      );
+    };
+
 
   socket.onerror = () => {
 
@@ -868,6 +862,7 @@ function connect() {
       "Connection error."
     );
   };
+
 
   socket.onclose = () => {
 
@@ -879,14 +874,19 @@ function connect() {
   };
 }
 
+
+/* SERVER MESSAGES */
+
 function handleMessage(message) {
 
   if (
     message.type ===
     "connected"
   ) {
+
     return;
   }
+
 
   if (
     message.type ===
@@ -906,6 +906,7 @@ function handleMessage(message) {
     return;
   }
 
+
   if (
     message.type ===
     "state"
@@ -917,6 +918,7 @@ function handleMessage(message) {
 
     return;
   }
+
 
   if (
     message.type ===
@@ -930,6 +932,7 @@ function handleMessage(message) {
     return;
   }
 
+
   if (
     message.type ===
     "error"
@@ -941,6 +944,7 @@ function handleMessage(message) {
 
     return;
   }
+
 
   if (
     message.type ===
@@ -962,12 +966,15 @@ function handleMessage(message) {
     return;
   }
 
+
   if (
     message.type ===
     "challengeResult"
   ) {
 
-    if (message.success) {
+    if (
+      message.success
+    ) {
 
       showToast(
         message.finished
@@ -985,6 +992,7 @@ function handleMessage(message) {
     return;
   }
 
+
   if (
     message.type ===
     "challengeEnd"
@@ -1001,6 +1009,7 @@ function handleMessage(message) {
     return;
   }
 
+
   if (
     message.type ===
     "winner"
@@ -1012,12 +1021,16 @@ function handleMessage(message) {
   }
 }
 
+
+/* APPLY SERVER STATE */
+
 function applyState(state) {
 
   document.getElementById(
     "phase"
   ).textContent =
     state.phase;
+
 
   document.getElementById(
     "prize"
@@ -1026,8 +1039,10 @@ function applyState(state) {
       state.prizePool || 0
     ).toLocaleString();
 
+
   const incoming =
     new Map();
+
 
   for (
     const data
@@ -1039,17 +1054,20 @@ function applyState(state) {
       data
     );
 
+
     let player =
       players.get(
         data.id
       );
+
 
     if (!player) {
 
       player =
         new AfterlightPlayer(
           data,
-          data.id === localPlayerId
+          data.id ===
+            localPlayerId
         );
 
       scene.add(
@@ -1062,10 +1080,12 @@ function applyState(state) {
       );
     }
 
+
     player.update(
       data,
       clock.getDelta()
     );
+
 
     if (
       data.id ===
@@ -1077,10 +1097,12 @@ function applyState(state) {
       );
     }
 
+
     player.setVisible(
       data.alive !== false
     );
   }
+
 
   for (
     const [id, player]
@@ -1097,10 +1119,14 @@ function applyState(state) {
     }
   }
 
+
   renderPlayerList(
     state.players || []
   );
 }
+
+
+/* LOCAL HUD */
 
 function updateLocalHUD(data) {
 
@@ -1125,6 +1151,9 @@ function updateLocalHUD(data) {
     data.energy;
 }
 
+
+/* PLAYER LIST */
+
 function renderPlayerList(list) {
 
   const element =
@@ -1133,6 +1162,7 @@ function renderPlayerList(list) {
     );
 
   element.innerHTML = "";
+
 
   for (
     const player
@@ -1144,25 +1174,31 @@ function renderPlayerList(list) {
         "div"
       );
 
+
     row.className =
       "player";
+
 
     if (
       !player.alive
     ) {
+
       row.classList.add(
         "dead"
       );
     }
 
+
     row.innerHTML = `
       <span>
         ${escapeHTML(player.name)}
       </span>
+
       <span>
         ${escapeHTML(player.role)}
       </span>
     `;
+
 
     row.addEventListener(
       "click",
@@ -1177,11 +1213,15 @@ function renderPlayerList(list) {
       }
     );
 
+
     element.appendChild(
       row
     );
   }
 }
+
+
+/* LOG */
 
 function addLog(message) {
 
@@ -1190,17 +1230,21 @@ function addLog(message) {
       "logContent"
     );
 
+
   const row =
     document.createElement(
       "div"
     );
 
+
   row.textContent =
     message;
+
 
   content.appendChild(
     row
   );
+
 
   while (
     content.children.length >
@@ -1212,24 +1256,47 @@ function addLog(message) {
     );
   }
 
+
   const log =
     document.getElementById(
       "log"
     );
 
+
   log.scrollTop =
     log.scrollHeight;
 }
 
+
+/* ESCAPE HTML */
+
 function escapeHTML(value) {
 
   return String(value)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
+    .replaceAll(
+      "&",
+      "&amp;"
+    )
+    .replaceAll(
+      "<",
+      "&lt;"
+    )
+    .replaceAll(
+      ">",
+      "&gt;"
+    )
+    .replaceAll(
+      '"',
+      "&quot;"
+    )
+    .replaceAll(
+      "'",
+      "&#039;"
+    );
 }
+
+
+/* LOCAL PLAYER */
 
 function localPlayer() {
 
@@ -1238,52 +1305,69 @@ function localPlayer() {
   );
 }
 
+
+/* MOVEMENT */
+
 function move() {
 
   const player =
     localPlayer();
 
+
   if (!player) {
+
     return;
   }
 
+
   let dx = 0;
   let dz = 0;
+
 
   if (
     keys.w ||
     keys.ArrowUp
   ) {
+
     dz -= 1;
   }
+
 
   if (
     keys.s ||
     keys.ArrowDown
   ) {
+
     dz += 1;
   }
+
 
   if (
     keys.a ||
     keys.ArrowLeft
   ) {
+
     dx -= 1;
   }
+
 
   if (
     keys.d ||
     keys.ArrowRight
   ) {
+
     dx += 1;
   }
+
 
   if (
     dx === 0 &&
     dz === 0
   ) {
+
     return;
   }
+
 
   const length =
     Math.sqrt(
@@ -1291,16 +1375,22 @@ function move() {
       dz * dz
     );
 
+
   dx /= length;
   dz /= length;
 
-  const speed = 0.18;
+
+  const speed =
+    0.18;
+
 
   player.target.x +=
     dx * speed;
 
+
   player.target.z +=
     dz * speed;
+
 
   player.target.x =
     THREE.MathUtils.clamp(
@@ -1309,6 +1399,7 @@ function move() {
       39
     );
 
+
   player.target.z =
     THREE.MathUtils.clamp(
       player.target.z,
@@ -1316,25 +1407,39 @@ function move() {
       39
     );
 
+
   send({
     type: "move",
-    x: player.target.x,
-    y: 0,
-    z: player.target.z
+
+    x:
+      player.target.x,
+
+    y:
+      0,
+
+    z:
+      player.target.z
   });
 }
+
+
+/* CAMERA */
 
 function updateCamera() {
 
   const player =
     localPlayer();
 
+
   if (!player) {
+
     return;
   }
 
+
   const target =
     player.group.position;
+
 
   const desired =
     new THREE.Vector3(
@@ -1343,10 +1448,12 @@ function updateCamera() {
       target.z + 11
     );
 
+
   camera.position.lerp(
     desired,
     0.06
   );
+
 
   camera.lookAt(
     target.x,
@@ -1354,6 +1461,9 @@ function updateCamera() {
     target.z
   );
 }
+
+
+/* KEYBOARD */
 
 window.addEventListener(
   "keydown",
@@ -1365,6 +1475,7 @@ window.addEventListener(
   }
 );
 
+
 window.addEventListener(
   "keyup",
   event => {
@@ -1375,6 +1486,9 @@ window.addEventListener(
   }
 );
 
+
+/* MOBILE CONTROLS */
+
 document
   .querySelectorAll(
     ".mobile-button"
@@ -1384,27 +1498,36 @@ document
     const key =
       button.dataset.key;
 
+
     button.addEventListener(
       "pointerdown",
       () => {
+
         keys[key] = true;
       }
     );
 
+
     button.addEventListener(
       "pointerup",
       () => {
+
         keys[key] = false;
       }
     );
 
+
     button.addEventListener(
       "pointerleave",
       () => {
+
         keys[key] = false;
       }
     );
   });
+
+
+/* JOIN */
 
 joinButton.addEventListener(
   "click",
@@ -1417,25 +1540,30 @@ joinButton.addEventListener(
 
       nameInput.value =
         "Player";
-
     }
+
 
     connect();
   }
 );
+
 
 nameInput.addEventListener(
   "keydown",
   event => {
 
     if (
-      event.key === "Enter"
+      event.key ===
+      "Enter"
     ) {
 
       joinButton.click();
     }
   }
 );
+
+
+/* READY */
 
 document
   .getElementById("ready")
@@ -1446,6 +1574,9 @@ document
     });
   };
 
+
+/* CHALLENGE */
+
 document
   .getElementById("challenge")
   .onclick = () => {
@@ -1454,6 +1585,9 @@ document
       type: "challengeStart"
     });
   };
+
+
+/* SOCIAL */
 
 document
   .getElementById("social")
@@ -1465,6 +1599,9 @@ document
     });
   };
 
+
+/* MISSION */
+
 document
   .getElementById("mission")
   .onclick = () => {
@@ -1474,24 +1611,43 @@ document
     });
   };
 
+
+/* POWER STORE */
+
 document
   .getElementById("power")
   .onclick = () => {
 
     const power =
       prompt(
-        "Enter power name:\n\nPower Ring\nPulse Watch\nGravity Shoes\nSpectra Visor\nPhase Jacket\nSignal Band\nInfluence Chip\nShadow Pack\nOracle Lens\nShield Band"
+        "Enter power name:\n\n" +
+        "Power Ring\n" +
+        "Pulse Watch\n" +
+        "Gravity Shoes\n" +
+        "Spectra Visor\n" +
+        "Phase Jacket\n" +
+        "Signal Band\n" +
+        "Influence Chip\n" +
+        "Shadow Pack\n" +
+        "Oracle Lens\n" +
+        "Shield Band"
       );
 
+
     if (!power) {
+
       return;
     }
+
 
     send({
       type: "buyPower",
       power
     });
   };
+
+
+/* PARALLEL WORLD */
 
 document
   .getElementById("parallel")
@@ -1502,6 +1658,9 @@ document
     });
   };
 
+
+/* ARCHITECT */
+
 document
   .getElementById("architect")
   .onclick = () => {
@@ -1510,6 +1669,9 @@ document
       type: "architect"
     });
   };
+
+
+/* HEIST */
 
 document
   .getElementById("heist")
@@ -1520,6 +1682,9 @@ document
     });
   };
 
+
+/* VACATION */
+
 document
   .getElementById("vacation")
   .onclick = () => {
@@ -1528,6 +1693,9 @@ document
       type: "vacation"
     });
   };
+
+
+/* TRADE */
 
 document
   .getElementById("trade")
@@ -1542,13 +1710,20 @@ document
       return;
     }
 
+
     send({
       type: "trade",
+
       targetId:
         selectedPlayerId,
-      amount: 50
+
+      amount:
+        50
     });
   };
+
+
+/* SECRET PACT */
 
 document
   .getElementById("pact")
@@ -1563,12 +1738,17 @@ document
       return;
     }
 
+
     send({
       type: "pact",
+
       targetId:
         selectedPlayerId
     });
   };
+
+
+/* PROTECT */
 
 document
   .getElementById("protect")
@@ -1576,11 +1756,15 @@ document
 
     send({
       type: "protect",
+
       targetId:
         selectedPlayerId ||
         localPlayerId
     });
   };
+
+
+/* VOTE */
 
 document
   .getElementById("vote")
@@ -1595,12 +1779,22 @@ document
       return;
     }
 
+
     send({
       type: "vote",
+
       targetId:
         selectedPlayerId
     });
   };
+
+
+/*
+ * MAIN GAME LOOP
+ *
+ * Existing world update remains.
+ * New tower update is added here.
+ */
 
 function animate() {
 
@@ -1608,16 +1802,20 @@ function animate() {
     animate
   );
 
+
   const delta =
     Math.min(
       clock.getDelta(),
       0.05
     );
 
+
   const time =
     performance.now();
 
+
   move();
+
 
   for (
     const player
@@ -1630,17 +1828,36 @@ function animate() {
     );
   }
 
+
+  /* EXISTING WORLD */
+
   world.update(
     time
   );
 
+
+  /*
+   * NEW TOWER ANIMATION
+   *
+   * Rotates/animates the AFTERLIGHT
+   * energy core and architectural effects.
+   */
+  afterlightTower.update(
+    time
+  );
+
+
   updateCamera();
+
 
   renderer.render(
     scene,
     camera
   );
 }
+
+
+/* RESIZE */
 
 window.addEventListener(
   "resize",
@@ -1650,7 +1867,9 @@ window.addEventListener(
       innerWidth /
       innerHeight;
 
+
     camera.updateProjectionMatrix();
+
 
     renderer.setSize(
       innerWidth,
@@ -1658,6 +1877,9 @@ window.addEventListener(
     );
   }
 );
+
+
+/* START */
 
 animate();
 
