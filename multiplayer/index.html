@@ -1,867 +1,685 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
-<title>AFTERLIGHT — Multiplayer</title>
-
-<style>
-*{box-sizing:border-box;user-select:none}
-
-html,body{
-  margin:0;
-  width:100%;
-  height:100%;
-  overflow:hidden;
-  background:#02060b;
-  color:#e8fbff;
-  font-family:Arial,Helvetica,sans-serif
-}
-
-button,input{font:inherit}
-
-#game{
-  position:fixed;
-  inset:0
-}
-
-canvas{
-  display:block;
-  width:100%;
-  height:100%
-}
-
-/* JOIN */
-
-#joinScreen{
-  position:fixed;
-  inset:0;
-  z-index:100;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  background:
-    radial-gradient(circle at center,rgba(0,210,255,.1),transparent 35%),
-    linear-gradient(135deg,#02060b,#06111b 55%,#010306)
-}
-
-.join-card{
-  width:min(440px,92vw);
-  padding:34px;
-  border:1px solid rgba(90,230,255,.35);
-  background:rgba(3,13,21,.9);
-  box-shadow:0 0 60px rgba(0,210,255,.12);
-  border-radius:18px;
-  text-align:center
-}
-
-.logo{
-  font-size:42px;
-  letter-spacing:10px;
-  font-weight:800;
-  text-shadow:0 0 25px rgba(0,220,255,.65)
-}
-
-.tagline{
-  color:#69d9ef;
-  font-size:11px;
-  letter-spacing:4px;
-  margin-bottom:35px
-}
-
-.join-card input{
-  width:100%;
-  height:48px;
-  border-radius:9px;
-  border:1px solid rgba(100,230,255,.28);
-  background:rgba(0,0,0,.4);
-  color:white;
-  padding:0 15px;
-  outline:none;
-  margin-bottom:12px
-}
-
-.primary{
-  width:100%;
-  height:48px;
-  border:0;
-  border-radius:9px;
-  background:linear-gradient(90deg,#00aeca,#37e6ff);
-  color:#001018;
-  font-weight:800;
-  cursor:pointer
-}
-
-#connectionText{
-  margin-top:15px;
-  color:#78929b;
-  font-size:12px
-}
-
-/* HUD */
-
-#hud{
-  position:fixed;
-  inset:0;
-  pointer-events:none;
-  z-index:20
-}
-
-.hud-panel{
-  position:absolute;
-  pointer-events:auto;
-  background:rgba(2,10,16,.76);
-  border:1px solid rgba(86,220,246,.22);
-  backdrop-filter:blur(10px);
-  border-radius:12px
-}
-
-#topBar{
-  top:14px;
-  left:14px;
-  right:14px;
-  min-height:64px;
-  padding:10px 15px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:15px
-}
-
-.brand-small{
-  font-size:18px;
-  font-weight:800;
-  letter-spacing:4px
-}
-
-.phase-box{
-  text-align:center;
-  flex:1
-}
-
-.phase-label{
-  color:#71939d;
-  font-size:9px;
-  letter-spacing:3px
-}
-
-#phase{
-  font-size:16px;
-  font-weight:700;
-  color:#72edff;
-  margin-top:3px
-}
-
-.stats{
-  display:flex;
-  gap:7px;
-  flex-wrap:wrap;
-  justify-content:flex-end
-}
-
-.stat{
-  min-width:72px;
-  padding:7px 10px;
-  border:1px solid rgba(255,255,255,.08);
-  background:rgba(255,255,255,.025);
-  border-radius:7px
-}
-
-.stat-label{
-  color:#67818b;
-  font-size:8px;
-  letter-spacing:1px
-}
-
-.stat-value{
-  margin-top:2px;
-  font-size:14px;
-  font-weight:700
-}
-
-/* COMPETITORS */
-
-#competitors{
-  left:14px;
-  top:94px;
-  width:235px;
-  max-height:52vh;
-  overflow:auto;
-  padding:12px
-}
-
-.panel-title{
-  font-size:10px;
-  letter-spacing:2px;
-  color:#6c909b;
-  margin-bottom:9px
-}
-
-.player-row{
-  display:flex;
-  align-items:center;
-  gap:8px;
-  padding:8px;
-  margin-bottom:4px;
-  border-radius:7px;
-  cursor:pointer
-}
-
-.player-row:hover,
-.player-row.selected{
-  background:rgba(65,225,255,.09);
-  border-left:2px solid #55e8ff
-}
-
-.player-dot{
-  width:8px;
-  height:8px;
-  border-radius:50%;
-  background:#46e5ff;
-  box-shadow:0 0 9px #46e5ff
-}
-
-.player-dot.dead{
-  background:#5b6266;
-  box-shadow:none
-}
-
-.player-name{
-  flex:1;
-  font-size:12px;
-  overflow:hidden;
-  text-overflow:ellipsis
-}
-
-.player-role{
-  font-size:8px;
-  color:#63838d
-}
-
-/* ACTIONS */
-
-#actions{
-  right:14px;
-  top:94px;
-  width:245px;
-  padding:12px
-}
-
-.action-grid{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:6px
-}
-
-.action{
-  min-height:38px;
-  border:1px solid rgba(90,225,255,.18);
-  border-radius:7px;
-  background:rgba(15,45,55,.48);
-  color:#bdebf3;
-  cursor:pointer;
-  font-size:10px
-}
-
-.action:hover{
-  background:rgba(30,120,140,.45);
-  border-color:rgba(90,225,255,.5);
-  color:white
-}
-
-.action.danger{
-  border-color:rgba(255,90,110,.25)
-}
-
-.action.special{
-  border-color:rgba(174,117,255,.3)
-}
-
-/* CONTEXT */
-
-#context{
-  left:50%;
-  bottom:90px;
-  transform:translateX(-50%);
-  min-width:260px;
-  max-width:80vw;
-  padding:12px 18px;
-  text-align:center;
-  opacity:0;
-  transition:.2s
-}
-
-#context.visible{
-  opacity:1
-}
-
-#contextTitle{
-  font-size:13px;
-  font-weight:700;
-  color:#7eefff
-}
-
-#contextText{
-  margin-top:4px;
-  color:#9cb4ba;
-  font-size:10px
-}
-
-/* LOG */
-
-#logPanel{
-  left:14px;
-  bottom:14px;
-  width:330px;
-  max-height:145px;
-  padding:11px
-}
-
-#log{
-  max-height:105px;
-  overflow-y:auto;
-  font-size:10px;
-  line-height:1.6;
-  color:#8caab2
-}
-
-.log-line{
-  border-bottom:1px solid rgba(255,255,255,.025);
-  padding:2px 0
-}
-
-/* TARGET */
-
-#targetPanel{
-  right:14px;
-  bottom:14px;
-  width:245px;
-  padding:12px;
-  display:none
-}
-
-#targetPanel.visible{
-  display:block
-}
-
-#targetName{
-  font-size:15px;
-  font-weight:700;
-  color:#7eefff
-}
-
-#targetRole{
-  color:#78939c;
-  font-size:10px;
-  margin-top:3px
-}
-
-/* CHALLENGE */
-
-#challengeOverlay{
-  position:fixed;
-  inset:0;
-  z-index:50;
-  display:none;
-  pointer-events:none
-}
-
-#challengeOverlay.active{
-  display:block
-}
-
-.challenge-title{
-  position:absolute;
-  top:105px;
-  left:50%;
-  transform:translateX(-50%);
-  text-align:center
-}
-
-.challenge-name{
-  font-size:28px;
-  letter-spacing:6px;
-  font-weight:800;
-  text-shadow:0 0 25px #32e8ff
-}
-
-.challenge-sub{
-  margin-top:7px;
-  color:#75a9b5;
-  font-size:10px;
-  letter-spacing:3px
-}
-
-#challengeTimer{
-  position:absolute;
-  top:165px;
-  left:50%;
-  transform:translateX(-50%);
-  font-size:38px;
-  font-weight:800;
-  color:#b9f8ff
-}
-
-#challengeProgress{
-  position:absolute;
-  left:50%;
-  bottom:38px;
-  transform:translateX(-50%);
-  width:min(500px,75vw);
-  height:8px;
-  border-radius:8px;
-  overflow:hidden;
-  background:rgba(255,255,255,.1);
-  border:1px solid rgba(90,230,255,.25)
-}
-
-#challengeProgressBar{
-  height:100%;
-  width:0%;
-  background:linear-gradient(90deg,#00aeca,#7af5ff);
-  box-shadow:0 0 15px #37e6ff
-}
-
-/* TOAST */
-
-#toast{
-  position:fixed;
-  top:92px;
-  left:50%;
-  transform:translateX(-50%) translateY(-15px);
-  z-index:80;
-  opacity:0;
-  pointer-events:none;
-  padding:10px 17px;
-  border:1px solid rgba(90,225,255,.3);
-  border-radius:8px;
-  background:rgba(2,15,23,.92);
-  color:#aeefff;
-  font-size:11px;
-  transition:.2s
-}
-
-#toast.show{
-  opacity:1;
-  transform:translateX(-50%) translateY(0)
-}
-
-/* MOBILE */
-
-#mobileControls{
-  position:fixed;
-  left:20px;
-  bottom:25px;
-  z-index:30;
-  display:none;
-  pointer-events:auto
-}
-
-.mobile-pad{
-  width:150px;
-  height:150px;
-  position:relative
-}
-
-.move-btn{
-  position:absolute;
-  width:48px;
-  height:48px;
-  border-radius:12px;
-  border:1px solid rgba(90,225,255,.25);
-  background:rgba(4,22,31,.75);
-  color:#aeefff;
-  font-size:20px
-}
-
-.move-btn.up{
-  left:51px;
-  top:0
-}
-
-.move-btn.down{
-  left:51px;
-  bottom:0
-}
-
-.move-btn.left{
-  left:0;
-  top:51px
-}
-
-.move-btn.right{
-  right:0;
-  top:51px
-}
-
-@media(max-width:850px){
-
-  #topBar{
-    flex-wrap:wrap
-  }
-
-  .phase-box{
-    order:3;
-    flex-basis:100%
-  }
-
-  #competitors{
-    width:185px
-  }
-
-  #actions{
-    width:185px
-  }
-
-  #logPanel{
-    width:260px
-  }
-}
-
-@media(max-width:650px){
-
-  #competitors{
-    display:none
-  }
-
-  #actions{
-    right:8px;
-    top:auto;
-    bottom:185px;
-    width:180px
-  }
-
-  #logPanel{
-    left:8px;
-    bottom:8px;
-    width:205px;
-    max-height:105px
-  }
-
-  #mobileControls{
-    display:block
-  }
-
-  .stat{
-    min-width:58px
-  }
-
-  .brand-small{
-    font-size:14px
-  }
-}
-</style>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"
+  >
+
+  <title>AFTERLIGHT — Multiplayer</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #02050a;
+      color: #dffaff;
+      font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+    }
+
+    #game {
+      position: fixed;
+      inset: 0;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    #join {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      background:
+        radial-gradient(
+          circle at center,
+          rgba(18, 86, 108, 0.25),
+          rgba(1, 4, 8, 0.96) 65%
+        );
+    }
+
+    .join-card {
+      width: min(520px, 92vw);
+      padding: 38px;
+
+      border: 1px solid rgba(
+        72,
+        222,
+        255,
+        0.3
+      );
+
+      background:
+        rgba(4, 12, 20, 0.92);
+
+      box-shadow:
+        0 0 80px rgba(
+          25,
+          230,
+          255,
+          0.12
+        );
+
+      backdrop-filter: blur(15px);
+    }
+
+    .logo {
+      font-size: 48px;
+      font-weight: 900;
+      letter-spacing: 12px;
+      color: #dffaff;
+    }
+
+    .subtitle {
+      margin-top: 8px;
+      color: #62eaff;
+      letter-spacing: 3px;
+      font-size: 12px;
+    }
+
+    .join-card p {
+      color: #8299a5;
+      line-height: 1.7;
+    }
+
+    input {
+      width: 100%;
+      height: 52px;
+      margin-top: 18px;
+      padding: 0 16px;
+
+      border: 1px solid #244452;
+      outline: none;
+
+      background: #08131c;
+      color: white;
+
+      font-size: 16px;
+    }
+
+    input:focus {
+      border-color: #19e6ff;
+    }
+
+    button {
+      border: 1px solid rgba(
+        80,
+        230,
+        255,
+        0.35
+      );
+
+      background:
+        linear-gradient(
+          135deg,
+          #0b303b,
+          #07151d
+        );
+
+      color: #dffaff;
+
+      padding: 12px 18px;
+
+      cursor: pointer;
+
+      font-weight: 700;
+
+      transition:
+        transform 0.15s,
+        border-color 0.15s,
+        background 0.15s;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      border-color: #19e6ff;
+    }
+
+    button:active {
+      transform: scale(0.97);
+    }
+
+    #joinButton {
+      width: 100%;
+      height: 54px;
+      margin-top: 14px;
+
+      font-size: 16px;
+      letter-spacing: 2px;
+    }
+
+    #hud {
+      position: fixed;
+      inset: 0;
+      z-index: 10;
+
+      pointer-events: none;
+    }
+
+    .panel {
+      pointer-events: auto;
+
+      position: absolute;
+
+      background:
+        rgba(4, 12, 19, 0.78);
+
+      border: 1px solid rgba(
+        81,
+        218,
+        255,
+        0.2
+      );
+
+      backdrop-filter: blur(10px);
+
+      box-shadow:
+        0 8px 30px rgba(
+          0,
+          0,
+          0,
+          0.3
+        );
+    }
+
+    #stats {
+      left: 18px;
+      top: 18px;
+
+      padding: 15px;
+
+      width: 245px;
+    }
+
+    .stat {
+      display: flex;
+      justify-content: space-between;
+
+      padding: 6px 0;
+
+      border-bottom:
+        1px solid rgba(
+          255,
+          255,
+          255,
+          0.04
+        );
+
+      font-size: 13px;
+    }
+
+    .value {
+      color: #68eaff;
+      font-weight: 800;
+    }
+
+    #phase {
+      left: 50%;
+      top: 18px;
+
+      transform:
+        translateX(-50%);
+
+      padding:
+        11px 22px;
+
+      letter-spacing: 3px;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    #players {
+      right: 18px;
+      top: 18px;
+
+      width: 245px;
+      max-height: 360px;
+
+      overflow: auto;
+
+      padding: 12px;
+    }
+
+    .player {
+      display: flex;
+      justify-content: space-between;
+
+      padding: 8px 5px;
+
+      border-bottom:
+        1px solid rgba(
+          255,
+          255,
+          255,
+          0.05
+        );
+
+      font-size: 12px;
+
+      cursor: pointer;
+    }
+
+    .player:hover {
+      background:
+        rgba(
+          25,
+          230,
+          255,
+          0.08
+        );
+    }
+
+    .dead {
+      opacity: 0.35;
+    }
+
+    #actions {
+      left: 18px;
+      bottom: 18px;
+
+      width: 330px;
+
+      padding: 12px;
+
+      display: grid;
+      grid-template-columns:
+        repeat(2, 1fr);
+
+      gap: 8px;
+    }
+
+    #actions button {
+      min-height: 44px;
+    }
+
+    #log {
+      right: 18px;
+      bottom: 18px;
+
+      width: 330px;
+      height: 170px;
+
+      padding: 12px;
+
+      overflow-y: auto;
+
+      color: #8ba5b0;
+
+      font-size: 11px;
+      line-height: 1.55;
+    }
+
+    #toast {
+      position: fixed;
+
+      left: 50%;
+      bottom: 205px;
+
+      transform:
+        translateX(-50%)
+        translateY(20px);
+
+      opacity: 0;
+
+      padding:
+        12px 22px;
+
+      background:
+        rgba(
+          3,
+          15,
+          22,
+          0.94
+        );
+
+      border:
+        1px solid
+        rgba(
+          25,
+          230,
+          255,
+          0.4
+        );
+
+      color: #dffaff;
+
+      z-index: 100;
+
+      transition:
+        opacity 0.2s,
+        transform 0.2s;
+    }
+
+    #toast.show {
+      opacity: 1;
+
+      transform:
+        translateX(-50%)
+        translateY(0);
+    }
+
+    #mobile {
+      position: fixed;
+
+      left: 20px;
+      bottom: 20px;
+
+      z-index: 20;
+
+      display: none;
+    }
+
+    .mobile-row {
+      display: flex;
+      justify-content: center;
+    }
+
+    .mobile-button {
+      width: 54px;
+      height: 54px;
+
+      margin: 3px;
+
+      border-radius: 50%;
+
+      background:
+        rgba(
+          8,
+          24,
+          32,
+          0.85
+        );
+    }
+
+    #challenge {
+      position: fixed;
+      inset: 0;
+
+      z-index: 40;
+
+      pointer-events: none;
+
+      display: none;
+    }
+
+    #challenge.active {
+      display: block;
+    }
+
+    #challenge-title {
+      position: absolute;
+
+      top: 70px;
+      left: 50%;
+
+      transform:
+        translateX(-50%);
+
+      padding:
+        14px 28px;
+
+      background:
+        rgba(
+          3,
+          12,
+          18,
+          0.88
+        );
+
+      border:
+        1px solid
+        rgba(
+          25,
+          230,
+          255,
+          0.45
+        );
+
+      letter-spacing: 3px;
+    }
+
+    #challenge-info {
+      position: absolute;
+
+      top: 130px;
+      left: 50%;
+
+      transform:
+        translateX(-50%);
+
+      color: #70edff;
+    }
+
+    @media (max-width: 800px) {
+      #stats {
+        width: 180px;
+      }
+
+      #players {
+        width: 180px;
+      }
+
+      #actions {
+        width: 280px;
+      }
+
+      #log {
+        display: none;
+      }
+
+      #mobile {
+        display: block;
+      }
+
+      .logo {
+        font-size: 34px;
+        letter-spacing: 7px;
+      }
+    }
+
+    @media (max-width: 560px) {
+      #players {
+        top: 105px;
+        right: 10px;
+
+        width: 160px;
+        max-height: 230px;
+      }
+
+      #stats {
+        left: 10px;
+        top: 10px;
+        width: 160px;
+      }
+
+      #actions {
+        left: 10px;
+        bottom: 10px;
+        width: 250px;
+      }
+
+      #phase {
+        top: 10px;
+      }
+    }
+  </style>
 </head>
 
 <body>
 
 <div id="game"></div>
 
-<div id="joinScreen">
-
+<div id="join">
   <div class="join-card">
 
     <div class="logo">
       AFTERLIGHT
     </div>
 
-    <div class="tagline">
+    <div class="subtitle">
       THE CHALLENGE IS ONLY HALF THE GAME
     </div>
 
-    <input
-      id="nameInput"
-      maxlength="18"
-      autocomplete="off"
-      placeholder="Enter your competitor name">
+    <p>
+      16 competitors enter the facility.
+      Every decision changes what happens next.
+    </p>
 
-    <button
-      class="primary"
-      id="joinButton">
+    <input
+      id="name"
+      maxlength="18"
+      placeholder="Enter your competitor name"
+      autocomplete="off"
+    >
+
+    <button id="joinButton">
       ENTER AFTERLIGHT
     </button>
 
-    <div id="connectionText">
-      Connecting to AFTERLIGHT network...
+  </div>
+</div>
+
+<div id="hud">
+
+  <div id="stats" class="panel">
+
+    <div class="stat">
+      <span>Credits</span>
+      <span id="credits" class="value">500</span>
     </div>
 
+    <div class="stat">
+      <span>Influence</span>
+      <span id="influence" class="value">10</span>
+    </div>
+
+    <div class="stat">
+      <span>Trust</span>
+      <span id="trust" class="value">50</span>
+    </div>
+
+    <div class="stat">
+      <span>Energy</span>
+      <span id="energy" class="value">100</span>
+    </div>
+
+    <div class="stat">
+      <span>Prize Pool</span>
+      <span id="prize" class="value">16,000</span>
+    </div>
+
+  </div>
+
+  <div id="phase" class="panel">
+    LOBBY
+  </div>
+
+  <div id="players" class="panel">
+    <strong>COMPETITORS</strong>
+    <div id="playerList"></div>
+  </div>
+
+  <div id="actions" class="panel">
+
+    <button id="ready">
+      READY
+    </button>
+
+    <button id="challenge">
+      CHALLENGE
+    </button>
+
+    <button id="social">
+      SOCIAL
+    </button>
+
+    <button id="mission">
+      MISSION
+    </button>
+
+    <button id="power">
+      POWER STORE
+    </button>
+
+    <button id="parallel">
+      PARALLEL
+    </button>
+
+    <button id="architect">
+      ARCHITECT
+    </button>
+
+    <button id="heist">
+      HEIST
+    </button>
+
+    <button id="vacation">
+      VACATION
+    </button>
+
+    <button id="trade">
+      TRADE
+    </button>
+
+    <button id="pact">
+      SECRET PACT
+    </button>
+
+    <button id="protect">
+      PROTECT
+    </button>
+
+    <button id="vote">
+      VOTE
+    </button>
+
+  </div>
+
+  <div id="log" class="panel">
+    <strong>AFTERLIGHT LOG</strong>
+    <div id="logContent"></div>
   </div>
 
 </div>
 
+<div id="mobile">
 
-<div id="hud" style="display:none">
-
-  <div id="topBar" class="hud-panel">
-
-    <div class="brand-small">
-      AFTERLIGHT
-    </div>
-
-    <div class="phase-box">
-
-      <div class="phase-label">
-        CURRENT PHASE
-      </div>
-
-      <div id="phase">
-        LOBBY
-      </div>
-
-    </div>
-
-    <div class="stats">
-
-      <div class="stat">
-        <div class="stat-label">
-          CREDITS
-        </div>
-        <div class="stat-value" id="credits">
-          500
-        </div>
-      </div>
-
-      <div class="stat">
-        <div class="stat-label">
-          INFLUENCE
-        </div>
-        <div class="stat-value" id="influence">
-          10
-        </div>
-      </div>
-
-      <div class="stat">
-        <div class="stat-label">
-          TRUST
-        </div>
-        <div class="stat-value" id="trust">
-          50
-        </div>
-      </div>
-
-      <div class="stat">
-        <div class="stat-label">
-          ENERGY
-        </div>
-        <div class="stat-value" id="energy">
-          100
-        </div>
-      </div>
-
-    </div>
-
-  </div>
-
-
-  <div id="competitors" class="hud-panel">
-
-    <div class="panel-title">
-      COMPETITORS —
-      <span id="competitorCount">0</span>
-    </div>
-
-    <div id="competitorList"></div>
-
-  </div>
-
-
-  <div id="actions" class="hud-panel">
-
-    <div class="panel-title">
-      AFTERLIGHT SYSTEM
-    </div>
-
-    <div class="action-grid">
-
-      <button class="action" id="readyBtn">
-        READY
-      </button>
-
-      <button class="action" id="challengeBtn">
-        CHALLENGE
-      </button>
-
-      <button class="action" id="socialBtn">
-        SOCIAL
-      </button>
-
-      <button class="action" id="storeBtn">
-        POWER STORE
-      </button>
-
-      <button class="action" id="missionBtn">
-        MISSION
-      </button>
-
-      <button class="action special" id="parallelBtn">
-        PARALLEL
-      </button>
-
-      <button class="action special" id="architectBtn">
-        ARCHITECT
-      </button>
-
-      <button class="action special" id="heistBtn">
-        HEIST
-      </button>
-
-      <button class="action" id="vacationBtn">
-        VACATION
-      </button>
-
-      <button class="action" id="tradeBtn">
-        TRADE
-      </button>
-
-      <button class="action" id="pactBtn">
-        SECRET PACT
-      </button>
-
-      <button class="action" id="protectBtn">
-        PROTECT
-      </button>
-
-      <button class="action danger" id="accuseBtn">
-        ACCUSE
-      </button>
-
-      <button class="action danger" id="voteBtn">
-        VOTE
-      </button>
-
-    </div>
-
-  </div>
-
-
-  <div id="context" class="hud-panel">
-
-    <div id="contextTitle">
-      AFTERLIGHT FACILITY
-    </div>
-
-    <div id="contextText">
-      Explore the facility.
-    </div>
-
-  </div>
-
-
-  <div id="logPanel" class="hud-panel">
-
-    <div class="panel-title">
-      AFTERLIGHT LOG
-    </div>
-
-    <div id="log"></div>
-
-  </div>
-
-
-  <div id="targetPanel" class="hud-panel">
-
-    <div class="panel-title">
-      SELECTED COMPETITOR
-    </div>
-
-    <div id="targetName">
-      None
-    </div>
-
-    <div id="targetRole">
-      No target selected
-    </div>
-
-    <div
-      class="action-grid"
-      style="margin-top:10px">
-
-      <button
-        class="action"
-        id="targetTalk">
-        TALK
-      </button>
-
-      <button
-        class="action"
-        id="targetDeal">
-        DEAL
-      </button>
-
-      <button
-        class="action danger"
-        id="targetAccuse">
-        ACCUSE
-      </button>
-
-      <button
-        class="action"
-        id="targetTrade">
-        TRADE
-      </button>
-
-    </div>
-
-  </div>
-
-</div>
-
-
-<div id="challengeOverlay">
-
-  <div class="challenge-title">
-
-    <div class="challenge-name">
-      THE FLOATING BRIDGE
-    </div>
-
-    <div class="challenge-sub">
-      ONE WRONG STEP CHANGES EVERYTHING
-    </div>
-
-  </div>
-
-  <div id="challengeTimer">
-    90
-  </div>
-
-  <div id="challengeProgress">
-
-    <div id="challengeProgressBar"></div>
-
-  </div>
-
-</div>
-
-
-<div id="toast"></div>
-
-
-<div id="mobileControls">
-
-  <div class="mobile-pad">
-
-    <button
-      class="move-btn up"
-      data-dir="up">
+  <div class="mobile-row">
+    <button class="mobile-button" data-key="w">
       ▲
     </button>
+  </div>
 
-    <button
-      class="move-btn down"
-      data-dir="down">
-      ▼
-    </button>
+  <div class="mobile-row">
 
-    <button
-      class="move-btn left"
-      data-dir="left">
+    <button class="mobile-button" data-key="a">
       ◀
     </button>
 
-    <button
-      class="move-btn right"
-      data-dir="right">
+    <button class="mobile-button" data-key="s">
+      ▼
+    </button>
+
+    <button class="mobile-button" data-key="d">
       ▶
     </button>
 
@@ -869,1243 +687,603 @@ canvas{
 
 </div>
 
+<div id="challenge">
+
+  <div id="challenge-title">
+    FLOATING BRIDGE
+  </div>
+
+  <div id="challenge-info">
+    CHALLENGE ACTIVE
+  </div>
+
+</div>
+
+<div id="toast"></div>
 
 <script type="module">
 
 import * as THREE from
-"https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js";
+  "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js";
 
-import { AfterlightWorld } from "./world.js";
+import { AfterlightWorld } from
+  "./world.js";
 
-import { AfterlightPlayer } from "./player.js";
-
-import { AfterlightGame } from "./game.js";
-
-
-/* =====================================================
-   CONNECTION
-===================================================== */
+import { AfterlightPlayer } from
+  "./player.js";
 
 const SERVER_URL =
-"wss://afterlightgame.sajjubhat99.workers.dev/ws";
+  "wss://afterlightgame.sajjubhat99.workers.dev/ws";
 
+const container =
+  document.getElementById("game");
 
-/* =====================================================
-   STATE
-===================================================== */
+const join =
+  document.getElementById("join");
+
+const nameInput =
+  document.getElementById("name");
+
+const joinButton =
+  document.getElementById("joinButton");
+
+const scene =
+  new THREE.Scene();
+
+const camera =
+  new THREE.PerspectiveCamera(
+    65,
+    innerWidth / innerHeight,
+    0.1,
+    250
+  );
+
+camera.position.set(
+  0,
+  8,
+  14
+);
+
+const renderer =
+  new THREE.WebGLRenderer({
+    antialias: true,
+    powerPreference: "high-performance"
+  });
+
+renderer.setPixelRatio(
+  Math.min(
+    window.devicePixelRatio,
+    1.5
+  )
+);
+
+renderer.setSize(
+  innerWidth,
+  innerHeight
+);
+
+renderer.shadowMap.enabled = true;
+
+renderer.shadowMap.type =
+  THREE.PCFSoftShadowMap;
+
+container.appendChild(
+  renderer.domElement
+);
+
+const world =
+  new AfterlightWorld(scene);
 
 let socket = null;
 
-let joined = false;
+let connected = false;
 
 let localPlayerId = null;
 
-let roomState = {
-  phase:"LOBBY",
-  players:[],
-  competitors:[],
-  logs:[]
-};
-
-let scene;
-let camera;
-let renderer;
-let world;
-let game;
-let raycaster;
-let mouse;
-let clock;
-
-let localPlayer = null;
-
-const remotePlayers =
-new Map();
+let players = new Map();
 
 let selectedPlayerId = null;
 
-let lastMoveSent = 0;
+const keys = {};
 
-const keys = {
-  w:false,
-  a:false,
-  s:false,
-  d:false,
-  arrowup:false,
-  arrowdown:false,
-  arrowleft:false,
-  arrowright:false
-};
-
-
-/* =====================================================
-   DOM
-===================================================== */
-
-const joinScreen =
-document.getElementById(
-  "joinScreen"
-);
-
-const joinButton =
-document.getElementById(
-  "joinButton"
-);
-
-const nameInput =
-document.getElementById(
-  "nameInput"
-);
-
-const connectionText =
-document.getElementById(
-  "connectionText"
-);
-
-const hud =
-document.getElementById(
-  "hud"
-);
-
-const phaseEl =
-document.getElementById(
-  "phase"
-);
-
-const creditsEl =
-document.getElementById(
-  "credits"
-);
-
-const influenceEl =
-document.getElementById(
-  "influence"
-);
-
-const trustEl =
-document.getElementById(
-  "trust"
-);
-
-const energyEl =
-document.getElementById(
-  "energy"
-);
-
-const competitorList =
-document.getElementById(
-  "competitorList"
-);
-
-const competitorCount =
-document.getElementById(
-  "competitorCount"
-);
-
-const logEl =
-document.getElementById(
-  "log"
-);
-
-const context =
-document.getElementById(
-  "context"
-);
-
-const contextTitle =
-document.getElementById(
-  "contextTitle"
-);
-
-const contextText =
-document.getElementById(
-  "contextText"
-);
-
-const targetPanel =
-document.getElementById(
-  "targetPanel"
-);
-
-const targetName =
-document.getElementById(
-  "targetName"
-);
-
-const targetRole =
-document.getElementById(
-  "targetRole"
-);
-
-const toast =
-document.getElementById(
-  "toast"
-);
-
-const challengeOverlay =
-document.getElementById(
-  "challengeOverlay"
-);
-
-const challengeTimer =
-document.getElementById(
-  "challengeTimer"
-);
-
-const challengeProgressBar =
-document.getElementById(
-  "challengeProgressBar"
-);
-
-
-/* =====================================================
-   THREE.JS
-===================================================== */
-
-function init3D(){
-
-  scene =
-  new THREE.Scene();
-
-  scene.background =
-  new THREE.Color(
-    0x02070c
-  );
-
-  scene.fog =
-  new THREE.FogExp2(
-    0x02070c,
-    0.018
-  );
-
-
-  camera =
-  new THREE.PerspectiveCamera(
-    62,
-    window.innerWidth /
-    window.innerHeight,
-    0.1,
-    500
-  );
-
-  camera.position.set(
-    0,
-    12,
-    18
-  );
-
-
-  renderer =
-  new THREE.WebGLRenderer({
-    antialias:false,
-    powerPreference:"low-power"
-  });
-
-  renderer.setPixelRatio(
-    Math.min(
-      window.devicePixelRatio,
-      1.5
-    )
-  );
-
-  renderer.setSize(
-    window.innerWidth,
-    window.innerHeight
-  );
-
-  renderer.outputColorSpace =
-  THREE.SRGBColorSpace;
-
-
-  document
-    .getElementById("game")
-    .appendChild(
-      renderer.domElement
-    );
-
-
-  world =
-  new AfterlightWorld(
-    scene
-  );
-
-
-  raycaster =
-  new THREE.Raycaster();
-
-  mouse =
-  new THREE.Vector2();
-
-  clock =
+const clock =
   new THREE.Clock();
 
+function showToast(message) {
 
-  game =
-  new AfterlightGame(
-    scene,
-    {
-      send,
-      getPlayers(){
-        return (
-          roomState.players ||
-          roomState.competitors ||
-          []
-        );
-      },
-      getLocalPlayer(){
-        return localPlayer;
-      },
-      onEvent:
-        handleGameEvent
-    }
+  const toast =
+    document.getElementById(
+      "toast"
+    );
+
+  toast.textContent =
+    message;
+
+  toast.classList.add(
+    "show"
   );
 
-
-  window.addEventListener(
-    "resize",
-    resize
-  );
-
-
-  renderer.domElement.addEventListener(
-    "pointerdown",
-    worldClick
-  );
-
-
-  animate();
+  setTimeout(() => {
+    toast.classList.remove(
+      "show"
+    );
+  }, 2200);
 }
 
+function send(message) {
 
-/* =====================================================
-   ANIMATION
-===================================================== */
-
-function animate(){
-
-  requestAnimationFrame(
-    animate
-  );
-
-  const time =
-  clock.getElapsedTime();
-
-
-  if(
-    world &&
-    typeof world.update ===
-    "function"
-  ){
-
-    world.update(
-      time
-    );
-  }
-
-
-  if(
-    game &&
-    typeof game.update ===
-    "function"
-  ){
-
-    game.update(
-      time
-    );
-  }
-
-
-  updateMovement(
-    time
-  );
-
-  updateCamera();
-
-  updateChallengeUI();
-
-
-  renderer.render(
-    scene,
-    camera
-  );
-}
-
-
-/* =====================================================
-   CAMERA
-===================================================== */
-
-function updateCamera(){
-
-  if(!localPlayer){
+  if (
+    !socket ||
+    socket.readyState !== WebSocket.OPEN
+  ) {
     return;
   }
 
-  const p =
-  localPlayer.group.position;
-
-
-  const desired =
-  new THREE.Vector3(
-    p.x,
-    p.y + 9,
-    p.z + 13
-  );
-
-
-  camera.position.lerp(
-    desired,
-    0.08
-  );
-
-
-  camera.lookAt(
-    p.x,
-    p.y + 1.8,
-    p.z
+  socket.send(
+    JSON.stringify(message)
   );
 }
 
-
-/* =====================================================
-   RESIZE
-===================================================== */
-
-function resize(){
-
-  if(
-    !camera ||
-    !renderer
-  ){
-    return;
-  }
-
-  camera.aspect =
-  window.innerWidth /
-  window.innerHeight;
-
-  camera.updateProjectionMatrix();
-
-  renderer.setSize(
-    window.innerWidth,
-    window.innerHeight
-  );
-}
-
-
-/* =====================================================
-   CONNECT
-===================================================== */
-
-function connect(){
-
-  connectionText.textContent =
-    "Connecting to AFTERLIGHT network...";
-
+function connect() {
 
   socket =
-  new WebSocket(
-    SERVER_URL
-  );
+    new WebSocket(
+      SERVER_URL
+    );
 
+  socket.onopen = () => {
 
-  socket.addEventListener(
-    "open",
-    ()=>{
-      connectionText.textContent =
-        "Network connected.";
-    }
-  );
+    connected = true;
 
+    showToast(
+      "Connected to AFTERLIGHT."
+    );
 
-  socket.addEventListener(
-    "message",
-    event=>{
+    send({
+      type: "join",
+      name:
+        nameInput.value.trim()
+    });
+  };
 
-      let data;
+  socket.onmessage = event => {
 
-      try{
+    let message;
 
-        data =
+    try {
+      message =
         JSON.parse(
           event.data
         );
-
-      }catch{
-
-        return;
-      }
-
-      handleServerMessage(
-        data
-      );
+    } catch {
+      return;
     }
-  );
 
+    handleMessage(message);
+  };
 
-  socket.addEventListener(
-    "close",
-    ()=>{
-      connectionText.textContent =
-        "Connection lost. Refresh to reconnect.";
-    }
-  );
+  socket.onerror = () => {
 
+    showToast(
+      "Connection error."
+    );
+  };
 
-  socket.addEventListener(
-    "error",
-    ()=>{
-      connectionText.textContent =
-        "Network error.";
-    }
-  );
+  socket.onclose = () => {
+
+    connected = false;
+
+    showToast(
+      "Connection closed."
+    );
+  };
 }
 
+function handleMessage(message) {
 
-/* =====================================================
-   SERVER MESSAGES
-===================================================== */
+  if (
+    message.type ===
+    "connected"
+  ) {
+    return;
+  }
 
-function handleServerMessage(
-  data
-){
-
-  if(
-    data.type ===
+  if (
+    message.type ===
     "welcome"
-  ){
+  ) {
 
     localPlayerId =
-      data.player?.id ||
-      data.id;
+      message.player.id;
 
-
-    joined = true;
-
-
-    joinScreen.style.display =
+    join.style.display =
       "none";
 
-    hud.style.display =
-      "block";
-
-
-    addLog(
-      "AFTERLIGHT network online."
+    showToast(
+      "Welcome to AFTERLIGHT."
     );
 
     return;
   }
 
+  if (
+    message.type ===
+    "state"
+  ) {
 
-  if(
-    data.type === "state" ||
-    data.type === "room" ||
-    data.type === "update"
-  ){
-
-    roomState =
-      data.state ||
-      data.room ||
-      data;
-
-
-    updateState();
+    applyState(
+      message.state
+    );
 
     return;
   }
 
+  if (
+    message.type ===
+    "log"
+  ) {
 
-  if(
-    data.type ===
-    "challenge"
-  ){
+    addLog(
+      message.message
+    );
 
-    handleChallengeMessage(
+    return;
+  }
+
+  if (
+    message.type ===
+    "error"
+  ) {
+
+    showToast(
+      message.message
+    );
+
+    return;
+  }
+
+  if (
+    message.type ===
+    "challengeStart"
+  ) {
+
+    document
+      .getElementById(
+        "challenge"
+      )
+      .classList.add(
+        "active"
+      );
+
+    showToast(
+      "Floating Bridge started."
+    );
+
+    return;
+  }
+
+  if (
+    message.type ===
+    "challengeResult"
+  ) {
+
+    if (message.success) {
+
+      showToast(
+        message.finished
+          ? "Bridge completed!"
+          : "Safe panel."
+      );
+
+    } else {
+
+      showToast(
+        "Unstable panel."
+      );
+    }
+
+    return;
+  }
+
+  if (
+    message.type ===
+    "challengeEnd"
+  ) {
+
+    document
+      .getElementById(
+        "challenge"
+      )
+      .classList.remove(
+        "active"
+      );
+
+    return;
+  }
+
+  if (
+    message.type ===
+    "winner"
+  ) {
+
+    showToast(
+      `${message.winner.name} wins AFTERLIGHT!`
+    );
+  }
+}
+
+function applyState(state) {
+
+  document.getElementById(
+    "phase"
+  ).textContent =
+    state.phase;
+
+  document.getElementById(
+    "prize"
+  ).textContent =
+    Number(
+      state.prizePool || 0
+    ).toLocaleString();
+
+  const incoming =
+    new Map();
+
+  for (
+    const data
+    of state.players || []
+  ) {
+
+    incoming.set(
+      data.id,
       data
     );
 
-    return;
-  }
-
-
-  if(
-    data.type ===
-    "challengeStart"
-  ){
-
-    startLocalChallenge(
-      data.duration ||
-      90
-    );
-
-    return;
-  }
-
-
-  if(
-    data.type ===
-    "challengeEnd"
-  ){
-
-    endLocalChallenge();
-
-    return;
-  }
-
-
-  if(
-    data.type ===
-    "log"
-  ){
-
-    addLog(
-      data.message
-    );
-
-    return;
-  }
-
-
-  if(
-    data.type ===
-    "error"
-  ){
-
-    showToast(
-      data.message ||
-      "ACTION FAILED"
-    );
-
-    addLog(
-      data.message ||
-      "System rejected action."
-    );
-  }
-}
-
-
-/* =====================================================
-   JOIN
-===================================================== */
-
-joinButton.addEventListener(
-  "click",
-  joinGame
-);
-
-
-nameInput.addEventListener(
-  "keydown",
-  event=>{
-
-    if(
-      event.key ===
-      "Enter"
-    ){
-
-      joinGame();
-    }
-  }
-);
-
-
-function joinGame(){
-
-  const name =
-    nameInput.value.trim();
-
-
-  if(!name){
-
-    showToast(
-      "ENTER YOUR COMPETITOR NAME"
-    );
-
-    nameInput.focus();
-
-    return;
-  }
-
-
-  if(
-    !socket ||
-    socket.readyState !==
-    WebSocket.OPEN
-  ){
-
-    connect();
-
-
-    setTimeout(
-      ()=>{
-        send({
-          type:"join",
-          name
-        });
-      },
-      500
-    );
-
-    return;
-  }
-
-
-  send({
-    type:"join",
-    name
-  });
-}
-
-
-/* =====================================================
-   SEND
-===================================================== */
-
-function send(
-  message
-){
-
-  if(
-    !socket ||
-    socket.readyState !==
-    WebSocket.OPEN
-  ){
-
-    return;
-  }
-
-
-  socket.send(
-    JSON.stringify(
-      message
-    )
-  );
-}
-
-
-/* =====================================================
-   STATE
-===================================================== */
-
-function updateState(){
-
-  const players =
-    roomState.players ||
-    roomState.competitors ||
-    [];
-
-
-  const me =
-    players.find(
-      player =>
-        player.id ===
-        localPlayerId
-    );
-
-
-  if(me){
-
-    creditsEl.textContent =
-      me.credits ?? 500;
-
-    influenceEl.textContent =
-      me.influence ?? 10;
-
-    trustEl.textContent =
-      me.trust ?? 50;
-
-    energyEl.textContent =
-      me.energy ?? 100;
-  }
-
-
-  phaseEl.textContent =
-    roomState.phase ||
-    "LOBBY";
-
-
-  competitorCount.textContent =
-    players.length;
-
-
-  updatePlayers(
-    players
-  );
-
-  updateCompetitors(
-    players
-  );
-
-  updateLogs(
-    roomState.logs ||
-    []
-  );
-
-  updateContext();
-}
-
-
-/* =====================================================
-   PLAYERS
-===================================================== */
-
-function updatePlayers(
-  players
-){
-
-  const ids =
-    new Set(
-      players.map(
-        player =>
-          player.id
-      )
-    );
-
-
-  for(
-    const [
-      id,
-      player
-    ] of remotePlayers
-  ){
-
-    if(
-      !ids.has(id)
-    ){
-
-      scene.remove(
-        player.group
-      );
-
-
-      if(
-        typeof player.remove ===
-        "function"
-      ){
-
-        player.remove();
-      }
-
-
-      remotePlayers.delete(
-        id
-      );
-    }
-  }
-
-
-  for(
-    const data of players
-  ){
-
     let player =
-      remotePlayers.get(
+      players.get(
         data.id
       );
 
-
-    if(!player){
+    if (!player) {
 
       player =
         new AfterlightPlayer(
-          data.id,
-          data.name,
-          data.role,
-          data.id ===
-            localPlayerId
+          data,
+          data.id === localPlayerId
         );
-
 
       scene.add(
         player.group
       );
 
-
-      remotePlayers.set(
+      players.set(
         data.id,
         player
       );
     }
 
+    player.update(
+      data,
+      clock.getDelta()
+    );
 
-    if(
-      typeof player.setServerState ===
-      "function"
-    ){
+    if (
+      data.id ===
+      localPlayerId
+    ) {
 
-      player.setServerState({
-        x:data.x || 0,
-        y:data.y || 0,
-        z:data.z || 0
-      });
-
-    }else{
-
-      player.group.position.set(
-        data.x || 0,
-        data.y || 0,
-        data.z || 0
+      updateLocalHUD(
+        data
       );
     }
 
+    player.setVisible(
+      data.alive !== false
+    );
+  }
 
-    if(
-      data.id ===
-      localPlayerId
-    ){
+  for (
+    const [id, player]
+    of players
+  ) {
 
-      localPlayer =
-        player;
+    if (
+      !incoming.has(id)
+    ) {
+
+      player.remove();
+
+      players.delete(id);
     }
   }
+
+  renderPlayerList(
+    state.players || []
+  );
 }
 
+function updateLocalHUD(data) {
 
-/* =====================================================
-   COMPETITORS
-===================================================== */
+  document.getElementById(
+    "credits"
+  ).textContent =
+    data.credits;
 
-function updateCompetitors(
-  players
-){
+  document.getElementById(
+    "influence"
+  ).textContent =
+    data.influence;
 
-  competitorList.innerHTML =
-    "";
+  document.getElementById(
+    "trust"
+  ).textContent =
+    data.trust;
 
+  document.getElementById(
+    "energy"
+  ).textContent =
+    data.energy;
+}
 
-  for(
-    const player of players
-  ){
+function renderPlayerList(list) {
+
+  const element =
+    document.getElementById(
+      "playerList"
+    );
+
+  element.innerHTML = "";
+
+  for (
+    const player
+    of list
+  ) {
 
     const row =
       document.createElement(
         "div"
       );
 
-
     row.className =
-      "player-row";
+      "player";
 
-
-    if(
-      player.id ===
-      selectedPlayerId
-    ){
-
+    if (
+      !player.alive
+    ) {
       row.classList.add(
-        "selected"
+        "dead"
       );
     }
 
-
     row.innerHTML = `
-      <div class="player-dot ${
-        player.alive === false
-          ? "dead"
-          : ""
-      }"></div>
-
-      <div class="player-name">
-        ${escapeHTML(
-          player.name ||
-          "Unknown"
-        )}
-      </div>
-
-      <div class="player-role">
-        ${escapeHTML(
-          player.role ||
-          ""
-        )}
-      </div>
+      <span>
+        ${escapeHTML(player.name)}
+      </span>
+      <span>
+        ${escapeHTML(player.role)}
+      </span>
     `;
-
 
     row.addEventListener(
       "click",
-      ()=>{
-        selectPlayer(
-          player.id
+      () => {
+
+        selectedPlayerId =
+          player.id;
+
+        showToast(
+          `${player.name} selected.`
         );
       }
     );
 
-
-    competitorList.appendChild(
+    element.appendChild(
       row
     );
   }
 }
 
+function addLog(message) {
 
-/* =====================================================
-   SELECT PLAYER
-===================================================== */
+  const content =
+    document.getElementById(
+      "logContent"
+    );
 
-function selectPlayer(
-  id
-){
+  const row =
+    document.createElement(
+      "div"
+    );
 
-  if(
-    id ===
-    localPlayerId
-  ){
+  row.textContent =
+    message;
 
-    return;
+  content.appendChild(
+    row
+  );
+
+  while (
+    content.children.length >
+    30
+  ) {
+
+    content.removeChild(
+      content.firstChild
+    );
   }
 
+  const log =
+    document.getElementById(
+      "log"
+    );
 
-  const players =
-    roomState.players ||
-    roomState.competitors ||
-    [];
+  log.scrollTop =
+    log.scrollHeight;
+}
 
+function escapeHTML(value) {
+
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function localPlayer() {
+
+  return players.get(
+    localPlayerId
+  );
+}
+
+function move() {
 
   const player =
-    players.find(
-      p =>
-        p.id === id
-    );
+    localPlayer();
 
-
-  if(!player){
+  if (!player) {
     return;
   }
-
-
-  selectedPlayerId =
-    id;
-
-
-  targetPanel.classList.add(
-    "visible"
-  );
-
-
-  targetName.textContent =
-    player.name ||
-    "Unknown";
-
-
-  targetRole.textContent =
-    player.role ||
-    "Competitor";
-
-
-  updateCompetitors(
-    players
-  );
-}
-
-
-/* =====================================================
-   WORLD CLICK
-===================================================== */
-
-function worldClick(
-  event
-){
-
-  if(!renderer){
-    return;
-  }
-
-
-  const rect =
-    renderer.domElement
-      .getBoundingClientRect();
-
-
-  mouse.x =
-    (
-      (event.clientX -
-      rect.left) /
-      rect.width
-    ) * 2 - 1;
-
-
-  mouse.y =
-    -(
-      (event.clientY -
-      rect.top) /
-      rect.height
-    ) * 2 + 1;
-
-
-  raycaster.setFromCamera(
-    mouse,
-    camera
-  );
-
-
-  const objects = [];
-
-
-  for(
-    const player of
-    remotePlayers.values()
-  ){
-
-    player.group.traverse(
-      object=>{
-
-        if(
-          object.isMesh
-        ){
-
-          objects.push(
-            object
-          );
-        }
-      }
-    );
-  }
-
-
-  const hits =
-    raycaster.intersectObjects(
-      objects,
-      true
-    );
-
-
-  if(!hits.length){
-    return;
-  }
-
-
-  let object =
-    hits[0].object;
-
-
-  while(object){
-
-    if(
-      object.userData &&
-      object.userData.playerId
-    ){
-
-      selectPlayer(
-        object.userData.playerId
-      );
-
-      return;
-    }
-
-
-    object =
-      object.parent;
-  }
-}
-
-
-/* =====================================================
-   MOVEMENT
-===================================================== */
-
-window.addEventListener(
-  "keydown",
-  event=>{
-
-    const key =
-      event.key.toLowerCase();
-
-
-    if(
-      Object.prototype.hasOwnProperty.call(
-        keys,
-        key
-      )
-    ){
-
-      keys[key] = true;
-    }
-  }
-);
-
-
-window.addEventListener(
-  "keyup",
-  event=>{
-
-    const key =
-      event.key.toLowerCase();
-
-
-    if(
-      Object.prototype.hasOwnProperty.call(
-        keys,
-        key
-      )
-    ){
-
-      keys[key] = false;
-    }
-  }
-);
-
-
-function updateMovement(
-  time
-){
-
-  if(
-    !localPlayer ||
-    !joined
-  ){
-
-    return;
-  }
-
 
   let dx = 0;
   let dz = 0;
 
-
-  if(
+  if (
     keys.w ||
-    keys.arrowup
-  ){
-
+    keys.ArrowUp
+  ) {
     dz -= 1;
   }
 
-
-  if(
+  if (
     keys.s ||
-    keys.arrowdown
-  ){
-
+    keys.ArrowDown
+  ) {
     dz += 1;
   }
 
-
-  if(
+  if (
     keys.a ||
-    keys.arrowleft
-  ){
-
+    keys.ArrowLeft
+  ) {
     dx -= 1;
   }
 
-
-  if(
+  if (
     keys.d ||
-    keys.arrowright
-  ){
-
+    keys.ArrowRight
+  ) {
     dx += 1;
   }
 
-
-  if(
+  if (
     dx === 0 &&
     dz === 0
-  ){
-
+  ) {
     return;
   }
-
 
   const length =
     Math.sqrt(
@@ -2113,1117 +1291,375 @@ function updateMovement(
       dz * dz
     );
 
-
   dx /= length;
   dz /= length;
 
+  const speed = 0.18;
 
-  const speed =
-    0.13;
-
-
-  const position =
-    localPlayer.group.position;
-
-
-  position.x +=
+  player.target.x +=
     dx * speed;
 
-  position.z +=
+  player.target.z +=
     dz * speed;
 
-
-  position.x =
+  player.target.x =
     THREE.MathUtils.clamp(
-      position.x,
-      -22,
-      22
+      player.target.x,
+      -39,
+      39
     );
 
-
-  position.z =
+  player.target.z =
     THREE.MathUtils.clamp(
-      position.z,
-      -30,
-      30
+      player.target.z,
+      -39,
+      39
     );
-
-
-  if(
-    time -
-    lastMoveSent >
-    0.08
-  ){
-
-    lastMoveSent =
-      time;
-
-
-    send({
-      type:"move",
-      x:position.x,
-      y:position.y,
-      z:position.z
-    });
-  }
-}
-
-
-/* =====================================================
-   CONTEXT
-===================================================== */
-
-function updateContext(){
-
-  if(!localPlayer){
-    return;
-  }
-
-
-  const p =
-    localPlayer.group.position;
-
-
-  const distance =
-    Math.sqrt(
-      p.x * p.x +
-      p.z * p.z
-    );
-
-
-  let title =
-    "AFTERLIGHT FACILITY";
-
-
-  let description =
-    "Explore the facility.";
-
-
-  if(
-    distance < 6
-  ){
-
-    title =
-      "AFTERLIGHT CORE";
-
-    description =
-      "The central system is watching every decision.";
-
-  }else if(
-    p.z < -18
-  ){
-
-    title =
-      "CHALLENGE DECK";
-
-    description =
-      "The Floating Bridge awaits.";
-
-  }else if(
-    p.x < -18
-  ){
-
-    title =
-      "DINING HALL";
-
-    description =
-      "Build alliances and collect information.";
-
-  }else if(
-    p.x > 18
-  ){
-
-    title =
-      "POWER STORE";
-
-    description =
-      "BUY • EARN • TRADE";
-
-  }else if(
-    p.z > 18
-  ){
-
-    title =
-      "SOCIAL ROOM";
-
-    description =
-      "Deals, pacts and accusations.";
-  }
-
-
-  contextTitle.textContent =
-    title;
-
-
-  contextText.textContent =
-    description;
-
-
-  context.classList.add(
-    "visible"
-  );
-}
-
-
-/* =====================================================
-   BASIC ACTIONS
-===================================================== */
-
-document
-  .getElementById(
-    "readyBtn"
-  )
-  .addEventListener(
-    "click",
-    ()=>{
-      send({
-        type:"ready"
-      });
-    }
-  );
-
-
-document
-  .getElementById(
-    "challengeBtn"
-  )
-  .addEventListener(
-    "click",
-    startChallengeRequest
-  );
-
-
-document
-  .getElementById(
-    "socialBtn"
-  )
-  .addEventListener(
-    "click",
-    ()=>{
-      send({
-        type:"social",
-        action:"talk",
-        targetId:
-          selectedPlayerId
-      });
-    }
-  );
-
-
-document
-  .getElementById(
-    "missionBtn"
-  )
-  .addEventListener(
-    "click",
-    ()=>{
-      send({
-        type:"mission"
-      });
-    }
-  );
-
-
-document
-  .getElementById(
-    "parallelBtn"
-  )
-  .addEventListener(
-    "click",
-    ()=>{
-      send({
-        type:"parallel"
-      });
-    }
-  );
-
-
-document
-  .getElementById(
-    "architectBtn"
-  )
-  .addEventListener(
-    "click",
-    ()=>{
-      send({
-        type:"architect"
-      });
-    }
-  );
-
-
-document
-  .getElementById(
-    "heistBtn"
-  )
-  .addEventListener(
-    "click",
-    ()=>{
-      send({
-        type:"heist"
-      });
-    }
-  );
-
-
-document
-  .getElementById(
-    "vacationBtn"
-  )
-  .addEventListener(
-    "click",
-    ()=>{
-      send({
-        type:"vacation"
-      });
-    }
-  );
-
-
-/* =====================================================
-   POWER STORE
-===================================================== */
-
-document
-  .getElementById(
-    "storeBtn"
-  )
-  .addEventListener(
-    "click",
-    ()=>{
-
-      const power =
-        prompt(
-          "POWER STORE\n\n" +
-          "Power Ring\n" +
-          "Pulse Watch\n" +
-          "Gravity Shoes\n" +
-          "Spectra Visor\n" +
-          "Phase Jacket\n" +
-          "Signal Band\n" +
-          "Influence Chip\n" +
-          "Shadow Pack\n" +
-          "Oracle Lens\n" +
-          "Shield Band\n\n" +
-          "Enter power:"
-        );
-
-
-      if(!power){
-        return;
-      }
-
-
-      send({
-        type:"buyPower",
-        power
-      });
-    }
-  );
-
-
-/* =====================================================
-   TRADE
-===================================================== */
-
-function trade(){
-
-  if(!selectedPlayerId){
-
-    showToast(
-      "SELECT A COMPETITOR"
-    );
-
-    return;
-  }
-
 
   send({
-    type:"trade",
-    targetId:
-      selectedPlayerId
+    type: "move",
+    x: player.target.x,
+    y: 0,
+    z: player.target.z
   });
 }
 
+function updateCamera() {
 
-document
-  .getElementById(
-    "tradeBtn"
-  )
-  .addEventListener(
-    "click",
-    trade
-  );
+  const player =
+    localPlayer();
 
-
-document
-  .getElementById(
-    "targetTrade"
-  )
-  .addEventListener(
-    "click",
-    trade
-  );
-
-
-/* =====================================================
-   PACT
-===================================================== */
-
-document
-  .getElementById(
-    "pactBtn"
-  )
-  .addEventListener(
-    "click",
-    ()=>{
-
-      if(!selectedPlayerId){
-
-        showToast(
-          "SELECT A COMPETITOR"
-        );
-
-        return;
-      }
-
-
-      send({
-        type:"pact",
-        targetId:
-          selectedPlayerId
-      });
-    }
-  );
-
-
-/* =====================================================
-   PROTECT
-===================================================== */
-
-document
-  .getElementById(
-    "protectBtn"
-  )
-  .addEventListener(
-    "click",
-    ()=>{
-
-      if(!selectedPlayerId){
-
-        showToast(
-          "SELECT A COMPETITOR"
-        );
-
-        return;
-      }
-
-
-      send({
-        type:"protect",
-        targetId:
-          selectedPlayerId
-      });
-    }
-  );
-
-
-/* =====================================================
-   ACCUSE
-===================================================== */
-
-function accuse(){
-
-  if(!selectedPlayerId){
-
-    showToast(
-      "SELECT A COMPETITOR"
-    );
-
+  if (!player) {
     return;
   }
 
+  const target =
+    player.group.position;
 
-  send({
-    type:"social",
-    action:"accuse",
-    targetId:
-      selectedPlayerId
-  });
-}
-
-
-document
-  .getElementById(
-    "accuseBtn"
-  )
-  .addEventListener(
-    "click",
-    accuse
-  );
-
-
-document
-  .getElementById(
-    "targetAccuse"
-  )
-  .addEventListener(
-    "click",
-    accuse
-  );
-
-
-/* =====================================================
-   TALK
-===================================================== */
-
-document
-  .getElementById(
-    "targetTalk"
-  )
-  .addEventListener(
-    "click",
-    ()=>{
-
-      if(!selectedPlayerId){
-        return;
-      }
-
-
-      send({
-        type:"social",
-        action:"talk",
-        targetId:
-          selectedPlayerId
-      });
-    }
-  );
-
-
-/* =====================================================
-   DEAL
-===================================================== */
-
-document
-  .getElementById(
-    "targetDeal"
-  )
-  .addEventListener(
-    "click",
-    ()=>{
-
-      if(!selectedPlayerId){
-        return;
-      }
-
-
-      send({
-        type:"social",
-        action:"deal",
-        targetId:
-          selectedPlayerId
-      });
-    }
-  );
-
-
-/* =====================================================
-   VOTE
-===================================================== */
-
-document
-  .getElementById(
-    "voteBtn"
-  )
-  .addEventListener(
-    "click",
-    ()=>{
-
-      if(!selectedPlayerId){
-
-        showToast(
-          "SELECT WHO TO VOTE FOR"
-        );
-
-        return;
-      }
-
-
-      send({
-        type:"vote",
-        targetId:
-          selectedPlayerId
-      });
-    }
-  );
-
-
-/* =====================================================
-   START CHALLENGE
-===================================================== */
-
-function startChallengeRequest(){
-
-  if(
-    !game
-  ){
-
-    showToast(
-      "GAME SYSTEM NOT READY"
+  const desired =
+    new THREE.Vector3(
+      target.x,
+      target.y + 7,
+      target.z + 11
     );
 
-    return;
-  }
+  camera.position.lerp(
+    desired,
+    0.06
+  );
 
-
-  send({
-    type:"challengeStart",
-    challenge:
-      "floating_bridge"
-  });
-
-
-  /*
-    Temporary local start.
-
-    The next worker.js upgrade will make
-    the server authoritative.
-  */
-
-  startLocalChallenge(
-    90
+  camera.lookAt(
+    target.x,
+    target.y + 2.2,
+    target.z
   );
 }
 
+window.addEventListener(
+  "keydown",
+  event => {
 
-/* =====================================================
-   LOCAL CHALLENGE
-===================================================== */
-
-function startLocalChallenge(
-  duration
-){
-
-  if(!game){
-    return;
+    keys[
+      event.key
+    ] = true;
   }
+);
 
+window.addEventListener(
+  "keyup",
+  event => {
 
-  game.startFloatingBridge(
-    duration
-  );
-
-
-  challengeOverlay.classList.add(
-    "active"
-  );
-
-
-  showToast(
-    "THE FLOATING BRIDGE HAS BEGUN"
-  );
-
-
-  addLog(
-    "Challenge started: The Floating Bridge."
-  );
-}
-
-
-function endLocalChallenge(){
-
-  if(game){
-
-    game.stopChallenge();
+    keys[
+      event.key
+    ] = false;
   }
-
-
-  challengeOverlay.classList.remove(
-    "active"
-  );
-
-
-  showToast(
-    "CHALLENGE COMPLETE"
-  );
-}
-
-
-/* =====================================================
-   CHALLENGE SERVER MESSAGE
-===================================================== */
-
-function handleChallengeMessage(
-  data
-){
-
-  if(
-    data.action ===
-    "start"
-  ){
-
-    startLocalChallenge(
-      data.duration ||
-      90
-    );
-  }
-
-
-  if(
-    data.action ===
-    "end"
-  ){
-
-    endLocalChallenge();
-  }
-
-
-  if(
-    data.action ===
-    "safe"
-  ){
-
-    addLog(
-      `${data.name || "Competitor"} found a safe tile.`
-    );
-  }
-
-
-  if(
-    data.action ===
-    "danger"
-  ){
-
-    addLog(
-      `${data.name || "Competitor"} triggered an unstable tile.`
-    );
-  }
-}
-
-
-/* =====================================================
-   CHALLENGE UI
-===================================================== */
-
-function updateChallengeUI(){
-
-  if(
-    !game ||
-    !game.challengeActive
-  ){
-
-    return;
-  }
-
-
-  const seconds =
-    Math.max(
-      0,
-      Math.ceil(
-        game.remainingTime
-      )
-    );
-
-
-  challengeTimer.textContent =
-    seconds;
-
-
-  const progress =
-    Math.max(
-      0,
-      Math.min(
-        100,
-        (
-          1 -
-          seconds /
-          game.challengeTime
-        ) * 100
-      )
-    );
-
-
-  challengeProgressBar.style.width =
-    progress + "%";
-}
-
-
-/* =====================================================
-   GAME EVENTS
-===================================================== */
-
-function handleGameEvent(
-  event
-){
-
-  if(!event){
-    return;
-  }
-
-
-  if(
-    event.type ===
-    "challengeStart"
-  ){
-
-    addLog(
-      "Floating Bridge initialized."
-    );
-  }
-
-
-  if(
-    event.type ===
-    "safeTile"
-  ){
-
-    addLog(
-      `Safe route confirmed: row ${event.row + 1}.`
-    );
-  }
-
-
-  if(
-    event.type ===
-    "dangerTile"
-  ){
-
-    addLog(
-      "WARNING: unstable tile triggered."
-    );
-  }
-
-
-  if(
-    event.type ===
-    "playerFinished"
-  ){
-
-    addLog(
-      "A competitor reached the final gate."
-    );
-  }
-
-
-  if(
-    event.type ===
-    "challengeEnd"
-  ){
-
-    addLog(
-      "Floating Bridge concluded."
-    );
-  }
-}
-
-
-/* =====================================================
-   LOG
-===================================================== */
-
-function addLog(
-  message
-){
-
-  if(!message){
-    return;
-  }
-
-
-  const line =
-    document.createElement(
-      "div"
-    );
-
-
-  line.className =
-    "log-line";
-
-
-  line.textContent =
-    message;
-
-
-  logEl.prepend(
-    line
-  );
-
-
-  while(
-    logEl.children.length >
-    40
-  ){
-
-    logEl.lastChild.remove();
-  }
-}
-
-
-function updateLogs(
-  logs
-){
-
-  if(
-    !Array.isArray(logs)
-  ){
-
-    return;
-  }
-
-
-  logEl.innerHTML =
-    "";
-
-
-  for(
-    const item of
-    logs.slice(-40)
-  ){
-
-    const message =
-      typeof item === "string"
-        ? item
-        : item.message;
-
-
-    if(
-      !message
-    ){
-
-      continue;
-    }
-
-
-    const line =
-      document.createElement(
-        "div"
-      );
-
-
-    line.className =
-      "log-line";
-
-
-    line.textContent =
-      message;
-
-
-    logEl.appendChild(
-      line
-    );
-  }
-
-
-  logEl.scrollTop =
-    logEl.scrollHeight;
-}
-
-
-/* =====================================================
-   MOBILE CONTROLS
-===================================================== */
+);
 
 document
   .querySelectorAll(
-    ".move-btn"
+    ".mobile-button"
   )
-  .forEach(
-    button=>{
+  .forEach(button => {
 
-      const direction =
-        button.dataset.dir;
+    const key =
+      button.dataset.key;
 
-
-      const down =
-        event=>{
-
-          event.preventDefault();
-
-
-          if(
-            direction ===
-            "up"
-          ){
-
-            keys.w = true;
-          }
-
-
-          if(
-            direction ===
-            "down"
-          ){
-
-            keys.s = true;
-          }
-
-
-          if(
-            direction ===
-            "left"
-          ){
-
-            keys.a = true;
-          }
-
-
-          if(
-            direction ===
-            "right"
-          ){
-
-            keys.d = true;
-          }
-        };
-
-
-      const up =
-        event=>{
-
-          event.preventDefault();
-
-
-          if(
-            direction ===
-            "up"
-          ){
-
-            keys.w = false;
-          }
-
-
-          if(
-            direction ===
-            "down"
-          ){
-
-            keys.s = false;
-          }
-
-
-          if(
-            direction ===
-            "left"
-          ){
-
-            keys.a = false;
-          }
-
-
-          if(
-            direction ===
-            "right"
-          ){
-
-            keys.d = false;
-          }
-        };
-
-
-      button.addEventListener(
-        "pointerdown",
-        down
-      );
-
-
-      button.addEventListener(
-        "pointerup",
-        up
-      );
-
-
-      button.addEventListener(
-        "pointercancel",
-        up
-      );
-
-
-      button.addEventListener(
-        "pointerleave",
-        up
-      );
-    }
-  );
-
-
-/* =====================================================
-   TOAST
-===================================================== */
-
-let toastTimer = null;
-
-
-function showToast(
-  message
-){
-
-  toast.textContent =
-    message;
-
-
-  toast.classList.add(
-    "show"
-  );
-
-
-  clearTimeout(
-    toastTimer
-  );
-
-
-  toastTimer =
-    setTimeout(
-      ()=>{
-        toast.classList.remove(
-          "show"
-        );
-      },
-      1800
+    button.addEventListener(
+      "pointerdown",
+      () => {
+        keys[key] = true;
+      }
     );
-}
 
+    button.addEventListener(
+      "pointerup",
+      () => {
+        keys[key] = false;
+      }
+    );
 
-/* =====================================================
-   ESCAPE HTML
-===================================================== */
+    button.addEventListener(
+      "pointerleave",
+      () => {
+        keys[key] = false;
+      }
+    );
+  });
 
-function escapeHTML(
-  value
-){
+joinButton.addEventListener(
+  "click",
+  () => {
 
-  return String(
-    value
-  )
-  .replaceAll(
-    "&",
-    "&amp;"
-  )
-  .replaceAll(
-    "<",
-    "&lt;"
-  )
-  .replaceAll(
-    ">",
-    "&gt;"
-  )
-  .replaceAll(
-    '"',
-    "&quot;"
-  )
-  .replaceAll(
-    "'",
-    "&#039;"
+    if (
+      nameInput.value.trim()
+        .length === 0
+    ) {
+
+      nameInput.value =
+        "Player";
+
+    }
+
+    connect();
+  }
+);
+
+nameInput.addEventListener(
+  "keydown",
+  event => {
+
+    if (
+      event.key === "Enter"
+    ) {
+
+      joinButton.click();
+    }
+  }
+);
+
+document
+  .getElementById("ready")
+  .onclick = () => {
+
+    send({
+      type: "ready"
+    });
+  };
+
+document
+  .getElementById("challenge")
+  .onclick = () => {
+
+    send({
+      type: "challengeStart"
+    });
+  };
+
+document
+  .getElementById("social")
+  .onclick = () => {
+
+    send({
+      type: "social",
+      action: "talk"
+    });
+  };
+
+document
+  .getElementById("mission")
+  .onclick = () => {
+
+    send({
+      type: "mission"
+    });
+  };
+
+document
+  .getElementById("power")
+  .onclick = () => {
+
+    const power =
+      prompt(
+        "Enter power name:\n\nPower Ring\nPulse Watch\nGravity Shoes\nSpectra Visor\nPhase Jacket\nSignal Band\nInfluence Chip\nShadow Pack\nOracle Lens\nShield Band"
+      );
+
+    if (!power) {
+      return;
+    }
+
+    send({
+      type: "buyPower",
+      power
+    });
+  };
+
+document
+  .getElementById("parallel")
+  .onclick = () => {
+
+    send({
+      type: "parallel"
+    });
+  };
+
+document
+  .getElementById("architect")
+  .onclick = () => {
+
+    send({
+      type: "architect"
+    });
+  };
+
+document
+  .getElementById("heist")
+  .onclick = () => {
+
+    send({
+      type: "heist"
+    });
+  };
+
+document
+  .getElementById("vacation")
+  .onclick = () => {
+
+    send({
+      type: "vacation"
+    });
+  };
+
+document
+  .getElementById("trade")
+  .onclick = () => {
+
+    if (!selectedPlayerId) {
+
+      showToast(
+        "Select a competitor first."
+      );
+
+      return;
+    }
+
+    send({
+      type: "trade",
+      targetId:
+        selectedPlayerId,
+      amount: 50
+    });
+  };
+
+document
+  .getElementById("pact")
+  .onclick = () => {
+
+    if (!selectedPlayerId) {
+
+      showToast(
+        "Select a competitor first."
+      );
+
+      return;
+    }
+
+    send({
+      type: "pact",
+      targetId:
+        selectedPlayerId
+    });
+  };
+
+document
+  .getElementById("protect")
+  .onclick = () => {
+
+    send({
+      type: "protect",
+      targetId:
+        selectedPlayerId ||
+        localPlayerId
+    });
+  };
+
+document
+  .getElementById("vote")
+  .onclick = () => {
+
+    if (!selectedPlayerId) {
+
+      showToast(
+        "Select a competitor first."
+      );
+
+      return;
+    }
+
+    send({
+      type: "vote",
+      targetId:
+        selectedPlayerId
+    });
+  };
+
+function animate() {
+
+  requestAnimationFrame(
+    animate
+  );
+
+  const delta =
+    Math.min(
+      clock.getDelta(),
+      0.05
+    );
+
+  const time =
+    performance.now();
+
+  move();
+
+  for (
+    const player
+    of players.values()
+  ) {
+
+    player.update(
+      null,
+      delta
+    );
+  }
+
+  world.update(
+    time
+  );
+
+  updateCamera();
+
+  renderer.render(
+    scene,
+    camera
   );
 }
 
+window.addEventListener(
+  "resize",
+  () => {
 
-/* =====================================================
-   START
-===================================================== */
+    camera.aspect =
+      innerWidth /
+      innerHeight;
 
-init3D();
+    camera.updateProjectionMatrix();
 
-connect();
+    renderer.setSize(
+      innerWidth,
+      innerHeight
+    );
+  }
+);
+
+animate();
 
 </script>
 
